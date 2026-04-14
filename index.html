@@ -42,157 +42,161 @@
       line-height: 1.7;
     }
 
-    .item:hover { text-decoration: underline; }
+    .item:hover {
+      text-decoration: underline;
+    }
+
+    #presence {
+      margin-top: 80px;
+      color: #999;
+      font-size: 12px;
+      line-height: 1.7;
+      text-transform: lowercase;
+    }
 
     @media (max-width: 480px) {
       body { padding: 32px 24px 64px; }
       .section { grid-template-columns: 1fr; gap: 4px; margin-bottom: 32px; }
       .label { color: #bbb; }
+      #presence { margin-top: 64px; }
     }
   </style>
 </head>
 <body>
 
-<h1>cristián heyne</h1>
-
+  <h1>cristián heyne</h1>
 
   <div class="section">
-  <span class="label">música</span>
-  <div>
-    <a href="https://www.instagram.com/shogu_n__/" class="item">shogún</a>
-    <a href="https://www.instagram.com/tormenta_tormenta/" class="item">tormenta</a>
-    <a href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" class="item">christianes</a>
+    <span class="label">música</span>
+    <div>
+      <a href="https://www.instagram.com/shogu_n__/" class="item">shogún</a>
+      <a href="https://www.instagram.com/tormenta_tormenta/" class="item">tormenta</a>
+      <a href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" class="item">christianes</a>
+    </div>
   </div>
-</div>
 
-<div class="section">
-  <span class="label">process</span>
-  <div>
-    <a href="https://processdata.cl/" class="item">processdata.cl</a>
+  <div class="section">
+    <span class="label">process</span>
+    <div>
+      <a href="https://processdata.cl/" class="item">processdata.cl</a>
+    </div>
   </div>
-</div>
 
-<div class="section">
-  <span class="label">ethereal</span>
-  <div>
-    <a href="https://www.etherealart.online/" class="item">etherealart.online</a>
+  <div class="section">
+    <span class="label">ethereal</span>
+    <div>
+      <a href="https://www.etherealart.online/" class="item">etherealart.online</a>
+    </div>
   </div>
-</div>
 
-<div class="section">
-  <span class="label">ónyx</span>
-  <div>
-    <a href="https://www.instagram.com/instalacion_onyx/" class="item">instagram</a>
+  <div class="section">
+    <span class="label">ónyx</span>
+    <div>
+      <a href="https://www.instagram.com/instalacion_onyx/" class="item">instagram</a>
+    </div>
   </div>
-</div>
 
-<div class="section">
-  <span class="label">producciones</span>
-  <div>
-    <a href="https://estudionegro.io/cms/" class="item">estudionegro</a>
+  <div class="section">
+    <span class="label">producciones</span>
+    <div>
+      <a href="https://estudionegro.io/cms/" class="item">estudionegro</a>
+    </div>
   </div>
-</div>
 
-<div class="section">
-  <span class="label">bio</span>
-  <div>
-    <a href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" class="item">wikipedia</a>
+  <div class="section">
+    <span class="label">bio</span>
+    <div>
+      <a href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" class="item">wikipedia</a>
+    </div>
   </div>
-</div>
 
-<div class="section">
-  <span class="label">contacto</span>
-  <div>
-    <a href="mailto:cristianheyne@gmail.com" class="item">email</a>
+  <div class="section">
+    <span class="label">contacto</span>
+    <div>
+      <a href="mailto:cristianheyne@gmail.com" class="item">email</a>
+    </div>
   </div>
-</div>
-<div id="presence" style="
-  margin-top: 80px;
-  color: #8f8f8f;
-  font-size: 13px;
-">
-  cargando...
-</div>
 
-<script>
-const el = document.getElementById("presence");
+  <div id="presence">cargando...</div>
 
-// -------- location ----------
-async function getLocation() {
-  try {
-    const res = await fetch("https://ipapi.co/json/");
-    const data = await res.json();
-    return (data.city || "algún lugar").toLowerCase();
-  } catch {
-    return "algún lugar";
-  }
-}
+  <script>
+    const el = document.getElementById("presence");
 
-// -------- time ----------
-function getTimeData() {
-  const now = new Date();
+    const KEY = "ch_xyz_visits";
+    let visits = parseInt(localStorage.getItem(KEY) || "0", 10) + 1;
+    localStorage.setItem(KEY, String(visits));
 
-  const time = now.toLocaleTimeString("es-CL", {
-    hour12: false
-  });
+    let city = "algún lugar";
+    let mode = "location";
 
-  const date = now.toLocaleDateString("es-CL");
+    function getTimeData() {
+      const now = new Date();
 
-  return { time, date };
-}
+      const time = now.toLocaleTimeString("es-CL", {
+        hour12: false
+      });
 
-// -------- visitor count (local) ----------
-const KEY = "ch_xyz_visits";
-let visits = parseInt(localStorage.getItem(KEY) || "0", 10) + 1;
-localStorage.setItem(KEY, visits);
+      const date = now.toLocaleDateString("es-CL");
 
-// -------- state ----------
-let city = "algún lugar";
-let mode = "location"; // location | visitor
+      return { time, date };
+    }
 
-// -------- render ----------
-function renderLocation() {
-  const { time, date } = getTimeData();
+    async function getLocation() {
+      try {
+        const res = await fetch("https://ipwho.is/");
+        const data = await res.json();
 
-  // pequeño fallo aleatorio
-  const fail = Math.random() < 0.15;
-  const displayCity = fail ? "algún lugar" : city;
+        if (data && data.success && data.city) {
+          return data.city.toLowerCase();
+        }
 
-  el.textContent = `usted está en ${displayCity} — ${time} — ${date}`;
-}
+        return "algún lugar";
+      } catch (err) {
+        return "algún lugar";
+      }
+    }
 
-function renderVisitor() {
-  el.textContent = `usted es el visitante ${visits}`;
-}
+    function renderLocation() {
+      const { time, date } = getTimeData();
+      const fail = Math.random() < 0.15;
+      const displayCity = fail ? "algún lugar" : city;
 
-// -------- loop ----------
-function tick() {
-  if (mode === "location") {
-    renderLocation();
-  }
-}
+      el.textContent = `usted está en ${displayCity} — ${time} — ${date}`;
+    }
 
-setInterval(tick, 1000);
+    function renderVisitor() {
+      el.textContent = `usted es el visitante ${visits}`;
+    }
 
-// cada 20–30 seg cambia de modo
-function switchMode() {
-  mode = "visitor";
-  renderVisitor();
+    function tick() {
+      if (mode === "location") {
+        renderLocation();
+      }
+    }
 
-  setTimeout(() => {
-    mode = "location";
-  }, 4000); // muestra visitante por 4 seg
-}
+    function scheduleVisitorMessage() {
+      const delay = 20000 + Math.random() * 10000;
 
-setInterval(() => {
-  switchMode();
-}, 20000 + Math.random() * 10000);
+      setTimeout(() => {
+        mode = "visitor";
+        renderVisitor();
 
-// -------- init ----------
-(async () => {
-  city = await getLocation();
-  renderLocation();
-})();
-</script>
+        setTimeout(() => {
+          mode = "location";
+          renderLocation();
+          scheduleVisitorMessage();
+        }, 4000);
+      }, delay);
+    }
+
+    (async function init() {
+      renderLocation();
+      city = await getLocation();
+      renderLocation();
+      setInterval(tick, 1000);
+      scheduleVisitorMessage();
+    })();
+  </script>
+
 </body>
 </html>
