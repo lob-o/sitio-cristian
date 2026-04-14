@@ -106,6 +106,93 @@
     <a href="mailto:cristianheyne@gmail.com" class="item">email</a>
   </div>
 </div>
+<div id="presence" style="
+  margin-top: 80px;
+  color: #8f8f8f;
+  font-size: 13px;
+">
+  cargando...
+</div>
 
+<script>
+const el = document.getElementById("presence");
+
+// -------- location ----------
+async function getLocation() {
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+    return (data.city || "algún lugar").toLowerCase();
+  } catch {
+    return "algún lugar";
+  }
+}
+
+// -------- time ----------
+function getTimeData() {
+  const now = new Date();
+
+  const time = now.toLocaleTimeString("es-CL", {
+    hour12: false
+  });
+
+  const date = now.toLocaleDateString("es-CL");
+
+  return { time, date };
+}
+
+// -------- visitor count (local) ----------
+const KEY = "ch_xyz_visits";
+let visits = parseInt(localStorage.getItem(KEY) || "0", 10) + 1;
+localStorage.setItem(KEY, visits);
+
+// -------- state ----------
+let city = "algún lugar";
+let mode = "location"; // location | visitor
+
+// -------- render ----------
+function renderLocation() {
+  const { time, date } = getTimeData();
+
+  // pequeño fallo aleatorio
+  const fail = Math.random() < 0.15;
+  const displayCity = fail ? "algún lugar" : city;
+
+  el.textContent = `usted está en ${displayCity} — ${time} — ${date}`;
+}
+
+function renderVisitor() {
+  el.textContent = `usted es el visitante ${visits}`;
+}
+
+// -------- loop ----------
+function tick() {
+  if (mode === "location") {
+    renderLocation();
+  }
+}
+
+setInterval(tick, 1000);
+
+// cada 20–30 seg cambia de modo
+function switchMode() {
+  mode = "visitor";
+  renderVisitor();
+
+  setTimeout(() => {
+    mode = "location";
+  }, 4000); // muestra visitante por 4 seg
+}
+
+setInterval(() => {
+  switchMode();
+}, 20000 + Math.random() * 10000);
+
+// -------- init ----------
+(async () => {
+  city = await getLocation();
+  renderLocation();
+})();
+</script>
 </body>
 </html>
