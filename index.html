@@ -54,6 +54,10 @@
       text-transform: lowercase;
     }
 
+    .small-time {
+      font-size: 10px;
+    }
+
     @media (max-width: 480px) {
       body { padding: 32px 24px 64px; }
       .section { grid-template-columns: 1fr; gap: 4px; margin-bottom: 32px; }
@@ -126,7 +130,7 @@
     let visits = parseInt(localStorage.getItem(KEY) || "0", 10) + 1;
     localStorage.setItem(KEY, String(visits));
 
-    let city = "algún lugar";
+    let city = "";
     let mode = "location";
 
     function getTimeData() {
@@ -150,22 +154,25 @@
           return data.city.toLowerCase();
         }
 
-        return "algún lugar";
+        return "";
       } catch (err) {
-        return "algún lugar";
+        return "";
       }
     }
 
     function renderLocation() {
       const { time, date } = getTimeData();
-      const fail = Math.random() < 0.15;
-      const displayCity = fail ? "_____" : city;
-
-      el.textContent = `usted está en ${displayCity} — ${time} — ${date}`;
+      const timeHtml = `<span class="small-time">${time} — ${date}</span>`;
+      
+      if (city) {
+        el.innerHTML = `${city} — ${timeHtml}`;
+      } else {
+        el.innerHTML = timeHtml;
+      }
     }
 
     function renderVisitor() {
-      el.textContent = `usted es el visitante ${visits}`;
+      el.innerHTML = `usted es el visitante ${visits}`;
     }
 
     function tick() {
