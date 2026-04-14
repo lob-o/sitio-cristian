@@ -159,7 +159,7 @@
     function renderLocation() {
       const { time, date } = getTimeData();
       const fail = Math.random() < 0.15;
-      const displayCity = fail ? "algún lugar" : city;
+      const displayCity = fail ? "_____" : city;
 
       el.textContent = `usted está en ${displayCity} — ${time} — ${date}`;
     }
