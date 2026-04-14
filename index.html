@@ -49,11 +49,11 @@
     #presence {
       margin-top: 80px;
       color: #999;
-      font-size: 12px;
       line-height: 1.7;
       text-transform: lowercase;
     }
 
+    /* Agregué esta clase para hacer todo ese bloque más pequeño */
     .small-time {
       font-size: 10px;
     }
@@ -133,24 +133,13 @@
     let city = "";
     let mode = "location";
 
-    function getTimeData() {
-      const now = new Date();
-
-      const time = now.toLocaleTimeString("es-CL", {
-        hour12: false
-      });
-
-      const date = now.toLocaleDateString("es-CL");
-
-      return { time, date };
-    }
-
     async function getLocation() {
       try {
-        const res = await fetch("https://ipwho.is/");
+        // Cambié la herramienta a geojs para evitar bloqueadores de anuncios
+        const res = await fetch("https://get.geojs.io/v1/ip/geo.json");
         const data = await res.json();
 
-        if (data && data.success && data.city) {
+        if (data && data.city) {
           return data.city.toLowerCase();
         }
 
@@ -161,18 +150,30 @@
     }
 
     function renderLocation() {
-      const { time, date } = getTimeData();
-      const timeHtml = `<span class="small-time">${time} — ${date}</span>`;
+      const now = new Date();
       
+      // Armamos la hora y fecha para unirlas con guión largo
+      const parts = [
+        String(now.getHours()).padStart(2, '0'),
+        String(now.getMinutes()).padStart(2, '0'),
+        String(now.getSeconds()).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0'),
+        String(now.getMonth() + 1).padStart(2, '0'), // Los meses empiezan en 0 en JS
+        now.getFullYear()
+      ];
+
+      const timeHtml = parts.join("—");
+
       if (city) {
-        el.innerHTML = `${city} — ${timeHtml}`;
+        // Todo junto: santiago—15—26—55—14—04—2026
+        el.innerHTML = `<span class="small-time">${city}—${timeHtml}</span>`;
       } else {
-        el.innerHTML = timeHtml;
+        el.innerHTML = `<span class="small-time">${timeHtml}</span>`;
       }
     }
 
     function renderVisitor() {
-      el.innerHTML = `usted es el visitante ${visits}`;
+      el.innerHTML = `<span class="small-time">usted es el visitante ${visits}</span>`;
     }
 
     function tick() {
