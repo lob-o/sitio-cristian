@@ -124,7 +124,7 @@
 
   <div id="presence">cargando...</div>
 
-  <script>
+ <script>
     const el = document.getElementById("presence");
 
     const KEY = "ch_xyz_visits";
@@ -150,10 +150,11 @@
       }
     }
 
+    // AQUÍ ESTÁ LA FUNCIÓN ACTUALIZADA
     function renderLocation() {
       const now = new Date();
       
-      // Armamos la hora y fecha para unirlas con guión largo
+      // Armamos la hora y fecha
       const parts = [
         String(now.getHours()).padStart(2, '0'),
         String(now.getMinutes()).padStart(2, '0'),
@@ -163,11 +164,12 @@
         now.getFullYear()
       ];
 
-      const timeHtml = parts.join("—");
+      // El espacio " " hace que se unan separados por espacios
+      const timeHtml = parts.join(" ");
 
       if (city) {
-        // Todo junto: santiago—15—26—55—14—04—2026
-        el.innerHTML = `<span class="small-time">${city}—${timeHtml}</span>`;
+        // Dejamos un espacio explícito entre la ciudad y los números
+        el.innerHTML = `<span class="small-time">${city} ${timeHtml}</span>`;
       } else {
         el.innerHTML = `<span class="small-time">${timeHtml}</span>`;
       }
@@ -206,6 +208,3 @@
       scheduleVisitorMessage();
     })();
   </script>
-
-</body>
-</html>
