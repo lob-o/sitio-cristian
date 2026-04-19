@@ -6,7 +6,7 @@
   <title>cristián heyne</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
     html, body {
       width: 100%; min-height: 100%;
       background: #fff;
@@ -14,14 +14,14 @@
       font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
- 
+
     main {
       min-height: 100vh;
       display: flex; flex-direction: column; justify-content: space-between;
       padding: clamp(40px,6vw,80px) clamp(32px,7vw,96px);
       max-width: 1000px;
     }
- 
+
     /* ── NAME ── */
     .name {
       font-size: 11px;
@@ -30,13 +30,13 @@
       text-transform: uppercase;
       opacity: 0; animation: up 0.4s ease forwards 0.05s;
     }
- 
+
     /* ── TABLE ── */
     .table {
       margin-top: clamp(40px,7vh,72px);
       width: 100%;
     }
- 
+
     /* group = one category block */
     .group {
       display: grid;
@@ -44,7 +44,7 @@
       border-top: 2px solid #000;
       opacity: 0; animation: up 0.35s ease forwards;
     }
- 
+
     .group:nth-child(1) { animation-delay: 0.10s; }
     .group:nth-child(2) { animation-delay: 0.17s; }
     .group:nth-child(3) { animation-delay: 0.24s; }
@@ -52,16 +52,16 @@
     .group:nth-child(5) { animation-delay: 0.38s; }
     .group:nth-child(6) { animation-delay: 0.45s; }
     .group:nth-child(7) { animation-delay: 0.52s; }
- 
+
     /* last group gets border-bottom too */
     .table { border-bottom: 2px solid #000; }
- 
+
     /* left col: category label — small, uppercase, fixed top */
     .cat-col {
       padding: 16px 24px 16px 0;
       border-right: 2px solid #000;
     }
- 
+
     .cat-label {
       font-size: 10px;
       font-weight: 700;
@@ -72,13 +72,13 @@
       display: block;
       margin-top: 4px; /* optical align with first item */
     }
- 
+
     /* right col: items stacked */
     .items-col {
       display: flex;
       flex-direction: column;
     }
- 
+
     .item {
       display: flex;
       align-items: center;
@@ -89,13 +89,13 @@
       transition: background 0.08s;
       cursor: pointer;
     }
- 
+
     /* remove border from last item in group */
     .item:last-child { border-bottom: none; }
- 
+
     .item:hover { background: #000; }
     .item:hover .item-name { color: #fff; }
- 
+
     .item-name {
       font-size: clamp(18px, 2.4vw, 24px);
       font-weight: 700;
@@ -104,7 +104,7 @@
       transition: color 0.08s;
       line-height: 1;
     }
- 
+
     /* ── FOOTER ── */
     footer {
       margin-top: clamp(36px,6vh,64px);
@@ -115,7 +115,7 @@
       gap: 12px;
       opacity: 0; animation: up 0.4s ease forwards 0.65s;
     }
- 
+
     .visitor {
       font-size: 10px;
       font-weight: 700;
@@ -124,7 +124,7 @@
       color: rgba(0,0,0,0.35);
     }
     .visitor strong { color: #000; }
- 
+
     .meta {
       font-size: 10px;
       font-weight: 700;
@@ -135,12 +135,12 @@
       text-transform: uppercase;
     }
     .meta span { color: rgba(0,0,0,0.5); }
- 
+
     @keyframes up {
       from { opacity:0; transform:translateY(6px); }
       to   { opacity:1; transform:translateY(0); }
     }
- 
+
     @media (max-width: 520px) {
       .group { grid-template-columns: 90px 1fr; }
       .cat-col { padding-right: 16px; }
@@ -152,12 +152,12 @@
 </head>
 <body>
 <main>
- 
+
   <div>
     <div class="name">cristián heyne</div>
- 
+
     <div class="table">
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">música</span></div>
         <div class="items-col">
@@ -172,7 +172,7 @@
           </a>
         </div>
       </div>
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">process</span></div>
         <div class="items-col">
@@ -181,7 +181,7 @@
           </a>
         </div>
       </div>
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">ethereal</span></div>
         <div class="items-col">
@@ -190,7 +190,7 @@
           </a>
         </div>
       </div>
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">ónyx</span></div>
         <div class="items-col">
@@ -199,7 +199,7 @@
           </a>
         </div>
       </div>
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">producciones</span></div>
         <div class="items-col">
@@ -211,7 +211,7 @@
           </a>
         </div>
       </div>
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">bio</span></div>
         <div class="items-col">
@@ -220,7 +220,7 @@
           </a>
         </div>
       </div>
- 
+
       <div class="group">
         <div class="cat-col"><span class="cat-label">contacto</span></div>
         <div class="items-col">
@@ -229,10 +229,10 @@
           </a>
         </div>
       </div>
- 
+
     </div>
   </div>
- 
+
   <footer>
     <div class="visitor">visitante <strong id="visitor-num">——</strong></div>
     <div class="meta">
@@ -240,13 +240,13 @@
       <span id="meta-loc">···</span>&nbsp;·&nbsp;<span id="meta-date">···</span>&nbsp;·&nbsp;<span id="meta-time">--:--:--</span>
     </div>
   </footer>
- 
+
 </main>
 <script>
   function pad(n) { return String(n).padStart(2,'0'); }
   const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
   const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
- 
+
   function tick() {
     const sgo = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Santiago'}));
     document.getElementById('meta-time').textContent =
@@ -255,27 +255,28 @@
       DAYS[sgo.getDay()]+' '+pad(sgo.getDate())+' '+MONTHS[sgo.getMonth()]+' '+sgo.getFullYear();
   }
   tick(); setInterval(tick, 1000);
- 
+
+  // Geo — ipapi.co: HTTPS, no key, no signup
   async function geo() {
     try {
-      const d = await (await fetch('https://ip-api.com/json/?fields=status,city,countryCode,query')).json();
-      if (d.status === 'success') {
-        document.getElementById('meta-loc').textContent = (d.city||'')+(d.countryCode?', '+d.countryCode:'');
-        document.getElementById('meta-ip').textContent  = d.query||'';
+      const d = await (await fetch('https://ipapi.co/json/')).json();
+      if (d && d.city) {
+        document.getElementById('meta-loc').textContent = (d.city||'') + (d.country_code ? ', ' + d.country_code : '');
+        document.getElementById('meta-ip').textContent  = d.ip || '';
       }
     } catch(_) {}
   }
- 
+
+  // Counter — countapi.mileshilliard.com: free countapi.xyz replacement, HTTPS
   async function counter() {
     try {
-      const d = await (await fetch('https://api.countapi.xyz/hit/cristianheyne.xyz/visits')).json();
+      const d = await (await fetch('https://countapi.mileshilliard.com/api/v1/hit/cristianheyne-xyz')).json();
       if (d && d.value != null)
-        document.getElementById('visitor-num').textContent = d.value.toLocaleString('es-CL');
+        document.getElementById('visitor-num').textContent = Number(d.value).toLocaleString('es-CL');
     } catch(_) {}
   }
- 
+
   geo(); counter();
 </script>
 </body>
 </html>
- 
