@@ -1,210 +1,654 @@
+
+Captura de pantalla 2026-04-18 a las 10.29.50 p. m..png
+dame opciones de diseño con un poco más de gracia/movimiento/modenridad 2027
+muestrame mockups
+luego elegimos uno 
+y AHÍ ME DAS el código
+
+22:31
+
+Ideó tres diseños modernos 2027 con mockups interactivos para elegir
+Ideó tres diseños modernos 2027 con mockups interactivos para elegir
+Aquí van 3 propuestas de diseño, cada una con una dirección estética completamente distinta:
+
+
+
+Tres direcciones bien distintas:
+
+A — Magnetic: negro profundo, tipografía Syne bold gigante, acento verde neón. Las filas aparecen con hover effects y el nombre domina. Energía de artista visual contemporáneo.
+
+B — Stratum: off-white cálido, Cormorant Garamond en itálica, escala editorial. Siente como un portfolio europeo de alta cultura. Elegante y atemporal.
+
+C — Ghost: negro casi puro, monospace, cursor parpadeante, teal frío. Terminal/hacker aesthetic pero refinado. Muy 2026–2027 en la escena de música electrónica y net art.
+
+Elige una y te doy el HTML/CSS completo con todas las animaciones, hovers y el código listo para deployar.
+
+Quiero la opción C: Ghost
+
+22:32
+
+Archivo visualizado, creó un archivo, archivo leído
+Archivo visualizado, creó un archivo, archivo leído
+Aquí está tu index.html listo. Lo que incluye:
+
+Efectos y movimiento
+
+Cursor personalizado (bloque teal que reemplaza el cursor del sistema)
+Scanlines sutiles sobre toda la pantalla
+Viñeta en los bordes
+Glitch periódico en el nombre (cada ~6s)
+Línea animada que escanea el divisor de izquierda a derecha
+Entradas escalonadas: cada fila aparece con un leve slide-in
+Interacción
+
+Al hacer hover en cada fila → fondo teal ghost + barra lateral izquierda + texto blanco
+Reloj en vivo con hora de Santiago en el footer
+Lo que falta completar
+
+Los href="#" de tormenta, christianes, portafolio, estudionegro y wiki — reemplázalos con las URLs reales cuando las tengas
+Solo sube el archivo a tu servidor y listo. Un solo index.html, sin dependencias locales.
+
+
+Index
+Código · HTML 
+modifica los links en fiuncion de los que salen aqui:
+https://cristianheyne.xyz/
+
+revisa el sitio para eso
+
+por otro lado 
+fijate en que abajo sale el lugar desde donde está conectado el usuario, así como la hora y fecha
+
+tb debería decir: usted es el visitante X
+e indicar el numero de visitante
+
+22:36
+
+Orchestrated visitor tracking, geolocation, and counter integration seamlessly
+Orchestrated visitor tracking, geolocation, and counter integration seamlessly
+Tengo todos los links. Ahora actualizo el archivo con los URLs reales, detección de ubicación del visitante vía IP, y contador de visitas con una API gratuita.
+
+
+Se crearon 2 archivos, ejecutó un comando, archivo leído
+Se crearon 2 archivos, ejecutó un comando, archivo leído
+Listo. Lo que se actualizó:
+
+Links reales desde el sitio:
+
+shogun → instagram.com/shogu_n__/
+tormenta → instagram.com/tormenta_tormenta/
+christianes → Spotify
+processdata.cl, etherealart.online, ónyx/instagram → igual que antes
+portafolio → Notion
+estudionegro → estudionegro.io/cms/
+bio → Wikipedia
+contacto → tu email
+Footer dinámico — tres fuentes de datos:
+
+ip-api.com — detecta ciudad, país, IP y offset UTC del visitante en tiempo real (gratis, sin clave)
+countapi.xyz — contador persistente global: cada visita incrementa el número y muestra "usted es el visitante #N" (gratis, sin backend)
+Reloj — hora y fecha en tiempo real con zona horaria America/Santiago
+Una sola nota: countapi.xyz es un servicio público gratuito — si en algún momento quisieras más control (reiniciar el contador, ver estadísticas, etc.), la alternativa sería un backend propio o usar Supabase. Por ahora funciona perfecto para deploys estáticos.
+
+
+Index
+Código · HTML 
+y con letras en rojo y blanco?
+
+22:39
+
+Reformuló esquema cromático a rojo y blanco
+Reformuló esquema cromático a rojo y blanco
+Todo limpio — todos los valores apuntan a var(--teal) que ahora es 
+#ff2d2d, y el texto base a 
+#ffffff.
+
+
+Presented file
+Presented file
+Mismo archivo, misma funcionalidad — solo el color cambió: rojo 
+#ff2d2d donde era teal, y blanco puro 
+#ffffff para el texto. El cursor, el glitch, el scanner y el badge del visitante heredan todo el rojo automáticamente.
+
+
+Index
+Código · HTML 
+no quiero que diga musico productor
+
+22:40
+
+Identificó solicitud para eliminar tagline profesional
+Identificó solicitud para eliminar tagline profesional
+Listo, eliminado.
+
+
+Index
+Código · HTML 
+
+
+
+
+Claude es IA y puede cometer errores. Por favor, verifica nuevamente las respuestas.
+Index · HTML
+Copiar
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>cristianheyne</title>
+  <title>cristián heyne</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 12px;
-      line-height: 1.7;
-      color: #000;
-      background: #fff;
-      padding: 44px 48px 80px;
-      max-width: 600px;
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-
-    h1 {
-      font-size: 12px;
-      font-weight: 400;
-      margin-bottom: 56px;
+ 
+    :root {
+      --teal: #ff2d2d;
+      --teal-dim: rgba(255, 45, 45, 0.45);
+      --teal-ghost: rgba(255, 45, 45, 0.08);
+      --bg: #0d0f14;
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.45);
+      --text-ghost: rgba(255, 255, 255, 0.22);
     }
-
-    .section {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      margin-bottom: 28px;
-      align-items: start;
+ 
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
     }
-
-    .label {
-      color: #999;
-      padding-top: 1px;
+ 
+    /* ── Custom cursor ── */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 8px; height: 16px;
+      background: var(--teal);
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+      transform: translate(-1px, -2px);
+      transition: opacity 0.2s;
     }
-
-    .item {
-      display: block;
-      color: #000;
-      text-decoration: none;
-      line-height: 1.7;
+ 
+    /* ── Scanlines ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent, transparent 2px,
+        rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
     }
-
-    .item:hover {
-      text-decoration: underline;
+ 
+    /* ── Vignette ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.6) 100%);
+      pointer-events: none;
+      z-index: 999;
     }
-
-    #presence {
-      margin-top: 60px;
-      color: #999;
-      line-height: 1.7;
-      text-transform: lowercase;
+ 
+    /* ── Layout ── */
+    main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(36px, 6vw, 72px) clamp(28px, 7vw, 88px);
+      max-width: 880px;
     }
-
-    /* Agregué esta clase para hacer todo ese bloque más pequeño */
-    .small-time {
+ 
+    /* ── Header ── */
+    header { margin-bottom: clamp(36px, 6vh, 64px); }
+ 
+    .prompt-line {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+      opacity: 0;
+      animation: fade-in 0.4s ease forwards 0.1s;
+    }
+ 
+    .prompt-sym {
+      color: var(--teal-dim);
+      margin-right: 10px;
+      user-select: none;
+    }
+ 
+    .site-title {
+      color: var(--teal);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      position: relative;
+    }
+ 
+    .site-title::after {
+      content: 'cristián heyne';
+      position: absolute;
+      left: 0; top: 0;
+      color: var(--teal);
+      animation: glitch 7s step-end infinite 3s;
+      pointer-events: none;
+    }
+ 
+    @keyframes glitch {
+      0%,93%,100% { clip-path: inset(100% 0 0 0); transform: none; opacity: 0; }
+      94% { clip-path: inset(15% 0 65% 0); transform: translateX(-4px); opacity: 1; }
+      95% { clip-path: inset(60% 0 10% 0); transform: translateX(4px); opacity: 1; }
+      96% { clip-path: inset(40% 0 35% 0); transform: translateX(-2px); opacity: 1; }
+      97% { clip-path: inset(0 0 0 0); opacity: 0; }
+    }
+ 
+    .blink-cursor {
+      display: inline-block;
+      width: 8px; height: 13px;
+      background: var(--teal);
+      margin-left: 3px;
+      vertical-align: middle;
+      animation: blink 1.1s step-end infinite;
+    }
+ 
+    @keyframes blink { 50% { opacity: 0; } }
+ 
+    .tagline {
       font-size: 10px;
+      color: var(--text-ghost);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding-left: 23px;
+      opacity: 0;
+      animation: fade-in 0.4s ease forwards 0.5s;
     }
-
-    @media (max-width: 480px) {
-      body { padding: 32px 24px 64px; }
-      .section { grid-template-columns: 1fr; gap: 4px; margin-bottom: 32px; }
-      .label { color: #bbb; }
-      #presence { margin-top: 44px; }
+ 
+    /* ── Divider ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,45,45,0.1);
+      margin: 4px 0;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fade-in 0.4s ease forwards 0.5s;
+    }
+ 
+    .divider::after {
+      content: '';
+      position: absolute;
+      left: -40%; top: 0;
+      width: 40%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal), transparent);
+      animation: scan 4s ease-in-out infinite 2s;
+    }
+ 
+    @keyframes scan { 0% { left: -40%; } 100% { left: 140%; } }
+ 
+    /* ── Table header ── */
+    .col-header {
+      display: grid;
+      grid-template-columns: 28px 130px 1fr;
+      gap: 0 20px;
+      padding: 0 0 8px;
+      border-bottom: 1px solid rgba(255,45,45,0.1);
+      margin-bottom: 4px;
+      opacity: 0;
+      animation: fade-in 0.4s ease forwards 0.5s;
+    }
+ 
+    .col-header span {
+      font-size: 9px;
+      color: var(--teal-dim);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+ 
+    /* ── Rows ── */
+    .row {
+      display: grid;
+      grid-template-columns: 28px 130px 1fr;
+      gap: 0 20px;
+      padding: 10px 12px;
+      margin: 0 -12px;
+      border-radius: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s ease;
+      opacity: 0;
+      animation: slide-in 0.35s ease forwards;
+      position: relative;
+    }
+ 
+    .row:hover { background: rgba(255,45,45,0.04); }
+    .row:hover .row-idx { color: var(--teal); }
+    .row:hover .row-key { color: rgba(255,45,45,0.6); }
+    .row:hover .row-val { color: #fff; }
+ 
+    .row:hover::before {
+      content: '';
+      position: absolute;
+      left: -12px; top: 15%; bottom: 15%;
+      width: 2px;
+      background: var(--teal);
+      border-radius: 0 1px 1px 0;
+    }
+ 
+    .row-idx {
+      font-size: 10px;
+      color: var(--text-ghost);
+      padding-top: 1px;
+      transition: color 0.15s;
+      user-select: none;
+    }
+ 
+    .row-key {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.03em;
+      transition: color 0.15s;
+    }
+ 
+    .row-val {
+      font-size: 12px;
+      color: var(--text);
+      transition: color 0.15s;
+    }
+ 
+    .row-val .hi  { color: var(--teal); }
+    .row-val .sep { color: var(--text-ghost); margin: 0 6px; }
+ 
+    /* Stagger */
+    .row:nth-child(1)  { animation-delay: 0.60s; }
+    .row:nth-child(2)  { animation-delay: 0.70s; }
+    .row:nth-child(3)  { animation-delay: 0.80s; }
+    .row:nth-child(4)  { animation-delay: 0.90s; }
+    .row:nth-child(5)  { animation-delay: 1.00s; }
+    .row:nth-child(6)  { animation-delay: 1.10s; }
+    .row:nth-child(7)  { animation-delay: 1.20s; }
+    .row:nth-child(8)  { animation-delay: 1.30s; }
+    .row:nth-child(9)  { animation-delay: 1.40s; }
+    .row:nth-child(10) { animation-delay: 1.50s; }
+ 
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+ 
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+ 
+    /* ── Footer ── */
+    footer {
+      margin-top: clamp(40px, 7vh, 68px);
+      opacity: 0;
+      animation: fade-in 0.5s ease forwards 1.7s;
+    }
+ 
+    .footer-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+ 
+    .footer-bar {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,45,45,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+ 
+    .footer-bar::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0;
+      width: 28%; height: 1px;
+      background: var(--teal);
+      opacity: 0.65;
+    }
+ 
+    .visitor-badge {
+      font-size: 9px;
+      color: var(--teal);
+      letter-spacing: 0.1em;
+      border: 1px solid rgba(255,45,45,0.22);
+      padding: 3px 10px;
+      border-radius: 2px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+ 
+    .footer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+ 
+    .meta-item {
+      font-size: 9px;
+      color: var(--text-ghost);
+      letter-spacing: 0.09em;
+      white-space: nowrap;
+    }
+ 
+    .meta-item .val { color: rgba(255,45,45,0.3); }
+ 
+    .meta-sep {
+      font-size: 9px;
+      color: rgba(255,45,45,0.1);
+      margin: 0 10px;
+    }
+ 
+    /* ── Mobile ── */
+    @media (max-width: 580px) {
+      html, body { cursor: auto; }
+      #cursor { display: none; }
+      .col-header,
+      .row { grid-template-columns: 20px 94px 1fr; gap: 0 10px; }
+      .footer-meta { gap: 2px 0; }
     }
   </style>
 </head>
 <body>
-
-  <h1>cristián heyne</h1>
-
-  <div class="section">
-    <span class="label">música</span>
+ 
+  <div id="cursor"></div>
+ 
+  <main>
     <div>
-      <a href="https://www.instagram.com/shogu_n__/" class="item">shogun</a>
-      <a href="https://www.instagram.com/tormenta_tormenta/" class="item">tormenta</a>
-      <a href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" class="item">christianes</a>
+      <header>
+        <div class="prompt-line">
+          <span class="prompt-sym">~/</span>
+          <span class="site-title">cristián heyne</span>
+          <span class="blink-cursor"></span>
+        </div>
+ 
+      </header>
+ 
+      <div class="divider"></div>
+ 
+      <div class="col-header">
+        <span>#</span>
+        <span>categoría</span>
+        <span>enlace</span>
+      </div>
+ 
+      <nav>
+ 
+        <a class="row" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener">
+          <span class="row-idx">01</span>
+          <span class="row-key">música</span>
+          <span class="row-val"><span class="hi">shogun</span></span>
+        </a>
+ 
+        <a class="row" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener">
+          <span class="row-idx">02</span>
+          <span class="row-key"></span>
+          <span class="row-val">tormenta</span>
+        </a>
+ 
+        <a class="row" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener">
+          <span class="row-idx">03</span>
+          <span class="row-key"></span>
+          <span class="row-val">christianes</span>
+        </a>
+ 
+        <a class="row" href="https://processdata.cl/" target="_blank" rel="noopener">
+          <span class="row-idx">04</span>
+          <span class="row-key">process</span>
+          <span class="row-val"><span class="hi">processdata.cl</span></span>
+        </a>
+ 
+        <a class="row" href="https://www.etherealart.online/" target="_blank" rel="noopener">
+          <span class="row-idx">05</span>
+          <span class="row-key">ethereal</span>
+          <span class="row-val">etherealart.online</span>
+        </a>
+ 
+        <a class="row" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener">
+          <span class="row-idx">06</span>
+          <span class="row-key">ónyx</span>
+          <span class="row-val"><span class="hi">instagram</span><span class="sep">·</span>instalacion_onyx</span>
+        </a>
+ 
+        <a class="row" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener">
+          <span class="row-idx">07</span>
+          <span class="row-key">producciones</span>
+          <span class="row-val">portafolio</span>
+        </a>
+ 
+        <a class="row" href="https://estudionegro.io/cms/" target="_blank" rel="noopener">
+          <span class="row-idx">08</span>
+          <span class="row-key"></span>
+          <span class="row-val">estudionegro</span>
+        </a>
+ 
+        <a class="row" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener">
+          <span class="row-idx">09</span>
+          <span class="row-key">bio</span>
+          <span class="row-val">wiki</span>
+        </a>
+ 
+        <a class="row" href="mailto:cristianheyne@gmail.com">
+          <span class="row-idx">10</span>
+          <span class="row-key">contacto</span>
+          <span class="row-val"><span class="hi">email</span></span>
+        </a>
+ 
+      </nav>
     </div>
-  </div>
-
-  <div class="section">
-    <span class="label">process</span>
-    <div>
-      <a href="https://processdata.cl/" class="item">processdata.cl</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <span class="label">ethereal</span>
-    <div>
-      <a href="https://www.etherealart.online/" class="item">etherealart.online</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <span class="label">ónyx</span>
-    <div>
-      <a href="https://www.instagram.com/instalacion_onyx/" class="item">instagram</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <span class="label">producciones</span>
-    <div>
-      <a href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636&source=copy_link" class="item">portafolio</a>
-      <a href="https://estudionegro.io/cms/" class="item">estudionegro</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <span class="label">bio</span>
-    <div>
-      <a href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" class="item">wiki</a>
-    </div>
-  </div>
-
-  <div class="section">
-    <span class="label">contacto</span>
-    <div>
-      <a href="mailto:cristianheyne@gmail.com" class="item">email</a>
-    </div>
-  </div>
-
-  <div id="presence">cargando...</div>
-
- <script>
-    const el = document.getElementById("presence");
-
-    const KEY = "ch_xyz_visits";
-    let visits = parseInt(localStorage.getItem(KEY) || "0", 10) + 1;
-    localStorage.setItem(KEY, String(visits));
-
-    let city = "";
-    let mode = "location";
-
-    async function getLocation() {
+ 
+    <footer>
+      <div class="footer-top">
+        <div class="footer-bar"></div>
+        <div class="visitor-badge" id="visitor-badge">
+          usted es el visitante&nbsp;<span id="visitor-num">···</span>
+        </div>
+      </div>
+      <div class="footer-meta">
+        <span class="meta-item">loc:&thinsp;<span class="val" id="meta-loc">···</span></span>
+        <span class="meta-sep">·</span>
+        <span class="meta-item">ip:&thinsp;<span class="val" id="meta-ip">···</span></span>
+        <span class="meta-sep">·</span>
+        <span class="meta-item">utc:&thinsp;<span class="val" id="meta-utc">···</span></span>
+        <span class="meta-sep">·</span>
+        <span class="meta-item"><span class="val" id="meta-date">···</span></span>
+        <span class="meta-sep">·</span>
+        <span class="meta-item"><span class="val" id="meta-time">--:--:--</span></span>
+      </div>
+    </footer>
+  </main>
+ 
+  <script>
+    /* ── Cursor ── */
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
+    document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
+ 
+    /* ── Clock (Santiago) ── */
+    function pad(n) { return String(n).padStart(2, '0'); }
+ 
+    const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
+    const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+ 
+    function updateClock() {
+      const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
+      document.getElementById('meta-time').textContent =
+        pad(sgo.getHours()) + ':' + pad(sgo.getMinutes()) + ':' + pad(sgo.getSeconds());
+      document.getElementById('meta-date').textContent =
+        DAYS[sgo.getDay()] + ' ' + pad(sgo.getDate()) + ' ' + MONTHS[sgo.getMonth()] + ' ' + sgo.getFullYear();
+    }
+ 
+    updateClock();
+    setInterval(updateClock, 1000);
+ 
+    /* ── Geo + IP via ip-api.com (free, no key) ── */
+    async function fetchGeo() {
       try {
-        // Cambié la herramienta a geojs para evitar bloqueadores de anuncios
-        const res = await fetch("https://get.geojs.io/v1/ip/geo.json");
-        const data = await res.json();
-
-        if (data && data.city) {
-          return data.city.toLowerCase();
+        const r = await fetch('https://ip-api.com/json/?fields=status,city,country,countryCode,query,offset');
+        const d = await r.json();
+        if (d.status === 'success') {
+          document.getElementById('meta-loc').textContent =
+            (d.city || '···') + (d.countryCode ? ', ' + d.countryCode : '');
+          document.getElementById('meta-ip').textContent = d.query || '···';
+          if (d.offset != null) {
+            const h = d.offset / 3600;
+            document.getElementById('meta-utc').textContent = 'utc' + (h >= 0 ? '+' : '') + h;
+          }
         }
-
-        return "";
-      } catch (err) {
-        return "";
+      } catch (_) {
+        document.getElementById('meta-loc').textContent = 'desconocido';
       }
     }
-
-    // AQUÍ ESTÁ LA FUNCIÓN ACTUALIZADA
-    function renderLocation() {
-      const now = new Date();
-      
-      // Armamos la hora y fecha
-      const parts = [
-        String(now.getHours()).padStart(2, '0'),
-        String(now.getMinutes()).padStart(2, '0'),
-        String(now.getSeconds()).padStart(2, '0'),
-        String(now.getDate()).padStart(2, '0'),
-        String(now.getMonth() + 1).padStart(2, '0'), // Los meses empiezan en 0 en JS
-        now.getFullYear()
-      ];
-
-      // El espacio " " hace que se unan separados por espacios
-      const timeHtml = parts.join(" ");
-
-      if (city) {
-        // Dejamos un espacio explícito entre la ciudad y los números
-        el.innerHTML = `<span class="small-time">${city} ${timeHtml}</span>`;
-      } else {
-        el.innerHTML = `<span class="small-time">${timeHtml}</span>`;
+ 
+    /* ── Visitor counter via countapi.xyz (free, no key) ── */
+    async function fetchCounter() {
+      try {
+        // "hit" increments and returns the new value
+        const r = await fetch('https://api.countapi.xyz/hit/cristianheyne.xyz/visits');
+        const d = await r.json();
+        if (d && d.value != null) {
+          document.getElementById('visitor-num').textContent =
+            '#\u2009' + d.value.toLocaleString('es-CL');
+          const badge = document.getElementById('visitor-badge');
+          badge.style.opacity = '1';
+        }
+      } catch (_) {
+        document.getElementById('visitor-badge').style.opacity = '0.35';
+        document.getElementById('visitor-num').textContent = '···';
       }
     }
-
-    function renderVisitor() {
-      el.innerHTML = `<span class="small-time">usted es el visitante ${visits}</span>`;
-    }
-
-    function tick() {
-      if (mode === "location") {
-        renderLocation();
-      }
-    }
-
-    function scheduleVisitorMessage() {
-      const delay = 20000 + Math.random() * 10000;
-
-      setTimeout(() => {
-        mode = "visitor";
-        renderVisitor();
-
-        setTimeout(() => {
-          mode = "location";
-          renderLocation();
-          scheduleVisitorMessage();
-        }, 4000);
-      }, delay);
-    }
-
-    (async function init() {
-      renderLocation();
-      city = await getLocation();
-      renderLocation();
-      setInterval(tick, 1000);
-      scheduleVisitorMessage();
-    })();
+ 
+    fetchGeo();
+    fetchCounter();
   </script>
+ 
+</body>
+</html>
+ 
