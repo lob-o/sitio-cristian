@@ -6,10 +6,10 @@
   <title>cristián heyne</title>
   <style>
     :root {
-      --bg: #fdfdfd;
-      --fg: #000;
-      --accent: #e63946; /* Rojo Bauhaus */
-      --border: rgba(0,0,0,0.08);
+      --bg: #ffffff;
+      --fg: #000000;
+      --accent: #e63946; 
+      --soft: rgba(0,0,0,0.4);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,15 +17,14 @@
     body {
       background: var(--bg);
       color: var(--fg);
-      font-family: "Inter", "Helvetica Neue", Helvetica, sans-serif;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
-      line-height: 1.5;
-      overflow-x: hidden;
+      line-height: 1.4;
     }
 
     main {
-      padding: clamp(2rem, 8vw, 6rem);
-      max-width: 1400px;
+      padding: clamp(2rem, 8vw, 5rem);
+      max-width: 1100px;
       margin: 0 auto;
       min-height: 100vh;
       display: flex;
@@ -34,42 +33,40 @@
 
     /* ── HEADER ── */
     header {
-      margin-bottom: clamp(4rem, 15vh, 10rem);
+      margin-bottom: clamp(3rem, 10vh, 6rem);
     }
 
     .name {
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      text-transform: lowercase;
-      position: relative;
-      display: inline-block;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .name::after {
       content: "";
-      position: absolute;
-      right: -15px;
-      top: 50%;
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       background: var(--accent);
-      border-radius: 50%;
+      display: inline-block;
     }
 
     /* ── GRID SYSTEM ── */
     .table {
       display: flex;
       flex-direction: column;
-      gap: 0;
     }
 
     .group {
       display: grid;
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: 180px 1fr;
       border-top: 1px solid var(--fg);
-      padding: 1.5rem 0;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 1.2rem 0;
+      opacity: 0;
+      animation: reveal 0.6s ease forwards;
     }
 
     .group:last-child {
@@ -77,114 +74,89 @@
     }
 
     .cat-label {
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 10px;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.2em;
-      color: #888;
+      color: var(--soft);
+      padding-top: 8px;
     }
 
     .items-col {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.3rem;
     }
 
     .item {
       text-decoration: none;
       color: var(--fg);
       display: inline-flex;
-      align-items: baseline;
       width: fit-content;
-      position: relative;
-      transition: transform 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     .item-name {
-      font-size: clamp(1.5rem, 4vw, 2.8rem);
+      font-size: clamp(1.4rem, 3.5vw, 2.4rem);
       font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
+      letter-spacing: -0.02em;
       position: relative;
     }
 
-    /* Hover Effect: Estilo Zen-Bauhaus */
-    .item::before {
-      content: "→";
-      position: absolute;
-      left: -30px;
-      opacity: 0;
-      transition: all 0.3s ease;
-      font-size: 1.2rem;
-      color: var(--accent);
-    }
-
+    /* Hover: Bauhaus/Minimalist interaction */
     .item:hover {
-      transform: translateX(35px);
-    }
-
-    .item:hover::before {
-      opacity: 1;
-    }
-
-    .item:hover .item-name {
       color: var(--accent);
+      transform: translateX(15px);
     }
 
     /* ── FOOTER ── */
     footer {
       margin-top: auto;
-      padding-top: 4rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      padding-top: 5rem;
+      display: flex;
+      justify-content: space-between;
       align-items: flex-end;
     }
 
     .visitor-box {
       font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
+      font-weight: 700;
     }
 
     .visitor-num {
       display: block;
-      font-size: 24px;
-      font-weight: 900;
-      margin-top: 5px;
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 4px;
+      letter-spacing: -0.02em;
     }
 
     .meta {
       font-size: 10px;
       text-align: right;
-      font-weight: 500;
-      line-height: 1.6;
+      font-weight: 600;
+      line-height: 1.8;
       text-transform: uppercase;
-      opacity: 0.5;
+      color: var(--soft);
+    }
+
+    .meta strong { color: var(--fg); }
+
+    /* Keyframes */
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Mobile */
-    @media (max-width: 768px) {
-      .group {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      .item:hover {
-        transform: none;
-      }
-      footer {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-      }
+    @media (max-width: 600px) {
+      .group { grid-template-columns: 1fr; gap: 0.5rem; }
+      .cat-label { padding-bottom: 0.5rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem; width: 100%; }
+      footer { flex-direction: column; align-items: flex-start; gap: 2rem; }
       .meta { text-align: left; }
-    }
-
-    /* Animación de entrada */
-    .group {
-      animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    @keyframes reveal {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      .item:hover { transform: translateX(8px); }
     }
   </style>
 </head>
@@ -195,74 +167,103 @@
     <div class="name">cristián heyne</div>
   </header>
 
-  <section class="table">
+  <div class="table">
     <div class="group" style="animation-delay: 0.1s">
       <div class="cat-col"><span class="cat-label">música</span></div>
       <div class="items-col">
-        <a class="item" href="#"><span class="item-name">shogun</span></a>
-        <a class="item" href="#"><span class="item-name">tormenta</span></a>
-        <a class="item" href="#"><span class="item-name">christianes</span></a>
+        <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener"><span class="item-name">shogun</span></a>
+        <a class="item" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener"><span class="item-name">tormenta</span></a>
+        <a class="item" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener"><span class="item-name">christianes</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay: 0.2s">
-      <div class="cat-col"><span class="cat-label">data</span></div>
+      <div class="cat-col"><span class="cat-label">process</span></div>
       <div class="items-col">
-        <a class="item" href="#"><span class="item-name">processdata.cl</span></a>
+        <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay: 0.3s">
-      <div class="cat-col"><span class="cat-label">art</span></div>
+      <div class="cat-col"><span class="cat-label">ethereal</span></div>
       <div class="items-col">
-        <a class="item" href="#"><span class="item-name">etherealart.online</span></a>
-        <a class="item" href="#"><span class="item-name">ónyx</span></a>
+        <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">etherealart.online</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay: 0.4s">
-      <div class="cat-col"><span class="cat-label">estudio</span></div>
+      <div class="cat-col"><span class="cat-label">ónyx</span></div>
       <div class="items-col">
-        <a class="item" href="#"><span class="item-name">portafolio</span></a>
-        <a class="item" href="#"><span class="item-name">estudionegro</span></a>
+        <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener"><span class="item-name">instagram</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay: 0.5s">
-      <div class="cat-col"><span class="cat-label">info</span></div>
+      <div class="cat-col"><span class="cat-label">producciones</span></div>
       <div class="items-col">
-        <a class="item" href="#"><span class="item-name">wikipedia</span></a>
-        <a class="item" href="#"><span class="item-name">email</span></a>
+        <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener"><span class="item-name">portafolio</span></a>
+        <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener"><span class="item-name">estudionegro</span></a>
       </div>
     </div>
-  </section>
+
+    <div class="group" style="animation-delay: 0.6s">
+      <div class="cat-col"><span class="cat-label">bio</span></div>
+      <div class="items-col">
+        <a class="item" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener"><span class="item-name">wiki</span></a>
+      </div>
+    </div>
+
+    <div class="group" style="animation-delay: 0.7s">
+      <div class="cat-col"><span class="cat-label">contacto</span></div>
+      <div class="items-col">
+        <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">email</span></a>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <div class="visitor-box">
-      Visitante No.
-      <span class="visitor-num" id="visitor-num">002.341</span>
+      visitante
+      <span class="visitor-num" id="visitor-num">——</span>
     </div>
     <div class="meta">
-      <span id="meta-ip">186.11.23.104</span><br>
-      <span id="meta-loc">SANTIAGO, CL</span> • <span id="meta-date">...</span> • <span id="meta-time">00:00:00</span>
+      <span id="meta-ip">···</span><br>
+      <span id="meta-loc">···</span> • <span id="meta-date">···</span> • <span id="meta-time">00:00:00</span>
     </div>
   </footer>
 </main>
 
 <script>
-  // Script para el reloj y datos (mantenemos tu lógica funcional)
   function pad(n) { return String(n).padStart(2,'0'); }
-  function tick() {
-    const sgo = new Date();
-    document.getElementById('meta-time').textContent = 
-      pad(sgo.getHours())+':'+pad(sgo.getMinutes())+':'+pad(sgo.getSeconds());
-    const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' };
-    document.getElementById('meta-date').textContent = sgo.toLocaleDateString('es-CL', options);
-  }
-  setInterval(tick, 1000); tick();
-  
-  // Aquí podrías reintegrar tus llamadas a la API de IP y contador
-</script>
+  const DAYS = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
+  function tick() {
+    const sgo = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Santiago'}));
+    document.getElementById('meta-time').textContent = pad(sgo.getHours())+':'+pad(sgo.getMinutes())+':'+pad(sgo.getSeconds());
+    document.getElementById('meta-date').textContent = DAYS[sgo.getDay()]+' '+pad(sgo.getDate())+' '+MONTHS[sgo.getMonth()]+' '+sgo.getFullYear();
+  }
+  tick(); setInterval(tick, 1000);
+
+  async function geo() {
+    try {
+      const d = await (await fetch('https://ipapi.co/json/')).json();
+      if (d && d.city) {
+        document.getElementById('meta-loc').textContent = (d.city||'') + (d.country_code ? ', ' + d.country_code : '');
+        document.getElementById('meta-ip').textContent = d.ip || '';
+      }
+    } catch(_) {}
+  }
+
+  async function counter() {
+    try {
+      const d = await (await fetch('https://countapi.mileshilliard.com/api/v1/hit/cristianheyne-xyz')).json();
+      if (d && d.value != null)
+        document.getElementById('visitor-num').textContent = Number(d.value).toLocaleString('es-CL');
+    } catch(_) {}
+  }
+
+  geo(); counter();
+</script>
 </body>
 </html>
