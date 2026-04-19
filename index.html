@@ -4,337 +4,278 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>cristián heyne</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --red:        #ff2d2d;
-      --bg:         #000000;
-      --text:       #ffffff;
-      --dim:        rgba(255,255,255,0.42);
-      --ghost:      rgba(255,255,255,0.18);
-      --border:     rgba(255,255,255,0.1);
-    }
-
+ 
     html, body {
       width: 100%; min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Space Mono', monospace;
-      font-size: 13px; line-height: 1.6;
+      background: #fff;
+      color: #000;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
-      cursor: none;
     }
-
-    /* cursor — white block */
-    #cursor {
-      position: fixed; top: 0; left: 0;
-      width: 8px; height: 16px;
-      background: var(--text);
-      pointer-events: none; z-index: 9999;
-      transform: translate(-1px,-2px);
-      transition: opacity 0.2s;
-    }
-
-    /* scanlines */
-    body::after {
-      content: ''; position: fixed; inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 4px);
-      pointer-events: none; z-index: 1000;
-    }
-
-    /* vignette */
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
-      pointer-events: none; z-index: 999;
-    }
-
-    /* layout */
+ 
     main {
-      min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
-      padding: clamp(36px,6vw,72px) clamp(28px,7vw,88px);
-      max-width: 880px;
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: clamp(40px,6vw,80px) clamp(32px,7vw,96px);
+      max-width: 1000px;
     }
-
-    /* header */
-    header { margin-bottom: clamp(36px,6vh,64px); }
-
-    .prompt-line {
-      display: flex; align-items: center;
-      opacity: 0; animation: fade-in 0.4s ease forwards 0.1s;
+ 
+    /* ── NAME ── */
+    .name {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0; animation: up 0.4s ease forwards 0.05s;
     }
-
-    .prompt-sym { color: var(--ghost); margin-right: 10px; user-select: none; }
-
-    .site-title {
-      color: var(--text);
-      font-size: 13px; letter-spacing: 0.04em;
-      position: relative;
+ 
+    /* ── TABLE ── */
+    .table {
+      margin-top: clamp(40px,7vh,72px);
+      width: 100%;
     }
-
-    /* glitch — white */
-    .site-title::after {
-      content: 'cristián heyne';
-      position: absolute; left: 0; top: 0;
-      color: var(--text);
-      animation: glitch 7s step-end infinite 3s;
-      pointer-events: none;
+ 
+    /* group = one category block */
+    .group {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      border-top: 2px solid #000;
+      opacity: 0; animation: up 0.35s ease forwards;
     }
-
-    @keyframes glitch {
-      0%,93%,100% { clip-path: inset(100% 0 0 0); transform: none; opacity: 0; }
-      94% { clip-path: inset(15% 0 65% 0); transform: translateX(-4px); opacity: 1; }
-      95% { clip-path: inset(60% 0 10% 0); transform: translateX(4px);  opacity: 1; }
-      96% { clip-path: inset(40% 0 35% 0); transform: translateX(-2px); opacity: 1; }
-      97% { clip-path: inset(0 0 0 0); opacity: 0; }
+ 
+    .group:nth-child(1) { animation-delay: 0.10s; }
+    .group:nth-child(2) { animation-delay: 0.17s; }
+    .group:nth-child(3) { animation-delay: 0.24s; }
+    .group:nth-child(4) { animation-delay: 0.31s; }
+    .group:nth-child(5) { animation-delay: 0.38s; }
+    .group:nth-child(6) { animation-delay: 0.45s; }
+    .group:nth-child(7) { animation-delay: 0.52s; }
+ 
+    /* last group gets border-bottom too */
+    .table { border-bottom: 2px solid #000; }
+ 
+    /* left col: category label — small, uppercase, fixed top */
+    .cat-col {
+      padding: 16px 24px 16px 0;
+      border-right: 2px solid #000;
     }
-
-    .blink-cursor {
-      display: inline-block; width: 8px; height: 13px;
-      background: var(--text); margin-left: 3px; vertical-align: middle;
-      animation: blink 1.1s step-end infinite;
+ 
+    .cat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.38);
+      line-height: 1;
+      display: block;
+      margin-top: 4px; /* optical align with first item */
     }
-
-    @keyframes blink { 50% { opacity: 0; } }
-
-    /* divider — white */
-    .divider {
-      width: 100%; height: 1px;
-      background: var(--border);
-      margin: 4px 0; position: relative; overflow: hidden;
-      opacity: 0; animation: fade-in 0.4s ease forwards 0.5s;
+ 
+    /* right col: items stacked */
+    .items-col {
+      display: flex;
+      flex-direction: column;
     }
-
-    .divider::after {
-      content: ''; position: absolute; left: -40%; top: 0;
-      width: 40%; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-      animation: scan 4s ease-in-out infinite 2s;
+ 
+    .item {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #000;
+      padding: 0 0 0 28px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      transition: background 0.08s;
+      cursor: pointer;
     }
-
-    @keyframes scan { 0% { left: -40%; } 100% { left: 140%; } }
-
-    /* col header — white-dim */
-    .col-header {
-      display: grid; grid-template-columns: 28px 130px 1fr; gap: 0 20px;
-      padding: 0 0 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
-      opacity: 0; animation: fade-in 0.4s ease forwards 0.5s;
+ 
+    /* remove border from last item in group */
+    .item:last-child { border-bottom: none; }
+ 
+    .item:hover { background: #000; }
+    .item:hover .item-name { color: #fff; }
+ 
+    .item-name {
+      font-size: clamp(18px, 2.4vw, 24px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      padding: 14px 0;
+      transition: color 0.08s;
+      line-height: 1;
     }
-
-    .col-header span { font-size: 9px; color: var(--ghost); letter-spacing: 0.16em; text-transform: uppercase; }
-
-    /* rows */
-    .row {
-      display: grid; grid-template-columns: 28px 130px 1fr; gap: 0 20px;
-      padding: 10px 12px; margin: 0 -12px; border-radius: 2px;
-      cursor: pointer; text-decoration: none; color: inherit;
-      transition: background 0.12s ease;
-      opacity: 0; animation: slide-in 0.35s ease forwards;
-      position: relative;
+ 
+    /* ── FOOTER ── */
+    footer {
+      margin-top: clamp(36px,6vh,64px);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+      opacity: 0; animation: up 0.4s ease forwards 0.65s;
     }
-
-    /* hover → red accent only */
-    .row:hover { background: rgba(255,45,45,0.05); }
-    .row:hover .row-idx { color: var(--red); }
-    .row:hover .row-key { color: rgba(255,45,45,0.55); }
-    .row:hover .row-val { color: var(--red); }
-
-    .row:hover::before {
-      content: ''; position: absolute;
-      left: -12px; top: 15%; bottom: 15%;
-      width: 2px; background: var(--red); border-radius: 0 1px 1px 0;
+ 
+    .visitor {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.35);
     }
-
-    /* active (click flash) */
-    .row:active { background: rgba(255,45,45,0.1); }
-
-    .row-idx  { font-size: 10px; color: var(--ghost);  padding-top: 1px; transition: color 0.12s; user-select: none; }
-    .row-key  { font-size: 11px; color: var(--dim);    letter-spacing: 0.03em; transition: color 0.12s; }
-    .row-val  { font-size: 12px; color: var(--text);   transition: color 0.12s; }
-    .row-val .sep { color: var(--ghost); margin: 0 6px; }
-
-    /* stagger */
-    .row:nth-child(1)  { animation-delay: 0.60s; }
-    .row:nth-child(2)  { animation-delay: 0.70s; }
-    .row:nth-child(3)  { animation-delay: 0.80s; }
-    .row:nth-child(4)  { animation-delay: 0.90s; }
-    .row:nth-child(5)  { animation-delay: 1.00s; }
-    .row:nth-child(6)  { animation-delay: 1.10s; }
-    .row:nth-child(7)  { animation-delay: 1.20s; }
-    .row:nth-child(8)  { animation-delay: 1.30s; }
-    .row:nth-child(9)  { animation-delay: 1.40s; }
-    .row:nth-child(10) { animation-delay: 1.50s; }
-
-    @keyframes fade-in  { from { opacity:0; transform:translateY(4px);  } to { opacity:1; transform:translateY(0); } }
-    @keyframes slide-in { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
-
-    /* footer */
-    footer { margin-top: clamp(40px,7vh,68px); opacity:0; animation: fade-in 0.5s ease forwards 1.7s; }
-
-    .footer-top { display:flex; align-items:center; gap:16px; margin-bottom:10px; }
-
-    .footer-bar {
-      flex:1; height:1px; background: var(--border);
-      position:relative; overflow:hidden;
+    .visitor strong { color: #000; }
+ 
+    .meta {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(0,0,0,0.28);
+      letter-spacing: 0.06em;
+      text-align: right;
+      line-height: 1.9;
+      text-transform: uppercase;
     }
-    .footer-bar::after {
-      content:''; position:absolute; left:0; top:0;
-      width:28%; height:1px;
-      background: rgba(255,255,255,0.35);
+    .meta span { color: rgba(0,0,0,0.5); }
+ 
+    @keyframes up {
+      from { opacity:0; transform:translateY(6px); }
+      to   { opacity:1; transform:translateY(0); }
     }
-
-    .visitor-badge {
-      font-size: 9px; color: var(--text);
-      letter-spacing: 0.1em;
-      border: 1px solid rgba(255,255,255,0.2);
-      padding: 3px 10px; border-radius: 2px;
-      white-space: nowrap;
-      opacity: 0; transition: opacity 0.8s ease;
-    }
-
-    .footer-meta { display:flex; flex-wrap:wrap; align-items:center; }
-
-    .meta-item { font-size:9px; color:var(--ghost); letter-spacing:0.09em; white-space:nowrap; }
-    .meta-item .val { color: rgba(255,255,255,0.3); }
-    .meta-sep { font-size:9px; color:rgba(255,255,255,0.1); margin:0 10px; }
-
-    @media (max-width:580px) {
-      html,body { cursor:auto; } #cursor { display:none; }
-      .col-header,.row { grid-template-columns:20px 94px 1fr; gap:0 10px; }
+ 
+    @media (max-width: 520px) {
+      .group { grid-template-columns: 90px 1fr; }
+      .cat-col { padding-right: 16px; }
+      .item { padding-left: 16px; }
+      .item-name { font-size: 18px; }
+      .meta { text-align: left; }
     }
   </style>
 </head>
 <body>
-
-  <div id="cursor"></div>
-
-  <main>
-    <div>
-      <header>
-        <div class="prompt-line">
-          <span class="prompt-sym">~/</span>
-          <span class="site-title">cristián heyne</span>
-          <span class="blink-cursor"></span>
+<main>
+ 
+  <div>
+    <div class="name">cristián heyne</div>
+ 
+    <div class="table">
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">música</span></div>
+        <div class="items-col">
+          <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener">
+            <span class="item-name">shogun</span>
+          </a>
+          <a class="item" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener">
+            <span class="item-name">tormenta</span>
+          </a>
+          <a class="item" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener">
+            <span class="item-name">christianes</span>
+          </a>
         </div>
-      </header>
-
-      <div class="divider"></div>
-
-      <div class="col-header">
-        <span>#</span>
-        <span>categoría</span>
-        <span>enlace</span>
       </div>
-
-      <nav>
-        <a class="row" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener">
-          <span class="row-idx">01</span><span class="row-key">música</span><span class="row-val">shogun</span>
-        </a>
-        <a class="row" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener">
-          <span class="row-idx">02</span><span class="row-key"></span><span class="row-val">tormenta</span>
-        </a>
-        <a class="row" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener">
-          <span class="row-idx">03</span><span class="row-key"></span><span class="row-val">christianes</span>
-        </a>
-        <a class="row" href="https://processdata.cl/" target="_blank" rel="noopener">
-          <span class="row-idx">04</span><span class="row-key">process</span><span class="row-val">processdata.cl</span>
-        </a>
-        <a class="row" href="https://www.etherealart.online/" target="_blank" rel="noopener">
-          <span class="row-idx">05</span><span class="row-key">ethereal</span><span class="row-val">etherealart.online</span>
-        </a>
-        <a class="row" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener">
-          <span class="row-idx">06</span><span class="row-key">ónyx</span><span class="row-val">instagram<span class="sep">·</span>instalacion_onyx</span>
-        </a>
-        <a class="row" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener">
-          <span class="row-idx">07</span><span class="row-key">producciones</span><span class="row-val">portafolio</span>
-        </a>
-        <a class="row" href="https://estudionegro.io/cms/" target="_blank" rel="noopener">
-          <span class="row-idx">08</span><span class="row-key"></span><span class="row-val">estudionegro</span>
-        </a>
-        <a class="row" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener">
-          <span class="row-idx">09</span><span class="row-key">bio</span><span class="row-val">wiki</span>
-        </a>
-        <a class="row" href="mailto:cristianheyne@gmail.com">
-          <span class="row-idx">10</span><span class="row-key">contacto</span><span class="row-val">email</span>
-        </a>
-      </nav>
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">process</span></div>
+        <div class="items-col">
+          <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener">
+            <span class="item-name">processdata.cl</span>
+          </a>
+        </div>
+      </div>
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">ethereal</span></div>
+        <div class="items-col">
+          <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener">
+            <span class="item-name">etherealart.online</span>
+          </a>
+        </div>
+      </div>
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">ónyx</span></div>
+        <div class="items-col">
+          <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener">
+            <span class="item-name">instagram</span>
+          </a>
+        </div>
+      </div>
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">producciones</span></div>
+        <div class="items-col">
+          <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener">
+            <span class="item-name">portafolio</span>
+          </a>
+          <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener">
+            <span class="item-name">estudionegro</span>
+          </a>
+        </div>
+      </div>
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">bio</span></div>
+        <div class="items-col">
+          <a class="item" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener">
+            <span class="item-name">wiki</span>
+          </a>
+        </div>
+      </div>
+ 
+      <div class="group">
+        <div class="cat-col"><span class="cat-label">contacto</span></div>
+        <div class="items-col">
+          <a class="item" href="mailto:cristianheyne@gmail.com">
+            <span class="item-name">email</span>
+          </a>
+        </div>
+      </div>
+ 
     </div>
-
-    <footer>
-      <div class="footer-top">
-        <div class="footer-bar"></div>
-        <div class="visitor-badge" id="visitor-badge">usted es el visitante&nbsp;<span id="visitor-num">···</span></div>
-      </div>
-      <div class="footer-meta">
-        <span class="meta-item">loc:&thinsp;<span class="val" id="meta-loc">···</span></span>
-        <span class="meta-sep">·</span>
-        <span class="meta-item">ip:&thinsp;<span class="val" id="meta-ip">···</span></span>
-        <span class="meta-sep">·</span>
-        <span class="meta-item">utc:&thinsp;<span class="val" id="meta-utc">···</span></span>
-        <span class="meta-sep">·</span>
-        <span class="meta-item"><span class="val" id="meta-date">···</span></span>
-        <span class="meta-sep">·</span>
-        <span class="meta-item"><span class="val" id="meta-time">--:--:--</span></span>
-      </div>
-    </footer>
-  </main>
-
-  <script>
-    const cursor = document.getElementById('cursor');
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top  = e.clientY + 'px';
-    });
-    document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
-    document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
-
-    function pad(n) { return String(n).padStart(2,'0'); }
-    const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
-    const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-
-    function updateClock() {
-      const sgo = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Santiago'}));
-      document.getElementById('meta-time').textContent =
-        pad(sgo.getHours())+':'+pad(sgo.getMinutes())+':'+pad(sgo.getSeconds());
-      document.getElementById('meta-date').textContent =
-        DAYS[sgo.getDay()]+' '+pad(sgo.getDate())+' '+MONTHS[sgo.getMonth()]+' '+sgo.getFullYear();
-    }
-    updateClock(); setInterval(updateClock, 1000);
-
-    async function fetchGeo() {
-      try {
-        const r = await fetch('https://ip-api.com/json/?fields=status,city,countryCode,query,offset');
-        const d = await r.json();
-        if (d.status === 'success') {
-          document.getElementById('meta-loc').textContent = (d.city||'···')+(d.countryCode?', '+d.countryCode:'');
-          document.getElementById('meta-ip').textContent  = d.query||'···';
-          if (d.offset != null) {
-            const h = d.offset/3600;
-            document.getElementById('meta-utc').textContent = 'utc'+(h>=0?'+':'')+h;
-          }
-        }
-      } catch(_) { document.getElementById('meta-loc').textContent = 'desconocido'; }
-    }
-
-    async function fetchCounter() {
-      try {
-        const r = await fetch('https://api.countapi.xyz/hit/cristianheyne.xyz/visits');
-        const d = await r.json();
-        if (d && d.value != null) {
-          document.getElementById('visitor-num').textContent = '#\u2009'+d.value.toLocaleString('es-CL');
-          document.getElementById('visitor-badge').style.opacity = '1';
-        }
-      } catch(_) {
-        document.getElementById('visitor-badge').style.opacity = '0.3';
-        document.getElementById('visitor-num').textContent = '···';
+  </div>
+ 
+  <footer>
+    <div class="visitor">visitante <strong id="visitor-num">——</strong></div>
+    <div class="meta">
+      <span id="meta-ip">···</span><br>
+      <span id="meta-loc">···</span>&nbsp;·&nbsp;<span id="meta-date">···</span>&nbsp;·&nbsp;<span id="meta-time">--:--:--</span>
+    </div>
+  </footer>
+ 
+</main>
+<script>
+  function pad(n) { return String(n).padStart(2,'0'); }
+  const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+ 
+  function tick() {
+    const sgo = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Santiago'}));
+    document.getElementById('meta-time').textContent =
+      pad(sgo.getHours())+':'+pad(sgo.getMinutes())+':'+pad(sgo.getSeconds());
+    document.getElementById('meta-date').textContent =
+      DAYS[sgo.getDay()]+' '+pad(sgo.getDate())+' '+MONTHS[sgo.getMonth()]+' '+sgo.getFullYear();
+  }
+  tick(); setInterval(tick, 1000);
+ 
+  async function geo() {
+    try {
+      const d = await (await fetch('https://ip-api.com/json/?fields=status,city,countryCode,query')).json();
+      if (d.status === 'success') {
+        document.getElementById('meta-loc').textContent = (d.city||'')+(d.countryCode?', '+d.countryCode:'');
+        document.getElementById('meta-ip').textContent  = d.query||'';
       }
-    }
-
-    fetchGeo(); fetchCounter();
-  </script>
+    } catch(_) {}
+  }
+ 
+  async function counter() {
+    try {
+      const d = await (await fetch('https://api.countapi.xyz/hit/cristianheyne.xyz/visits')).json();
+      if (d && d.value != null)
+        document.getElementById('visitor-num').textContent = d.value.toLocaleString('es-CL');
+    } catch(_) {}
+  }
+ 
+  geo(); counter();
+</script>
 </body>
 </html>
+ 
