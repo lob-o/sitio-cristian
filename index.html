@@ -24,7 +24,7 @@
 
     main {
       padding: clamp(1.5rem, 5vw, 4rem);
-      max-width: 1000px; /* Un poco más estrecho para mejorar la lectura en desktop */
+      max-width: 900px; /* Reducido ligeramente para centrar más la atención */
       margin: 0 auto;
       min-height: 100vh;
       display: flex;
@@ -33,11 +33,11 @@
 
     /* ── HEADER ── */
     header {
-      margin-bottom: clamp(2rem, 8vh, 4rem);
+      margin-bottom: clamp(2rem, 8vh, 3.5rem);
     }
 
     .name {
-      font-size: 12px;
+      font-size: 11px; /* Un poco más pequeña */
       font-weight: 800;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -48,8 +48,8 @@
 
     .name::after {
       content: "";
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       background: var(--accent);
     }
 
@@ -61,9 +61,9 @@
 
     .group {
       display: grid;
-      grid-template-columns: 140px 1fr; /* Etiquetas más compactas */
+      grid-template-columns: 130px 1fr;
       border-top: 1px solid var(--fg);
-      padding: 1.5rem 0;
+      padding: 1.2rem 0; /* Menos padding vertical */
       opacity: 0;
       animation: reveal 0.6s ease forwards;
     }
@@ -76,15 +76,15 @@
       font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.12em;
       color: var(--soft);
-      padding-top: 6px;
+      padding-top: 5px;
     }
 
     .items-col {
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
+      gap: 0.15rem;
     }
 
     .item {
@@ -96,22 +96,22 @@
     }
 
     .item-name {
-      /* Tamaño reducido para Desktop: máximo 32px en lugar de 40+ */
-      font-size: clamp(1.3rem, 2.5vw, 2rem); 
+      /* Reducción clave: el máximo ahora es 1.6rem (~25px) en lugar de 32px */
+      font-size: clamp(1.2rem, 2vw, 1.6rem); 
       font-weight: 700;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.025em;
       position: relative;
     }
 
     .item:hover {
       color: var(--accent);
-      transform: translateX(12px);
+      transform: translateX(10px);
     }
 
     /* ── FOOTER ── */
     footer {
       margin-top: auto;
-      padding-top: 4rem;
+      padding-top: 3.5rem;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -126,7 +126,7 @@
 
     .visitor-num {
       display: block;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
       margin-top: 2px;
     }
@@ -141,16 +141,16 @@
     }
 
     @keyframes reveal {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Mobile adjustments */
+    /* Ajustes para pantallas pequeñas */
     @media (max-width: 600px) {
-      .group { grid-template-columns: 1fr; gap: 0.4rem; padding: 1rem 0; }
-      .cat-label { padding-bottom: 0.2rem; border-bottom: 1px solid #f0f0f0; margin-bottom: 0.4rem; }
-      .item-name { font-size: 1.4rem; }
-      footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+      .group { grid-template-columns: 1fr; gap: 0.3rem; padding: 0.8rem 0; }
+      .cat-label { padding-bottom: 0.2rem; border-bottom: 1px solid #f5f5f5; margin-bottom: 0.3rem; }
+      .item-name { font-size: 1.3rem; }
+      footer { flex-direction: column; align-items: flex-start; gap: 1.2rem; }
       .meta { text-align: left; }
     }
   </style>
@@ -168,7 +168,7 @@
       <div class="items-col">
         <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener"><span class="item-name">shogun</span></a>
         <a class="item" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener"><span class="item-name">tormenta</span></a>
-        <a class="item" href="https://open.spotify.com" target="_blank" rel="noopener"><span class="item-name">christianes</span></a>
+        <a class="item" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener"><span class="item-name">christianes</span></a>
       </div>
     </div>
 
