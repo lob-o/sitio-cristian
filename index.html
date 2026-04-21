@@ -11,6 +11,7 @@
       --accent: #ff0000;
       --muted: #999999;
       --line: #e0e0e0;
+      --row-pad: 1.4rem;
     }
  
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,7 +19,8 @@
     body {
       background: var(--bg);
       color: var(--fg);
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      /* sistema operativo decide */
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
       font-size: 13px;
       line-height: 1;
@@ -33,7 +35,6 @@
       flex-direction: column;
     }
  
-    /* ── HEADER ── */
     header {
       margin-bottom: clamp(3rem, 10vh, 5rem);
     }
@@ -58,7 +59,6 @@
       flex-shrink: 0;
     }
  
-    /* ── TABLE ── */
     .table {
       display: flex;
       flex-direction: column;
@@ -69,7 +69,8 @@
       grid-template-columns: 160px 1fr;
       align-items: baseline;
       border-top: 1px solid var(--line);
-      padding: 1.4rem 0;
+      /* espaciado real: crece con los visitantes */
+      padding: var(--row-pad) 0;
       gap: 1rem;
       opacity: 0;
       animation: reveal 0.5s ease forwards;
@@ -113,7 +114,6 @@
       transform: translateX(6px);
     }
  
-    /* ── FOOTER ── */
     footer {
       margin-top: auto;
       padding-top: 4rem;
@@ -153,6 +153,31 @@
       color: var(--muted);
     }
  
+    /* los valores del sistema, expuestos */
+    .system-values {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+ 
+    .sys-val {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--line);
+      font-weight: 500;
+      line-height: 1.6;
+    }
+ 
+    .sys-val span {
+      display: block;
+      color: var(--muted);
+      font-weight: 600;
+    }
+ 
     @keyframes reveal {
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -162,20 +187,11 @@
       .group {
         grid-template-columns: 1fr;
         gap: 0.5rem;
-        padding: 1rem 0;
       }
-      .cat-label {
-        font-size: 10px;
-      }
-      .item-name {
-        font-size: 14px;
-      }
-      footer {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-      }
+      .item-name { font-size: 14px; }
+      footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .meta { text-align: left; }
+      .system-values { gap: 1.2rem; }
     }
   </style>
 </head>
@@ -274,12 +290,33 @@
     </div>
   </footer>
  
+  <!-- los valores del sistema expuestos como están -->
+  <div class="system-values">
+    <div class="sys-val">
+      acento
+      <span id="sv-accent">—</span>
+    </div>
+    <div class="sys-val">
+      hora santiago
+      <span id="sv-hour">—</span>
+    </div>
+    <div class="sys-val">
+      espaciado
+      <span id="sv-pad">—</span>
+    </div>
+    <div class="sys-val">
+      fuente
+      <span id="sv-font">—</span>
+    </div>
+  </div>
+ 
 </main>
 <script>
   function pad(n) { return String(n).padStart(2, '0'); }
   const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
   const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
  
+  // ── RELOJ ──
   function tick() {
     const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
     document.getElementById('meta-time').textContent =
@@ -290,6 +327,22 @@
   tick();
   setInterval(tick, 1000);
  
+  // ── ACENTO DERIVADO DE LA HORA ──
+  // lightness: 30% a las 3am (oscuro), 50% al mediodía (rojo puro)
+  // sigue una curva senoidal sobre el ciclo del día
+  function updateAccent() {
+    const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
+    const hour = sgo.getHours() + sgo.getMinutes() / 60;
+    const L = 30 + Math.sin((hour / 24) * Math.PI) * 20;
+    const accent = `hsl(0, 100%, ${L.toFixed(1)}%)`;
+    document.documentElement.style.setProperty('--accent', accent);
+    document.getElementById('sv-accent').textContent = accent;
+    document.getElementById('sv-hour').textContent = `${hour.toFixed(2)}h → L=${L.toFixed(1)}%`;
+  }
+  updateAccent();
+  setInterval(updateAccent, 60000);
+ 
+  // ── GEO ──
   async function geo() {
     try {
       const d = await (await fetch('https://ipapi.co/json/')).json();
@@ -301,16 +354,35 @@
     } catch (_) {}
   }
  
+  // ── CONTADOR + ESPACIADO ──
+  // el espaciado crece lentamente con los visitantes
+  // n=1 → ~0.8rem | n=500 → ~1.4rem | n=2000 → ~2.2rem
   async function counter() {
     try {
       const d = await (await fetch('https://countapi.mileshilliard.com/api/v1/hit/cristianheyne-xyz')).json();
-      if (d && d.value != null)
-        document.getElementById('visitor-num').textContent = Number(d.value).toLocaleString('es-CL');
+      if (d && d.value != null) {
+        const n = Number(d.value);
+        document.getElementById('visitor-num').textContent = n.toLocaleString('es-CL');
+ 
+        const pad = Math.min(0.8 + Math.log10(Math.max(n, 1)) * 0.5, 2.4);
+        const padStr = `${pad.toFixed(3)}rem`;
+        document.documentElement.style.setProperty('--row-pad', padStr);
+        document.getElementById('sv-pad').textContent = `n=${n} → ${padStr}`;
+      }
     } catch (_) {}
+  }
+ 
+  // ── FUENTE DEL SISTEMA ──
+  function detectFont() {
+    const f = window.getComputedStyle(document.body).fontFamily;
+    const el = document.getElementById('sv-font');
+    if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
   }
  
   geo();
   counter();
+  window.addEventListener('load', detectFont);
 </script>
 </body>
 </html>
+ 
