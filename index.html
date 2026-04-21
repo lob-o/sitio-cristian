@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>cristián heyne</title>
   <style>
     :root {
@@ -12,21 +12,50 @@
       --muted: #999999;
       --line: #e0e0e0;
       --row-pad: 1.4rem;
+      /* instrumento */
+      --ibg: #080808;
+      --ifg: #e0e0e0;
+      --iline: #141414;
+      --imuted: #333333;
+      --iactive: #0d0000;
     }
- 
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
     body {
-      background: var(--bg);
-      color: var(--fg);
-      /* sistema operativo decide */
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
-      font-size: 13px;
       line-height: 1;
     }
- 
-    main {
+
+    body.inst-mode {
+      overflow: hidden;
+    }
+
+    /* ── PUNTO ROJO COMPARTIDO ── */
+    .dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--accent);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.18s ease;
+      vertical-align: middle;
+    }
+    .dot:hover { transform: scale(1.6); }
+
+    /* ═══════════════════════════════════
+       SITIO PRINCIPAL
+    ═══════════════════════════════════ */
+    #site {
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    #site main {
       padding: clamp(2rem, 6vw, 5rem);
       max-width: 820px;
       margin: 0 auto;
@@ -34,52 +63,37 @@
       display: flex;
       flex-direction: column;
     }
- 
-    header {
+
+    #site header {
       margin-bottom: clamp(3rem, 10vh, 5rem);
     }
- 
-    .name {
+
+    .site-name {
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       color: var(--fg);
     }
- 
-    .name::after {
-      content: "";
-      display: block;
-      width: 4px;
-      height: 4px;
-      background: var(--accent);
-      flex-shrink: 0;
-    }
- 
-    .table {
-      display: flex;
-      flex-direction: column;
-    }
- 
+
+    .table { display: flex; flex-direction: column; }
+
     .group {
       display: grid;
       grid-template-columns: 160px 1fr;
       align-items: baseline;
       border-top: 1px solid var(--line);
-      /* espaciado real: crece con los visitantes */
       padding: var(--row-pad) 0;
       gap: 1rem;
       opacity: 0;
       animation: reveal 0.5s ease forwards;
     }
- 
-    .group:last-child {
-      border-bottom: 1px solid var(--line);
-    }
- 
+
+    .group:last-child { border-bottom: 1px solid var(--line); }
+
     .cat-label {
       font-size: 11px;
       font-weight: 600;
@@ -88,13 +102,9 @@
       color: var(--muted);
       padding-top: 3px;
     }
- 
-    .items-col {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
- 
+
+    .items-col { display: flex; flex-direction: column; gap: 0.35rem; }
+
     .item {
       text-decoration: none;
       color: var(--fg);
@@ -102,32 +112,25 @@
       width: fit-content;
       transition: color 0.2s ease, transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
     }
- 
+
     .item-name {
       font-size: 15px;
       font-weight: 700;
       letter-spacing: -0.01em;
     }
- 
-    .item:hover {
-      color: var(--accent);
-      transform: translateX(6px);
-    }
- 
-    footer {
+
+    .item:hover { color: var(--accent); transform: translateX(6px); }
+
+    #site footer {
       margin-top: auto;
       padding-top: 4rem;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
     }
- 
-    .visitor-box {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
- 
+
+    .visitor-box { display: flex; flex-direction: column; gap: 4px; }
+
     .visitor-label {
       font-size: 10px;
       font-weight: 600;
@@ -135,15 +138,15 @@
       text-transform: uppercase;
       color: var(--muted);
     }
- 
+
     .visitor-num {
       font-size: 22px;
       font-weight: 800;
       letter-spacing: -0.03em;
       color: var(--fg);
     }
- 
-    .meta {
+
+    .site-meta {
       font-size: 10px;
       text-align: right;
       font-weight: 500;
@@ -152,8 +155,7 @@
       text-transform: uppercase;
       color: var(--muted);
     }
- 
-    /* los valores del sistema, expuestos */
+
     .system-values {
       margin-top: 3rem;
       padding-top: 1rem;
@@ -162,7 +164,7 @@
       gap: 2rem;
       flex-wrap: wrap;
     }
- 
+
     .sys-val {
       font-size: 9px;
       letter-spacing: 0.08em;
@@ -171,218 +173,647 @@
       font-weight: 500;
       line-height: 1.6;
     }
- 
-    .sys-val span {
-      display: block;
-      color: var(--muted);
-      font-weight: 600;
-    }
- 
+
+    .sys-val span { display: block; color: var(--muted); font-weight: 600; }
+
     @keyframes reveal {
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
- 
+
+    /* ═══════════════════════════════════
+       CAPA INSTRUMENTO
+    ═══════════════════════════════════ */
+    #layer {
+      position: fixed;
+      inset: 0;
+      background: var(--ibg);
+      color: var(--ifg);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    body.inst-mode #layer {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .inst-wrap {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    .inst-header {
+      flex-shrink: 0;
+      margin-bottom: 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inst-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--imuted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .inst-name-main { color: var(--ifg); }
+
+    .inst-active-id {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      min-width: 1ch;
+      text-align: right;
+    }
+
+    /* zonas */
+    .inst-zones {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .zone {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 70px 1fr 100px;
+      align-items: center;
+      border-top: 1px solid var(--iline);
+      cursor: crosshair;
+      background: transparent;
+      transition: background 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .zone:last-child { border-bottom: 1px solid var(--iline); }
+    .zone.active { background: var(--iactive); }
+
+    .zone-id {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--imuted);
+      transition: color 0.15s ease;
+      pointer-events: none;
+    }
+
+    .zone.active .zone-id { color: var(--accent); }
+
+    .zone-area {
+      height: 100%;
+      position: relative;
+      pointer-events: none;
+    }
+
+    .v-line {
+      position: absolute;
+      width: 1px;
+      top: 0; bottom: 0;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.1s;
+      pointer-events: none;
+    }
+
+    .zone.active .v-line { opacity: 0.5; }
+
+    .zone-meta {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: right;
+      line-height: 1.9;
+      pointer-events: none;
+    }
+
+    .wave-type { color: var(--imuted); }
+    .rev-label { color: #1f1f1f; }
+    .zone.active .rev-label { color: #2a2a2a; }
+
+    /* scope */
+    #inst-scope {
+      flex-shrink: 0;
+      width: 100%;
+      height: 36px;
+      display: block;
+      margin: 1.4rem 0;
+    }
+
+    /* footer instrumento */
+    .inst-footer {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .readout { display: flex; flex-direction: column; gap: 5px; }
+
+    .readout-freq {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--ifg);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .readout-sub {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--imuted);
+    }
+
+    .inst-meta {
+      font-size: 9px;
+      text-align: right;
+      font-weight: 500;
+      line-height: 1.9;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--imuted);
+    }
+
+    .inst-hint {
+      position: absolute;
+      bottom: clamp(1.5rem, 4vw, 3rem);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #1e1e1e;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+      white-space: nowrap;
+    }
+
+    .inst-hint.gone { opacity: 0; }
+
     @media (max-width: 600px) {
-      .group {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-      }
+      .group { grid-template-columns: 1fr; gap: 0.5rem; padding: 1rem 0; }
       .item-name { font-size: 14px; }
-      footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-      .meta { text-align: left; }
-      .system-values { gap: 1.2rem; }
+      #site footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+      .site-meta { text-align: left; }
+      .zone { grid-template-columns: 50px 1fr 80px; }
     }
   </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════
+     SITIO PRINCIPAL
+═══════════════════════════════════ -->
+<div id="site">
 <main>
- 
   <header>
-    <div class="name">cristián heyne</div>
+    <div class="site-name">
+      cristián heyne
+      <span class="dot" id="mode-trigger" title="instrumento"></span>
+    </div>
   </header>
- 
+
   <div class="table">
- 
-    <div class="group" style="animation-delay: 0.05s">
+
+    <div class="group" style="animation-delay:0.05s">
       <div class="cat-label">música</div>
       <div class="items-col">
-        <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener">
-          <span class="item-name">shogun</span>
-        </a>
-        <a class="item" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener">
-          <span class="item-name">tormenta</span>
-        </a>
-        <a class="item" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener">
-          <span class="item-name">christianes</span>
-        </a>
+        <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener"><span class="item-name">shogun</span></a>
+        <a class="item" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener"><span class="item-name">tormenta</span></a>
+        <a class="item" href="https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2" target="_blank" rel="noopener"><span class="item-name">christianes</span></a>
       </div>
     </div>
- 
-    <div class="group" style="animation-delay: 0.12s">
+
+    <div class="group" style="animation-delay:0.12s">
       <div class="cat-label">process</div>
       <div class="items-col">
-        <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener">
-          <span class="item-name">processdata.cl</span>
-        </a>
+        <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
       </div>
     </div>
- 
-    <div class="group" style="animation-delay: 0.19s">
+
+    <div class="group" style="animation-delay:0.19s">
       <div class="cat-label">ethereal</div>
       <div class="items-col">
-        <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener">
-          <span class="item-name">etherealart.online</span>
-        </a>
+        <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">etherealart.online</span></a>
       </div>
     </div>
- 
-    <div class="group" style="animation-delay: 0.26s">
+
+    <div class="group" style="animation-delay:0.26s">
       <div class="cat-label">ónyx</div>
       <div class="items-col">
-        <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener">
-          <span class="item-name">instagram</span>
-        </a>
+        <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener"><span class="item-name">instagram</span></a>
       </div>
     </div>
- 
-    <div class="group" style="animation-delay: 0.33s">
+
+    <div class="group" style="animation-delay:0.33s">
       <div class="cat-label">producciones</div>
       <div class="items-col">
-        <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener">
-          <span class="item-name">portafolio</span>
-        </a>
-        <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener">
-          <span class="item-name">estudionegro</span>
-        </a>
+        <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener"><span class="item-name">portafolio</span></a>
+        <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener"><span class="item-name">estudionegro</span></a>
       </div>
     </div>
- 
-    <div class="group" style="animation-delay: 0.40s">
+
+    <div class="group" style="animation-delay:0.40s">
       <div class="cat-label">bio</div>
       <div class="items-col">
-        <a class="item" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener">
-          <span class="item-name">wiki</span>
-        </a>
+        <a class="item" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener"><span class="item-name">wiki</span></a>
       </div>
     </div>
- 
-    <div class="group" style="animation-delay: 0.47s">
+
+    <div class="group" style="animation-delay:0.47s">
       <div class="cat-label">contacto</div>
       <div class="items-col">
-        <a class="item" href="mailto:cristianheyne@gmail.com">
-          <span class="item-name">email</span>
-        </a>
+        <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">email</span></a>
       </div>
     </div>
- 
+
   </div>
- 
+
   <footer>
     <div class="visitor-box">
       <span class="visitor-label">visitante</span>
       <span class="visitor-num" id="visitor-num">——</span>
     </div>
-    <div class="meta">
+    <div class="site-meta">
       <span id="meta-ip">···</span><br>
       <span id="meta-loc">···</span><br>
-      <span id="meta-date">···</span> · <span id="meta-time">00:00:00</span>
+      <span id="site-date">···</span> · <span id="site-time">00:00:00</span>
     </div>
   </footer>
- 
-  <!-- los valores del sistema expuestos como están -->
+
   <div class="system-values">
-    <div class="sys-val">
-      acento
-      <span id="sv-accent">—</span>
-    </div>
-    <div class="sys-val">
-      hora santiago
-      <span id="sv-hour">—</span>
-    </div>
-    <div class="sys-val">
-      espaciado
-      <span id="sv-pad">—</span>
-    </div>
-    <div class="sys-val">
-      fuente
-      <span id="sv-font">—</span>
-    </div>
+    <div class="sys-val">acento<span id="sv-accent">—</span></div>
+    <div class="sys-val">hora santiago<span id="sv-hour">—</span></div>
+    <div class="sys-val">espaciado<span id="sv-pad">—</span></div>
+    <div class="sys-val">fuente<span id="sv-font">—</span></div>
   </div>
- 
 </main>
+</div>
+
+<!-- ═══════════════════════════════════
+     CAPA INSTRUMENTO
+═══════════════════════════════════ -->
+<div id="layer" aria-hidden="true">
+  <div class="inst-wrap">
+
+    <header class="inst-header">
+      <div class="inst-name">
+        instrumento
+        <span class="dot" id="inst-trigger"></span>
+        <span class="inst-name-main">cristián heyne</span>
+      </div>
+      <div class="inst-active-id" id="inst-active-id">—</div>
+    </header>
+
+    <div class="inst-zones" id="inst-zones"></div>
+
+    <canvas id="inst-scope"></canvas>
+
+    <footer class="inst-footer">
+      <div class="readout">
+        <div class="readout-freq" id="inst-r-freq">——&nbsp;hz</div>
+        <div class="readout-sub" id="inst-r-wave">—</div>
+      </div>
+      <div class="inst-meta">
+        <span id="inst-time">00:00:00</span><br>
+        <span id="inst-date">···</span>
+      </div>
+    </footer>
+
+    <div class="inst-hint" id="inst-hint">mover para activar</div>
+
+  </div>
+</div>
+
 <script>
-  function pad(n) { return String(n).padStart(2, '0'); }
-  const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
-  const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
- 
-  // ── RELOJ ──
-  function tick() {
-    const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
-    document.getElementById('meta-time').textContent =
-      pad(sgo.getHours()) + ':' + pad(sgo.getMinutes()) + ':' + pad(sgo.getSeconds());
-    document.getElementById('meta-date').textContent =
-      DAYS[sgo.getDay()] + ' ' + pad(sgo.getDate()) + ' ' + MONTHS[sgo.getMonth()] + ' ' + sgo.getFullYear();
+// ═══════════════════════════════════
+// COMPARTIDO: acento, reloj, geo, contador
+// ═══════════════════════════════════
+
+function pad(n) { return String(n).padStart(2, '0'); }
+const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
+const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+function tick() {
+  const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
+  const time = pad(sgo.getHours()) + ':' + pad(sgo.getMinutes()) + ':' + pad(sgo.getSeconds());
+  const date = DAYS[sgo.getDay()] + ' ' + pad(sgo.getDate()) + ' ' + MONTHS[sgo.getMonth()] + ' ' + sgo.getFullYear();
+  document.getElementById('site-time').textContent  = time;
+  document.getElementById('site-date').textContent  = date;
+  document.getElementById('inst-time').textContent  = time;
+  document.getElementById('inst-date').textContent  = date;
+}
+tick(); setInterval(tick, 1000);
+
+function updateAccent() {
+  const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
+  const hour = sgo.getHours() + sgo.getMinutes() / 60;
+  const L = 30 + Math.sin((hour / 24) * Math.PI) * 20;
+  const accent = `hsl(0, 100%, ${L.toFixed(1)}%)`;
+  document.documentElement.style.setProperty('--accent', accent);
+  document.getElementById('sv-accent').textContent = accent;
+  document.getElementById('sv-hour').textContent   = `${hour.toFixed(2)}h → L=${L.toFixed(1)}%`;
+}
+updateAccent(); setInterval(updateAccent, 60000);
+
+async function geo() {
+  try {
+    const d = await (await fetch('https://ipapi.co/json/')).json();
+    if (d && d.city) {
+      document.getElementById('meta-loc').textContent = (d.city || '') + (d.country_code ? ', ' + d.country_code : '');
+      document.getElementById('meta-ip').textContent  = d.ip || '';
+    }
+  } catch(_) {}
+}
+
+async function counter() {
+  try {
+    const d = await (await fetch('https://countapi.mileshilliard.com/api/v1/hit/cristianheyne-xyz')).json();
+    if (d && d.value != null) {
+      const n = Number(d.value);
+      document.getElementById('visitor-num').textContent = n.toLocaleString('es-CL');
+      const rowPad = Math.min(0.8 + Math.log10(Math.max(n, 1)) * 0.5, 2.4);
+      const padStr = `${rowPad.toFixed(3)}rem`;
+      document.documentElement.style.setProperty('--row-pad', padStr);
+      document.getElementById('sv-pad').textContent = `n=${n} → ${padStr}`;
+    }
+  } catch(_) {}
+}
+
+window.addEventListener('load', () => {
+  const f = window.getComputedStyle(document.body).fontFamily;
+  const el = document.getElementById('sv-font');
+  if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
+});
+
+geo(); counter();
+
+// ═══════════════════════════════════
+// MODO: toggle sitio ↔ instrumento
+// ═══════════════════════════════════
+
+function toggleMode() {
+  const entering = !document.body.classList.contains('inst-mode');
+  document.body.classList.toggle('inst-mode');
+  document.getElementById('layer').setAttribute('aria-hidden', entering ? 'false' : 'true');
+  // si entramos al instrumento y el audio no está, se inicializará al primer touch/hover
+}
+
+document.getElementById('mode-trigger').addEventListener('click', toggleMode);
+document.getElementById('inst-trigger').addEventListener('click', toggleMode);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.body.classList.contains('inst-mode')) toggleMode();
+});
+
+// ═══════════════════════════════════
+// INSTRUMENTO: audio, zonas, interacción
+// ═══════════════════════════════════
+
+const ZONES_CFG = [
+  { id: 'I',   wave: 'sine',     base: 55.00,   top: 220.00,   name: 'sine',     revTime: 20, revDecay: 1.5 },
+  { id: 'II',  wave: 'triangle', base: 110.00,  top: 440.00,   name: 'triangle', revTime: 14, revDecay: 1.7 },
+  { id: 'III', wave: 'sine',     base: 220.00,  top: 880.00,   name: 'sine',     revTime: 9,  revDecay: 2.0 },
+  { id: 'IV',  wave: 'square',   base: 440.00,  top: 1760.00,  name: 'square',   revTime: 5,  revDecay: 2.5 },
+  { id: 'V',   wave: 'sine',     base: 880.00,  top: 3520.00,  name: 'sine ×',   revTime: 3,  revDecay: 3.0 },
+];
+
+let actx = null, analyser = null;
+
+function initAudio() {
+  if (actx) return;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = actx.createAnalyser();
+  analyser.fftSize = 1024;
+  analyser.connect(actx.destination);
+}
+
+class ZoneSynth {
+  constructor(cfg) {
+    this.cfg     = cfg;
+    this.osc     = null;
+    this.filt    = null;
+    this.on      = false;
+    // persistentes
+    this.gain    = null;
+    this.conv    = null;
+    this.convDry = null;
+    this.convWet = null;
   }
-  tick();
-  setInterval(tick, 1000);
- 
-  // ── ACENTO DERIVADO DE LA HORA ──
-  // lightness: 30% a las 3am (oscuro), 50% al mediodía (rojo puro)
-  // sigue una curva senoidal sobre el ciclo del día
-  function updateAccent() {
-    const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
-    const hour = sgo.getHours() + sgo.getMinutes() / 60;
-    const L = 30 + Math.sin((hour / 24) * Math.PI) * 20;
-    const accent = `hsl(0, 100%, ${L.toFixed(1)}%)`;
-    document.documentElement.style.setProperty('--accent', accent);
-    document.getElementById('sv-accent').textContent = accent;
-    document.getElementById('sv-hour').textContent = `${hour.toFixed(2)}h → L=${L.toFixed(1)}%`;
+
+  _buildChain() {
+    if (this.conv) return;
+    const len = Math.floor(actx.sampleRate * this.cfg.revTime);
+    const buf = actx.createBuffer(2, len, actx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, this.cfg.revDecay);
+    }
+    this.conv    = actx.createConvolver();
+    this.conv.buffer = buf;
+    this.convDry = actx.createGain(); this.convDry.gain.value = 0.5;
+    this.convWet = actx.createGain(); this.convWet.gain.value = 0.5;
+    this.gain    = actx.createGain(); this.gain.gain.value = 0;
+
+    this.gain.connect(this.convDry);
+    this.gain.connect(this.conv);
+    this.convDry.connect(analyser);
+    this.conv.connect(this.convWet);
+    this.convWet.connect(actx.destination);
   }
-  updateAccent();
-  setInterval(updateAccent, 60000);
- 
-  // ── GEO ──
-  async function geo() {
-    try {
-      const d = await (await fetch('https://ipapi.co/json/')).json();
-      if (d && d.city) {
-        document.getElementById('meta-loc').textContent =
-          (d.city || '') + (d.country_code ? ', ' + d.country_code : '');
-        document.getElementById('meta-ip').textContent = d.ip || '';
-      }
-    } catch (_) {}
+
+  activate() {
+    if (this.on || !actx) return;
+    this.on = true;
+    this._buildChain();
+
+    this.filt = actx.createBiquadFilter();
+    this.filt.type = 'lowpass'; this.filt.Q.value = 2.5; this.filt.frequency.value = 2000;
+
+    this.osc = actx.createOscillator();
+    this.osc.type = this.cfg.wave;
+    this.osc.frequency.value = this.cfg.base;
+
+    this.osc.connect(this.filt);
+    this.filt.connect(this.gain);
+    this.osc.start();
+    this.gain.gain.setTargetAtTime(0.65, actx.currentTime, 0.025);
   }
- 
-  // ── CONTADOR + ESPACIADO ──
-  // el espaciado crece lentamente con los visitantes
-  // n=1 → ~0.8rem | n=500 → ~1.4rem | n=2000 → ~2.2rem
-  async function counter() {
-    try {
-      const d = await (await fetch('https://countapi.mileshilliard.com/api/v1/hit/cristianheyne-xyz')).json();
-      if (d && d.value != null) {
-        const n = Number(d.value);
-        document.getElementById('visitor-num').textContent = n.toLocaleString('es-CL');
- 
-        const pad = Math.min(0.8 + Math.log10(Math.max(n, 1)) * 0.5, 2.4);
-        const padStr = `${pad.toFixed(3)}rem`;
-        document.documentElement.style.setProperty('--row-pad', padStr);
-        document.getElementById('sv-pad').textContent = `n=${n} → ${padStr}`;
-      }
-    } catch (_) {}
+
+  deactivate() {
+    if (!this.on) return;
+    this.on = false;
+    // el gain baja → la cola del reverb drena sola
+    this.gain.gain.setTargetAtTime(0, actx.currentTime, 0.07);
+    const o = this.osc, f = this.filt;
+    setTimeout(() => { try { o.stop(); o.disconnect(); f.disconnect(); } catch(e) {} }, 300);
+    this.osc = null; this.filt = null;
   }
- 
-  // ── FUENTE DEL SISTEMA ──
-  function detectFont() {
-    const f = window.getComputedStyle(document.body).fontFamily;
-    const el = document.getElementById('sv-font');
-    if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
+
+  move(xr, yr) {
+    if (!this.osc) return null;
+    const freq = this.cfg.base * Math.pow(this.cfg.top / this.cfg.base, xr);
+    this.osc.frequency.setTargetAtTime(freq, actx.currentTime, 0.035);
+    const fc = 180 * Math.pow(111, 1 - yr);
+    this.filt.frequency.setTargetAtTime(fc, actx.currentTime, 0.035);
+    return freq;
   }
- 
-  geo();
-  counter();
-  window.addEventListener('load', detectFont);
+}
+
+// build zones DOM
+const instZonesEl = document.getElementById('inst-zones');
+const synths  = ZONES_CFG.map(cfg => new ZoneSynth(cfg));
+const zoneEls = [];
+
+ZONES_CFG.forEach((cfg, i) => {
+  const z = document.createElement('div');
+  z.className = 'zone';
+  z.innerHTML = `
+    <div class="zone-id">${cfg.id}</div>
+    <div class="zone-area"><div class="v-line" id="vl-${i}"></div></div>
+    <div class="zone-meta">
+      <span class="wave-type">${cfg.name}</span><br>
+      <span class="rev-label">${cfg.revTime}s</span>
+    </div>`;
+  instZonesEl.appendChild(z);
+  zoneEls.push(z);
+});
+
+// zone management
+let curZone = -1, hinted = false;
+
+function hideHint() {
+  if (!hinted) { document.getElementById('inst-hint').classList.add('gone'); hinted = true; }
+}
+
+function setZone(i) {
+  if (i === curZone) return;
+  if (curZone >= 0) { synths[curZone].deactivate(); zoneEls[curZone].classList.remove('active'); }
+  curZone = i;
+  if (i >= 0) {
+    initAudio();
+    if (actx.state === 'suspended') actx.resume();
+    synths[i].activate();
+    zoneEls[i].classList.add('active');
+    document.getElementById('inst-active-id').textContent = ZONES_CFG[i].id;
+  } else {
+    document.getElementById('inst-active-id').textContent = '—';
+    document.getElementById('inst-r-freq').textContent = '——\u00a0hz';
+    document.getElementById('inst-r-wave').textContent = '—';
+  }
+}
+
+function applyMove(i, clientX, clientY) {
+  const rect = zoneEls[i].getBoundingClientRect();
+  const area = zoneEls[i].querySelector('.zone-area');
+  const ar   = area.getBoundingClientRect();
+  const xr   = Math.max(0, Math.min(1, (clientX - ar.left) / ar.width));
+  const yr   = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+  const freq = synths[i].move(xr, yr);
+  const vl   = document.getElementById(`vl-${i}`);
+  if (vl) vl.style.left = (clientX - ar.left) + 'px';
+  if (freq != null) {
+    document.getElementById('inst-r-freq').textContent = freq.toFixed(1) + '\u00a0hz';
+    document.getElementById('inst-r-wave').textContent = ZONES_CFG[i].wave;
+  }
+}
+
+// mouse
+zoneEls.forEach((el, i) => {
+  el.addEventListener('mouseenter', () => { hideHint(); setZone(i); });
+  el.addEventListener('mouseleave', () => setZone(-1));
+  el.addEventListener('mousemove', e => { if (curZone === i) applyMove(i, e.clientX, e.clientY); });
+});
+
+// touch
+const layer = document.getElementById('layer');
+layer.addEventListener('touchstart', e => {
+  // no interceptar el dot del header
+  if (e.target.id === 'inst-trigger') return;
+  e.preventDefault();
+  hideHint();
+  const t = e.touches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const zone = el && el.closest('.zone');
+  const i = zone ? zoneEls.indexOf(zone) : -1;
+  if (i >= 0) { setZone(i); applyMove(i, t.clientX, t.clientY); }
+}, { passive: false });
+
+layer.addEventListener('touchmove', e => {
+  if (e.target.id === 'inst-trigger') return;
+  e.preventDefault();
+  const t = e.touches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const zone = el && el.closest('.zone');
+  const i = zone ? zoneEls.indexOf(zone) : -1;
+  if (i >= 0 && i !== curZone) setZone(i);
+  if (curZone >= 0) applyMove(curZone, t.clientX, t.clientY);
+}, { passive: false });
+
+layer.addEventListener('touchend', e => {
+  if (e.target.id === 'inst-trigger') return;
+  e.preventDefault(); setZone(-1);
+}, { passive: false });
+
+// scope
+const canvas  = document.getElementById('inst-scope');
+const cx      = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width  = canvas.offsetWidth  * devicePixelRatio;
+  canvas.height = canvas.offsetHeight * devicePixelRatio;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function drawScope() {
+  requestAnimationFrame(drawScope);
+  const W = canvas.width, H = canvas.height;
+  cx.clearRect(0, 0, W, H);
+
+  if (!analyser || curZone < 0) {
+    cx.beginPath(); cx.strokeStyle = '#141414'; cx.lineWidth = 1;
+    cx.moveTo(0, H / 2); cx.lineTo(W, H / 2); cx.stroke();
+    return;
+  }
+
+  const data = new Float32Array(analyser.fftSize);
+  analyser.getFloatTimeDomainData(data);
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff0000';
+
+  cx.beginPath();
+  cx.strokeStyle = accent;
+  cx.lineWidth = devicePixelRatio;
+  cx.lineJoin = 'round';
+  const sliceW = W / data.length;
+  data.forEach((v, i) => {
+    const x = i * sliceW, y = (0.5 + v * 0.42) * H;
+    i === 0 ? cx.moveTo(x, y) : cx.lineTo(x, y);
+  });
+  cx.stroke();
+}
+drawScope();
 </script>
 </body>
 </html>
- 
