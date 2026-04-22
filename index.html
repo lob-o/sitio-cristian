@@ -295,7 +295,8 @@
       pointer-events: none;
     }
 
-    .zone.active .v-line { opacity: 0.5; }
+    .zone:hover .v-line  { opacity: 0.2; }
+    .zone.active .v-line { opacity: 0.6; }
 
     .zone-meta {
       font-size: 9px;
@@ -594,7 +595,7 @@ const ZONES_CFG = [
   { id: 'I',   wave: 'sine',     base: 55.00,   top: 220.00,   name: 'sine',     revTime: 20, revDecay: 1.5 },
   { id: 'II',  wave: 'triangle', base: 110.00,  top: 440.00,   name: 'triangle', revTime: 14, revDecay: 1.7 },
   { id: 'III', wave: 'sine',     base: 220.00,  top: 880.00,   name: 'sine',     revTime: 9,  revDecay: 2.0 },
-  { id: 'IV',  wave: 'square',   base: 440.00,  top: 1760.00,  name: 'square',   revTime: 5,  revDecay: 2.5 },
+  { id: 'IV',  wave: 'square',   base: 330.00,  top: 1100.00,  name: 'square',   revTime: 5,  revDecay: 2.5, preFilter: 900, maxFilter: 1200 },
   { id: 'V',   wave: 'sine',     base: 880.00,  top: 3520.00,  name: 'sine ×',   revTime: 3,  revDecay: 3.0 },
 ];
 
@@ -610,10 +611,11 @@ function initAudio() {
 
 class ZoneSynth {
   constructor(cfg) {
-    this.cfg     = cfg;
-    this.osc     = null;
-    this.filt    = null;
-    this.on      = false;
+    this.cfg      = cfg;
+    this.osc      = null;
+    this.filt     = null;
+    this.preFilt  = null;
+    this.on       = false;
     // persistentes
     this.gain    = null;
     this.conv    = null;
@@ -648,14 +650,28 @@ class ZoneSynth {
     this.on = true;
     this._buildChain();
 
+    // filtro dinámico (controlado por Y del mouse)
     this.filt = actx.createBiquadFilter();
-    this.filt.type = 'lowpass'; this.filt.Q.value = 2.5; this.filt.frequency.value = 2000;
+    this.filt.type = 'lowpass';
+    this.filt.Q.value = 2.5;
+    this.filt.frequency.value = this.cfg.maxFilter || 2000;
 
     this.osc = actx.createOscillator();
     this.osc.type = this.cfg.wave;
     this.osc.frequency.value = this.cfg.base;
 
-    this.osc.connect(this.filt);
+    if (this.cfg.preFilter) {
+      // pre-filtro estático: corta los armónicos más agresivos antes del filtro dinámico
+      this.preFilt = actx.createBiquadFilter();
+      this.preFilt.type = 'lowpass';
+      this.preFilt.frequency.value = this.cfg.preFilter;
+      this.preFilt.Q.value = 0.4; // suave, sin resonancia
+      this.osc.connect(this.preFilt);
+      this.preFilt.connect(this.filt);
+    } else {
+      this.osc.connect(this.filt);
+    }
+
     this.filt.connect(this.gain);
     this.osc.start();
     this.gain.gain.setTargetAtTime(0.65, actx.currentTime, 0.025);
@@ -664,18 +680,21 @@ class ZoneSynth {
   deactivate() {
     if (!this.on) return;
     this.on = false;
-    // el gain baja → la cola del reverb drena sola
     this.gain.gain.setTargetAtTime(0, actx.currentTime, 0.07);
-    const o = this.osc, f = this.filt;
-    setTimeout(() => { try { o.stop(); o.disconnect(); f.disconnect(); } catch(e) {} }, 300);
-    this.osc = null; this.filt = null;
+    const o = this.osc, f = this.filt, pf = this.preFilt;
+    setTimeout(() => {
+      try { o.stop(); o.disconnect(); f.disconnect(); if (pf) pf.disconnect(); } catch(e) {}
+    }, 300);
+    this.osc = null; this.filt = null; this.preFilt = null;
   }
 
   move(xr, yr) {
     if (!this.osc) return null;
     const freq = this.cfg.base * Math.pow(this.cfg.top / this.cfg.base, xr);
     this.osc.frequency.setTargetAtTime(freq, actx.currentTime, 0.035);
-    const fc = 180 * Math.pow(111, 1 - yr);
+    // el rango del filtro se limita por maxFilter (útil para square)
+    const maxF = this.cfg.maxFilter || 20000;
+    const fc = 180 * Math.pow(maxF / 180, 1 - yr);
     this.filt.frequency.setTargetAtTime(fc, actx.currentTime, 0.035);
     return freq;
   }
@@ -700,31 +719,42 @@ ZONES_CFG.forEach((cfg, i) => {
   zoneEls.push(z);
 });
 
-// zone management
-let curZone = -1, hinted = false;
+// zone management — poliphónico
+const activeSet = new Set();
+let hinted = false;
 
 function hideHint() {
   if (!hinted) { document.getElementById('inst-hint').classList.add('gone'); hinted = true; }
 }
 
-function setZone(i) {
-  if (i === curZone) return;
-  if (curZone >= 0) { synths[curZone].deactivate(); zoneEls[curZone].classList.remove('active'); }
-  curZone = i;
-  if (i >= 0) {
-    initAudio();
-    if (actx.state === 'suspended') actx.resume();
-    synths[i].activate();
-    zoneEls[i].classList.add('active');
-    document.getElementById('inst-active-id').textContent = ZONES_CFG[i].id;
-  } else {
-    document.getElementById('inst-active-id').textContent = '—';
+function updateActiveDisplay() {
+  const ids = [...activeSet].map(j => ZONES_CFG[j].id);
+  document.getElementById('inst-active-id').textContent = ids.length ? ids.join(' · ') : '—';
+  if (!ids.length) {
     document.getElementById('inst-r-freq').textContent = '——\u00a0hz';
     document.getElementById('inst-r-wave').textContent = '—';
   }
 }
 
+// click/tap en desktop: toggle on/off
+function toggleZone(i) {
+  initAudio();
+  if (actx.state === 'suspended') actx.resume();
+  hideHint();
+  if (synths[i].on) {
+    synths[i].deactivate();
+    zoneEls[i].classList.remove('active');
+    activeSet.delete(i);
+  } else {
+    synths[i].activate();
+    zoneEls[i].classList.add('active');
+    activeSet.add(i);
+  }
+  updateActiveDisplay();
+}
+
 function applyMove(i, clientX, clientY) {
+  if (!synths[i].on) return;
   const rect = zoneEls[i].getBoundingClientRect();
   const area = zoneEls[i].querySelector('.zone-area');
   const ar   = area.getBoundingClientRect();
@@ -739,41 +769,67 @@ function applyMove(i, clientX, clientY) {
   }
 }
 
-// mouse
+// mouse: click para toggle, move para modular
 zoneEls.forEach((el, i) => {
-  el.addEventListener('mouseenter', () => { hideHint(); setZone(i); });
-  el.addEventListener('mouseleave', () => setZone(-1));
-  el.addEventListener('mousemove', e => { if (curZone === i) applyMove(i, e.clientX, e.clientY); });
+  el.addEventListener('click', () => toggleZone(i));
+  el.addEventListener('mousemove', e => {
+    // v-line siempre visible en hover
+    const area = el.querySelector('.zone-area');
+    const ar = area.getBoundingClientRect();
+    const vl = document.getElementById(`vl-${i}`);
+    if (vl) vl.style.left = (e.clientX - ar.left) + 'px';
+    // modulación solo si activa
+    if (synths[i].on) applyMove(i, e.clientX, e.clientY);
+  });
 });
 
-// touch
+// touch: hold para sonar (cada dedo controla una zona)
 const layer = document.getElementById('layer');
+const touchMap = {}; // identifier → zone index
+
 layer.addEventListener('touchstart', e => {
-  // no interceptar el dot del header
-  if (e.target.id === 'inst-trigger') return;
+  if (e.target.closest('#inst-trigger')) return;
   e.preventDefault();
   hideHint();
-  const t = e.touches[0];
-  const el = document.elementFromPoint(t.clientX, t.clientY);
-  const zone = el && el.closest('.zone');
-  const i = zone ? zoneEls.indexOf(zone) : -1;
-  if (i >= 0) { setZone(i); applyMove(i, t.clientX, t.clientY); }
+  initAudio();
+  if (actx.state === 'suspended') actx.resume();
+  for (const t of e.changedTouches) {
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    const zone = el && el.closest('.zone');
+    const i = zone ? zoneEls.indexOf(zone) : -1;
+    if (i >= 0) {
+      touchMap[t.identifier] = i;
+      if (!synths[i].on) {
+        synths[i].activate();
+        zoneEls[i].classList.add('active');
+        activeSet.add(i);
+        updateActiveDisplay();
+      }
+      applyMove(i, t.clientX, t.clientY);
+    }
+  }
 }, { passive: false });
 
 layer.addEventListener('touchmove', e => {
-  if (e.target.id === 'inst-trigger') return;
+  if (e.target.closest('#inst-trigger')) return;
   e.preventDefault();
-  const t = e.touches[0];
-  const el = document.elementFromPoint(t.clientX, t.clientY);
-  const zone = el && el.closest('.zone');
-  const i = zone ? zoneEls.indexOf(zone) : -1;
-  if (i >= 0 && i !== curZone) setZone(i);
-  if (curZone >= 0) applyMove(curZone, t.clientX, t.clientY);
+  for (const t of e.changedTouches) {
+    const i = touchMap[t.identifier];
+    if (i !== undefined) applyMove(i, t.clientX, t.clientY);
+  }
 }, { passive: false });
 
 layer.addEventListener('touchend', e => {
-  if (e.target.id === 'inst-trigger') return;
-  e.preventDefault(); setZone(-1);
+  for (const t of e.changedTouches) {
+    const i = touchMap[t.identifier];
+    if (i !== undefined) {
+      synths[i].deactivate();
+      zoneEls[i].classList.remove('active');
+      activeSet.delete(i);
+      delete touchMap[t.identifier];
+    }
+  }
+  updateActiveDisplay();
 }, { passive: false });
 
 // scope
@@ -792,7 +848,7 @@ function drawScope() {
   const W = canvas.width, H = canvas.height;
   cx.clearRect(0, 0, W, H);
 
-  if (!analyser || curZone < 0) {
+  if (!analyser || activeSet.size === 0) {
     cx.beginPath(); cx.strokeStyle = '#141414'; cx.lineWidth = 1;
     cx.moveTo(0, H / 2); cx.lineTo(W, H / 2); cx.stroke();
     return;
