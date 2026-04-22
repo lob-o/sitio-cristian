@@ -448,6 +448,15 @@
       </div>
     </div>
 
+    <div class="group" style="animation-delay:0.54s">
+      <div class="cat-label"></div>
+      <div class="items-col">
+        <span class="item" id="grid-mode-trigger" style="cursor:pointer">
+          <span class="item-name">instrumento</span>
+        </span>
+      </div>
+    </div>
+
   </div>
 
   <footer>
@@ -582,6 +591,7 @@ function toggleMode() {
 
 document.getElementById('mode-trigger').addEventListener('click', toggleMode);
 document.getElementById('inst-trigger').addEventListener('click', toggleMode);
+document.getElementById('grid-mode-trigger').addEventListener('click', toggleMode);
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.body.classList.contains('inst-mode')) toggleMode();
