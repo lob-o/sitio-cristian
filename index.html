@@ -3,7 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>cristián heyne</title>
+
+  <!-- SEO -->
+  <title>Cristián Heyne — músico, productor y consultor chileno</title>
+  <meta name="description" content="Sitio oficial de Cristián Heyne: músico, productor discográfico chileno y consultor. Creador de Shogun, Tormenta y Christianes. Fundador de Process y Ethereal.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://cristianheyne.xyz/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="profile">
+  <meta property="og:locale" content="es_CL">
+  <meta property="og:title" content="Cristián Heyne">
+  <meta property="og:description" content="Músico, productor discográfico chileno y consultor. Creador de Shogun, Tormenta y Christianes.">
+  <meta property="og:url" content="https://cristianheyne.xyz/">
+  <meta property="og:site_name" content="Cristián Heyne">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Cristián Heyne">
+  <meta name="twitter:description" content="Músico, productor discográfico chileno y consultor. Creador de Shogun, Tormenta y Christianes.">
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Cristián Heyne",
+    "alternateName": ["Cristian Heyne", "Shogun", "Shogún"],
+    "url": "https://cristianheyne.xyz/",
+    "jobTitle": ["Productor musical", "Músico", "Consultor"],
+    "birthDate": "1973-01-13",
+    "birthPlace": { "@type": "Place", "name": "Santiago de Chile" },
+    "nationality": "Chilean",
+    "description": "Productor musical chileno, músico y consultor. Creador de Shogun, Tormenta y Christianes. Productor de Javiera Mena, Gepe, Dënver, Alex Anwandter y Camila Moreno.",
+    "knowsAbout": ["producción musical", "música chilena", "pop chileno", "estrategia cultural", "consultoría para entretenimiento"],
+    "sameAs": [
+      "https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne",
+      "https://www.instagram.com/shogu_n__/",
+      "https://open.spotify.com/intl-es/artist/4EskZedbeDSe1AqjyxASl2",
+      "https://processdata.cl/",
+      "https://www.etherealart.online/"
+    ]
+  }
+  </script>
+
   <style>
     :root {
       --bg: #ffffff;
@@ -28,11 +69,8 @@
       line-height: 1;
     }
 
-    body.inst-mode {
-      overflow: hidden;
-    }
+    body.inst-mode { overflow: hidden; }
 
-    /* ── PUNTO ROJO COMPARTIDO ── */
     .dot {
       display: inline-block;
       width: 5px;
@@ -45,9 +83,6 @@
     }
     .dot:hover { transform: scale(1.6); }
 
-    /* ═══════════════════════════════════
-       SITIO PRINCIPAL
-    ═══════════════════════════════════ */
     #site {
       background: var(--bg);
       color: var(--fg);
@@ -64,9 +99,7 @@
       flex-direction: column;
     }
 
-    #site header {
-      margin-bottom: clamp(3rem, 10vh, 5rem);
-    }
+    #site header { margin-bottom: clamp(3rem, 10vh, 5rem); }
 
     .site-name {
       font-size: 11px;
@@ -77,6 +110,17 @@
       align-items: center;
       gap: 8px;
       color: var(--fg);
+    }
+
+    /* Bio invisible para crawlers */
+    .seo-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .table { display: flex; flex-direction: column; }
@@ -181,9 +225,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ═══════════════════════════════════
-       CAPA INSTRUMENTO
-    ═══════════════════════════════════ */
+    /* ═══ CAPA INSTRUMENTO ═══ */
     #layer {
       position: fixed;
       inset: 0;
@@ -201,10 +243,7 @@
       touch-action: none;
     }
 
-    body.inst-mode #layer {
-      opacity: 1;
-      pointer-events: all;
-    }
+    body.inst-mode #layer { opacity: 1; pointer-events: all; }
 
     .inst-wrap {
       height: 100%;
@@ -244,7 +283,6 @@
       text-align: right;
     }
 
-    /* zonas */
     .inst-zones {
       flex: 1;
       display: flex;
@@ -311,7 +349,6 @@
     .rev-label { color: #1f1f1f; }
     .zone.active .rev-label { color: #2a2a2a; }
 
-    /* scope */
     #inst-scope {
       flex-shrink: 0;
       width: 100%;
@@ -320,7 +357,6 @@
       margin: 1.4rem 0;
     }
 
-    /* footer instrumento */
     .inst-footer {
       flex-shrink: 0;
       display: flex;
@@ -382,9 +418,6 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════
-     SITIO PRINCIPAL
-═══════════════════════════════════ -->
 <div id="site">
 <main>
   <header>
@@ -392,6 +425,8 @@
       cristián heyne
       <span class="dot" id="mode-trigger" title="instrumento"></span>
     </div>
+    <!-- Bio para crawlers, invisible para usuarios -->
+    <p class="seo-only">Cristián Heyne es músico, productor discográfico y consultor chileno. Creador de los proyectos Shogun, Tormenta y Christianes. Fundador de Process, consultora de estrategia cultural, y de Ethereal, estudio de entretenimiento. Ha producido discos de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.</p>
   </header>
 
   <div class="table">
@@ -480,9 +515,6 @@
 </main>
 </div>
 
-<!-- ═══════════════════════════════════
-     CAPA INSTRUMENTO
-═══════════════════════════════════ -->
 <div id="layer" aria-hidden="true">
   <div class="inst-wrap">
 
@@ -516,10 +548,6 @@
 </div>
 
 <script>
-// ═══════════════════════════════════
-// COMPARTIDO: acento, reloj, geo, contador
-// ═══════════════════════════════════
-
 function pad(n) { return String(n).padStart(2, '0'); }
 const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
 const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -578,15 +606,10 @@ window.addEventListener('load', () => {
 
 geo(); counter();
 
-// ═══════════════════════════════════
-// MODO: toggle sitio ↔ instrumento
-// ═══════════════════════════════════
-
 function toggleMode() {
   const entering = !document.body.classList.contains('inst-mode');
   document.body.classList.toggle('inst-mode');
   document.getElementById('layer').setAttribute('aria-hidden', entering ? 'false' : 'true');
-  // si entramos al instrumento y el audio no está, se inicializará al primer touch/hover
 }
 
 document.getElementById('mode-trigger').addEventListener('click', toggleMode);
@@ -596,10 +619,6 @@ document.getElementById('grid-mode-trigger').addEventListener('click', toggleMod
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.body.classList.contains('inst-mode')) toggleMode();
 });
-
-// ═══════════════════════════════════
-// INSTRUMENTO: audio, zonas, interacción
-// ═══════════════════════════════════
 
 const ZONES_CFG = [
   { id: 'I',   wave: 'sine',     base: 55.00,   top: 220.00,   name: 'sine',     revTime: 20, revDecay: 1.5 },
@@ -621,16 +640,8 @@ function initAudio() {
 
 class ZoneSynth {
   constructor(cfg) {
-    this.cfg      = cfg;
-    this.osc      = null;
-    this.filt     = null;
-    this.preFilt  = null;
-    this.on       = false;
-    // persistentes
-    this.gain    = null;
-    this.conv    = null;
-    this.convDry = null;
-    this.convWet = null;
+    this.cfg = cfg; this.osc = null; this.filt = null; this.preFilt = null;
+    this.on = false; this.gain = null; this.conv = null; this.convDry = null; this.convWet = null;
   }
 
   _buildChain() {
@@ -642,12 +653,10 @@ class ZoneSynth {
       for (let i = 0; i < len; i++)
         d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, this.cfg.revDecay);
     }
-    this.conv    = actx.createConvolver();
-    this.conv.buffer = buf;
+    this.conv = actx.createConvolver(); this.conv.buffer = buf;
     this.convDry = actx.createGain(); this.convDry.gain.value = 0.5;
     this.convWet = actx.createGain(); this.convWet.gain.value = 0.5;
     this.gain    = actx.createGain(); this.gain.gain.value = 0;
-
     this.gain.connect(this.convDry);
     this.gain.connect(this.conv);
     this.convDry.connect(analyser);
@@ -659,29 +668,22 @@ class ZoneSynth {
     if (this.on || !actx) return;
     this.on = true;
     this._buildChain();
-
-    // filtro dinámico (controlado por Y del mouse)
     this.filt = actx.createBiquadFilter();
-    this.filt.type = 'lowpass';
-    this.filt.Q.value = 2.5;
+    this.filt.type = 'lowpass'; this.filt.Q.value = 2.5;
     this.filt.frequency.value = this.cfg.maxFilter || 2000;
-
     this.osc = actx.createOscillator();
     this.osc.type = this.cfg.wave;
     this.osc.frequency.value = this.cfg.base;
-
     if (this.cfg.preFilter) {
-      // pre-filtro estático: corta los armónicos más agresivos antes del filtro dinámico
       this.preFilt = actx.createBiquadFilter();
       this.preFilt.type = 'lowpass';
       this.preFilt.frequency.value = this.cfg.preFilter;
-      this.preFilt.Q.value = 0.4; // suave, sin resonancia
+      this.preFilt.Q.value = 0.4;
       this.osc.connect(this.preFilt);
       this.preFilt.connect(this.filt);
     } else {
       this.osc.connect(this.filt);
     }
-
     this.filt.connect(this.gain);
     this.osc.start();
     this.gain.gain.setTargetAtTime(0.65, actx.currentTime, 0.025);
@@ -702,7 +704,6 @@ class ZoneSynth {
     if (!this.osc) return null;
     const freq = this.cfg.base * Math.pow(this.cfg.top / this.cfg.base, xr);
     this.osc.frequency.setTargetAtTime(freq, actx.currentTime, 0.035);
-    // el rango del filtro se limita por maxFilter (útil para square)
     const maxF = this.cfg.maxFilter || 20000;
     const fc = 180 * Math.pow(maxF / 180, 1 - yr);
     this.filt.frequency.setTargetAtTime(fc, actx.currentTime, 0.035);
@@ -710,7 +711,6 @@ class ZoneSynth {
   }
 }
 
-// build zones DOM
 const instZonesEl = document.getElementById('inst-zones');
 const synths  = ZONES_CFG.map(cfg => new ZoneSynth(cfg));
 const zoneEls = [];
@@ -729,7 +729,6 @@ ZONES_CFG.forEach((cfg, i) => {
   zoneEls.push(z);
 });
 
-// zone management — poliphónico
 const activeSet = new Set();
 let hinted = false;
 
@@ -746,19 +745,14 @@ function updateActiveDisplay() {
   }
 }
 
-// click/tap en desktop: toggle on/off
 function toggleZone(i) {
   initAudio();
   if (actx.state === 'suspended') actx.resume();
   hideHint();
   if (synths[i].on) {
-    synths[i].deactivate();
-    zoneEls[i].classList.remove('active');
-    activeSet.delete(i);
+    synths[i].deactivate(); zoneEls[i].classList.remove('active'); activeSet.delete(i);
   } else {
-    synths[i].activate();
-    zoneEls[i].classList.add('active');
-    activeSet.add(i);
+    synths[i].activate(); zoneEls[i].classList.add('active'); activeSet.add(i);
   }
   updateActiveDisplay();
 }
@@ -779,29 +773,23 @@ function applyMove(i, clientX, clientY) {
   }
 }
 
-// mouse: click para toggle, move para modular
 zoneEls.forEach((el, i) => {
   el.addEventListener('click', () => toggleZone(i));
   el.addEventListener('mousemove', e => {
-    // v-line siempre visible en hover
     const area = el.querySelector('.zone-area');
     const ar = area.getBoundingClientRect();
     const vl = document.getElementById(`vl-${i}`);
     if (vl) vl.style.left = (e.clientX - ar.left) + 'px';
-    // modulación solo si activa
     if (synths[i].on) applyMove(i, e.clientX, e.clientY);
   });
 });
 
-// touch: hold para sonar (cada dedo controla una zona)
 const layer = document.getElementById('layer');
-const touchMap = {}; // identifier → zone index
+const touchMap = {};
 
 layer.addEventListener('touchstart', e => {
   if (e.target.closest('#inst-trigger')) return;
-  e.preventDefault();
-  hideHint();
-  initAudio();
+  e.preventDefault(); hideHint(); initAudio();
   if (actx.state === 'suspended') actx.resume();
   for (const t of e.changedTouches) {
     const el = document.elementFromPoint(t.clientX, t.clientY);
@@ -810,10 +798,8 @@ layer.addEventListener('touchstart', e => {
     if (i >= 0) {
       touchMap[t.identifier] = i;
       if (!synths[i].on) {
-        synths[i].activate();
-        zoneEls[i].classList.add('active');
-        activeSet.add(i);
-        updateActiveDisplay();
+        synths[i].activate(); zoneEls[i].classList.add('active');
+        activeSet.add(i); updateActiveDisplay();
       }
       applyMove(i, t.clientX, t.clientY);
     }
@@ -833,18 +819,15 @@ layer.addEventListener('touchend', e => {
   for (const t of e.changedTouches) {
     const i = touchMap[t.identifier];
     if (i !== undefined) {
-      synths[i].deactivate();
-      zoneEls[i].classList.remove('active');
-      activeSet.delete(i);
-      delete touchMap[t.identifier];
+      synths[i].deactivate(); zoneEls[i].classList.remove('active');
+      activeSet.delete(i); delete touchMap[t.identifier];
     }
   }
   updateActiveDisplay();
 }, { passive: false });
 
-// scope
-const canvas  = document.getElementById('inst-scope');
-const cx      = canvas.getContext('2d');
+const canvas = document.getElementById('inst-scope');
+const cx = canvas.getContext('2d');
 
 function resizeCanvas() {
   canvas.width  = canvas.offsetWidth  * devicePixelRatio;
@@ -857,21 +840,16 @@ function drawScope() {
   requestAnimationFrame(drawScope);
   const W = canvas.width, H = canvas.height;
   cx.clearRect(0, 0, W, H);
-
   if (!analyser || activeSet.size === 0) {
     cx.beginPath(); cx.strokeStyle = '#141414'; cx.lineWidth = 1;
     cx.moveTo(0, H / 2); cx.lineTo(W, H / 2); cx.stroke();
     return;
   }
-
   const data = new Float32Array(analyser.fftSize);
   analyser.getFloatTimeDomainData(data);
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff0000';
-
   cx.beginPath();
-  cx.strokeStyle = accent;
-  cx.lineWidth = devicePixelRatio;
-  cx.lineJoin = 'round';
+  cx.strokeStyle = accent; cx.lineWidth = devicePixelRatio; cx.lineJoin = 'round';
   const sliceW = W / data.length;
   data.forEach((v, i) => {
     const x = i * sliceW, y = (0.5 + v * 0.42) * H;
