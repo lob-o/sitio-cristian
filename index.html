@@ -706,6 +706,7 @@ async function uvIndex() {
 }
 
 
+window.addEventListener('load', () => {
   const f = window.getComputedStyle(document.body).fontFamily;
   const el = document.getElementById('sv-font');
   if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
