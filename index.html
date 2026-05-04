@@ -618,14 +618,12 @@ let sismoData = null; // { mag, ms, place, depth }
 
 function sismoTimeStr(ms) {
   const diff  = Date.now() - ms;
-  const secs  = Math.floor(diff / 1000);
-  const mins  = Math.floor(secs / 60);
+  const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(mins / 60);
   const days  = Math.floor(hours / 24);
-  if (days > 0)        return `${days}D ${pad(hours % 24)}H ${pad(mins % 60)}M`;
-  if (hours > 0)       return `${pad(hours)}H ${pad(mins % 60)}M ${pad(secs % 60)}S`;
-  if (mins > 0)        return `${pad(mins)}M ${pad(secs % 60)}S`;
-  return `${pad(secs)}S`;
+  if (days > 0)  return `${days}D ${pad(hours % 24)}H ${pad(mins % 60)}M`;
+  if (hours > 0) return `${pad(hours)}H ${pad(mins % 60)}M`;
+  return `${pad(mins)}M`;
 }
 
 function sismoRender() {
@@ -633,7 +631,7 @@ function sismoRender() {
   const { mag, ms, place, depth } = sismoData;
   const el = document.getElementById('sv-sismo');
   const timeStr = sismoTimeStr(ms);
-  el.textContent = `M${mag.toFixed(1)} · hace ${timeStr} · ${place} · ${depth}KM`;
+  el.textContent = `último sismo · M${mag.toFixed(1)} · hace ${timeStr} · ${place} · ${depth}KM`;
 
   const secsAgo = (Date.now() - ms) / 1000;
   if (mag >= 6.0 || secsAgo < 1800) {
