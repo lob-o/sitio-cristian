@@ -33,7 +33,7 @@
     "birthDate": "1973-01-13",
     "birthPlace": { "@type": "Place", "name": "Santiago de Chile" },
     "nationality": "Chilean",
-    "description": "Productor musical chileno, músico y consultor. Creador de Shogun, Tormenta y Christianes. Productor de Javiera Mena, Gepe, Dënver, Alex Anwandter y Camila Moreno.",
+    "description": "Productor musical chileno, músico y consultor. Creador de Shogun, Tormenta y Christianes. Productor de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.",
     "knowsAbout": ["producción musical", "música chilena", "pop chileno", "estrategia cultural", "consultoría para entretenimiento"],
     "sameAs": [
       "https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne",
@@ -112,7 +112,6 @@
       color: var(--fg);
     }
 
-    /* Bio invisible para crawlers */
     .seo-only {
       position: absolute;
       width: 1px; height: 1px;
@@ -219,6 +218,21 @@
     }
 
     .sys-val span { display: block; color: var(--muted); font-weight: 600; }
+
+    /* ── Sismo ── */
+    #sv-sismo {
+      transition: color 0.6s ease;
+    }
+
+    @keyframes sismo-settle {
+      0%   { letter-spacing: 0.18em; opacity: 0.4; }
+      60%  { letter-spacing: 0.06em; opacity: 1; }
+      100% { letter-spacing: 0.08em; opacity: 1; }
+    }
+
+    .sismo-new {
+      animation: sismo-settle 0.9s cubic-bezier(0.23, 1, 0.32, 1) 1;
+    }
 
     @keyframes reveal {
       from { opacity: 0; transform: translateY(6px); }
@@ -425,7 +439,6 @@
       cristián heyne
       <span class="dot" id="mode-trigger" title="instrumento"></span>
     </div>
-    <!-- Bio para crawlers, invisible para usuarios -->
     <p class="seo-only">Cristián Heyne es músico, productor discográfico y consultor chileno. Creador de los proyectos Shogun, Tormenta y Christianes. Fundador de Process, consultora de estrategia cultural, y de Ethereal, estudio de entretenimiento. Ha producido discos de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.</p>
   </header>
 
@@ -511,6 +524,7 @@
     <div class="sys-val">hora santiago<span id="sv-hour">—</span></div>
     <div class="sys-val">espaciado<span id="sv-pad">—</span></div>
     <div class="sys-val">fuente<span id="sv-font">—</span></div>
+    <div class="sys-val">último sismo<span id="sv-sismo">—</span></div>
   </div>
 </main>
 </div>
@@ -598,13 +612,66 @@ async function counter() {
   } catch(_) {}
 }
 
+async function seismic() {
+  try {
+    const url = 'https://earthquake.usgs.gov/fdsnws/event/1/query' +
+      '?format=geojson&limit=1&orderby=time&minmagnitude=1.5' +
+      '&minlatitude=-56&maxlatitude=-17&minlongitude=-76&maxlongitude=-66';
+    const data = await (await fetch(url)).json();
+    const eq = data.features && data.features[0];
+    if (!eq) return;
+
+    const mag  = parseFloat(eq.properties.mag);
+    const ms   = eq.properties.time;
+    const depth = Math.round(eq.geometry.coordinates[2]);
+
+    // Tiempo transcurrido
+    const diff     = Date.now() - ms;
+    const totalMin = Math.floor(diff / 60000);
+    const hours    = Math.floor(totalMin / 60);
+    const days     = Math.floor(hours / 24);
+    let timeStr;
+    if (days > 0)        timeStr = `${days}D ${hours % 24}H`;
+    else if (hours > 0)  timeStr = `${hours}H ${totalMin % 60}MIN`;
+    else                 timeStr = `${totalMin}MIN`;
+
+    // Lugar
+    let place = eq.properties.place || '';
+    place = place.replace(/^\d+\s*km\s+[A-Z]+\s+of\s+/i, '');
+    place = place.replace(/,?\s*chile$/i, '').trim().toUpperCase();
+    if (place.length > 20) place = place.substring(0, 20) + '…';
+
+    const el = document.getElementById('sv-sismo');
+    el.textContent = `M${mag.toFixed(1)} · ${timeStr} · ${place} · ${depth}KM`;
+
+    // Color según magnitud o recencia
+    const isRecent = totalMin < 30;
+    if (mag >= 6.0 || isRecent) {
+      el.style.color = 'var(--accent)';
+    } else if (mag >= 4.5) {
+      el.style.color = 'var(--fg)';
+    } else {
+      el.style.color = '';
+    }
+
+    // Animación de asentamiento — solo si magnitud notable
+    if (mag >= 4.0) {
+      el.classList.remove('sismo-new');
+      void el.offsetWidth; // reflow para reiniciar
+      el.classList.add('sismo-new');
+    }
+
+  } catch(_) {}
+}
+
 window.addEventListener('load', () => {
   const f = window.getComputedStyle(document.body).fontFamily;
   const el = document.getElementById('sv-font');
   if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
 });
 
-geo(); counter();
+geo(); counter(); seismic();
+setInterval(seismic, 300000); // actualiza cada 5 min
 
 function toggleMode() {
   const entering = !document.body.classList.contains('inst-mode');
