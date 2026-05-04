@@ -516,7 +516,9 @@
       <span id="meta-ip">···</span><br>
       <span id="meta-loc">···</span><br>
       <span id="site-date">···</span> · <span id="site-time">00:00:00</span><br>
-      <span id="sv-sismo" style="transition:color 0.6s ease;">—</span>
+      <span id="sv-sismo" style="transition:color 0.6s ease;">—</span><br>
+      <span id="sv-vuelos" style="transition:color 0.6s ease;">—</span><br>
+      <span id="sv-uv" style="transition:color 0.6s ease;">—</span>
     </div>
   </footer>
 
@@ -673,15 +675,47 @@ async function seismicFetch() {
   } catch(_) {}
 }
 
-window.addEventListener('load', () => {
+async function flights() {
+  try {
+    // Bounding box sobre Santiago (~60km de radio)
+    const url = 'https://opensky-network.org/api/states/all?lamin=-34.1&lomin=-71.5&lamax=-33.0&lomax=-70.2';
+    const data = await (await fetch(url)).json();
+    const n = data.states ? data.states.length : 0;
+    const el = document.getElementById('sv-vuelos');
+    el.textContent = `${n} avión${n !== 1 ? 'es' : ''} sobre santiago ahora`;
+    el.style.color = n === 0 ? 'var(--muted)' : n >= 20 ? 'var(--fg)' : '';
+  } catch(_) {}
+}
+
+async function uvIndex() {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-33.45&longitude=-70.65&current=uv_index&timezone=America%2FSantiago';
+    const data = await (await fetch(url)).json();
+    const uv = data.current && data.current.uv_index;
+    if (uv == null) return;
+    const el = document.getElementById('sv-uv');
+    let nivel = '';
+    if (uv <= 2)       nivel = 'bajo';
+    else if (uv <= 5)  nivel = 'moderado';
+    else if (uv <= 7)  nivel = 'alto';
+    else if (uv <= 10) nivel = 'muy alto';
+    else               nivel = 'extremo';
+    el.textContent = `radiación uv ${uv.toFixed(1)} · ${nivel}`;
+    el.style.color = uv >= 8 ? 'var(--accent)' : uv >= 6 ? 'var(--fg)' : '';
+  } catch(_) {}
+}
+
+
   const f = window.getComputedStyle(document.body).fontFamily;
   const el = document.getElementById('sv-font');
   if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
 });
 
-geo(); counter(); seismicFetch();
-setInterval(seismicFetch, 300000); // re-fetch cada 5 min
-setInterval(sismoRender, 1000);    // actualiza contador cada segundo
+geo(); counter(); seismicFetch(); flights(); uvIndex();
+setInterval(seismicFetch, 300000); // sismo cada 5 min
+setInterval(sismoRender, 60000);   // contador sismo cada 1 min
+setInterval(flights, 120000);      // vuelos cada 2 min
+setInterval(uvIndex, 1800000);     // UV cada 30 min
 
 function toggleMode() {
   const entering = !document.body.classList.contains('inst-mode');
