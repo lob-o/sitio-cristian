@@ -515,7 +515,8 @@
     <div class="site-meta">
       <span id="meta-ip">···</span><br>
       <span id="meta-loc">···</span><br>
-      <span id="site-date">···</span> · <span id="site-time">00:00:00</span>
+      <span id="site-date">···</span> · <span id="site-time">00:00:00</span><br>
+      <span id="sv-sismo" style="transition:color 0.6s ease;">—</span>
     </div>
   </footer>
 
@@ -524,7 +525,7 @@
     <div class="sys-val">hora santiago<span id="sv-hour">—</span></div>
     <div class="sys-val">espaciado<span id="sv-pad">—</span></div>
     <div class="sys-val">fuente<span id="sv-font">—</span></div>
-    <div class="sys-val">último sismo<span id="sv-sismo">—</span></div>
+
   </div>
 </main>
 </div>
@@ -644,11 +645,11 @@ async function seismic() {
     const el = document.getElementById('sv-sismo');
     el.textContent = `M${mag.toFixed(1)} · ${timeStr} · ${place} · ${depth}KM`;
 
-    // Color según magnitud o recencia
+    // Color según magnitud
     const isRecent = totalMin < 30;
     if (mag >= 6.0 || isRecent) {
       el.style.color = 'var(--accent)';
-    } else if (mag >= 4.5) {
+    } else if (mag >= 4.0) {
       el.style.color = 'var(--fg)';
     } else {
       el.style.color = '';
