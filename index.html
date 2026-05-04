@@ -613,7 +613,39 @@ async function counter() {
   } catch(_) {}
 }
 
-async function seismic() {
+// Estado del último sismo
+let sismoData = null; // { mag, ms, place, depth }
+
+function sismoTimeStr(ms) {
+  const diff  = Date.now() - ms;
+  const secs  = Math.floor(diff / 1000);
+  const mins  = Math.floor(secs / 60);
+  const hours = Math.floor(mins / 60);
+  const days  = Math.floor(hours / 24);
+  if (days > 0)        return `${days}D ${pad(hours % 24)}H ${pad(mins % 60)}M`;
+  if (hours > 0)       return `${pad(hours)}H ${pad(mins % 60)}M ${pad(secs % 60)}S`;
+  if (mins > 0)        return `${pad(mins)}M ${pad(secs % 60)}S`;
+  return `${pad(secs)}S`;
+}
+
+function sismoRender() {
+  if (!sismoData) return;
+  const { mag, ms, place, depth } = sismoData;
+  const el = document.getElementById('sv-sismo');
+  const timeStr = sismoTimeStr(ms);
+  el.textContent = `M${mag.toFixed(1)} · hace ${timeStr} · ${place} · ${depth}KM`;
+
+  const secsAgo = (Date.now() - ms) / 1000;
+  if (mag >= 6.0 || secsAgo < 1800) {
+    el.style.color = 'var(--accent)';
+  } else if (mag >= 4.0) {
+    el.style.color = 'var(--fg)';
+  } else {
+    el.style.color = '';
+  }
+}
+
+async function seismicFetch() {
   try {
     const url = 'https://earthquake.usgs.gov/fdsnws/event/1/query' +
       '?format=geojson&limit=1&orderby=time&minmagnitude=1.5' +
@@ -622,46 +654,24 @@ async function seismic() {
     const eq = data.features && data.features[0];
     if (!eq) return;
 
-    const mag  = parseFloat(eq.properties.mag);
-    const ms   = eq.properties.time;
+    const mag   = parseFloat(eq.properties.mag);
+    const ms    = eq.properties.time;
     const depth = Math.round(eq.geometry.coordinates[2]);
-
-    // Tiempo transcurrido
-    const diff     = Date.now() - ms;
-    const totalMin = Math.floor(diff / 60000);
-    const hours    = Math.floor(totalMin / 60);
-    const days     = Math.floor(hours / 24);
-    let timeStr;
-    if (days > 0)        timeStr = `${days}D ${hours % 24}H`;
-    else if (hours > 0)  timeStr = `${hours}H ${totalMin % 60}MIN`;
-    else                 timeStr = `${totalMin}MIN`;
-
-    // Lugar
-    let place = eq.properties.place || '';
+    let place   = eq.properties.place || '';
     place = place.replace(/^\d+\s*km\s+[A-Z]+\s+of\s+/i, '');
     place = place.replace(/,?\s*chile$/i, '').trim().toUpperCase();
     if (place.length > 20) place = place.substring(0, 20) + '…';
 
-    const el = document.getElementById('sv-sismo');
-    el.textContent = `M${mag.toFixed(1)} · ${timeStr} · ${place} · ${depth}KM`;
+    const isNew = !sismoData || sismoData.ms !== ms;
+    sismoData = { mag, ms, place, depth };
+    sismoRender();
 
-    // Color según magnitud
-    const isRecent = totalMin < 30;
-    if (mag >= 6.0 || isRecent) {
-      el.style.color = 'var(--accent)';
-    } else if (mag >= 4.0) {
-      el.style.color = 'var(--fg)';
-    } else {
-      el.style.color = '';
-    }
-
-    // Animación de asentamiento — solo si magnitud notable
-    if (mag >= 4.0) {
+    if (isNew && mag >= 4.0) {
+      const el = document.getElementById('sv-sismo');
       el.classList.remove('sismo-new');
-      void el.offsetWidth; // reflow para reiniciar
+      void el.offsetWidth;
       el.classList.add('sismo-new');
     }
-
   } catch(_) {}
 }
 
@@ -671,8 +681,9 @@ window.addEventListener('load', () => {
   if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
 });
 
-geo(); counter(); seismic();
-setInterval(seismic, 300000); // actualiza cada 5 min
+geo(); counter(); seismicFetch();
+setInterval(seismicFetch, 300000); // re-fetch cada 5 min
+setInterval(sismoRender, 1000);    // actualiza contador cada segundo
 
 function toggleMode() {
   const entering = !document.body.classList.contains('inst-mode');
