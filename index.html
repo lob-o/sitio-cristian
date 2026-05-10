@@ -88,6 +88,7 @@
       color: var(--fg);
       font-size: 13px;
       min-height: 100vh;
+      transition: background 8s ease, color 8s ease;
     }
 
     #site main {
@@ -237,6 +238,37 @@
     @keyframes reveal {
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Glitch sísmico: desplazamiento horizontal sutil ── */
+    @keyframes glitch-seismic {
+      0%   { transform: translateX(0); }
+      8%   { transform: translateX(-1.5px); }
+      16%  { transform: translateX(1.2px); }
+      28%  { transform: translateX(-0.8px); }
+      40%  { transform: translateX(0.6px); }
+      55%  { transform: translateX(-0.3px); }
+      70%  { transform: translateX(0.2px); }
+      85%  { transform: translateX(-0.1px); }
+      100% { transform: translateX(0); }
+    }
+
+    .glitch-seismic {
+      animation: glitch-seismic 3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+
+    /* ── Glitch de transición de modo ── */
+    @keyframes glitch-mode {
+      0%   { opacity: 1;   transform: translateX(0)    skewX(0deg); }
+      12%  { opacity: 0.6; transform: translateX(2px)  skewX(-0.4deg); }
+      24%  { opacity: 1;   transform: translateX(-1px) skewX(0.2deg); }
+      38%  { opacity: 0.8; transform: translateX(0.5px) skewX(0deg); }
+      55%  { opacity: 1;   transform: translateX(-0.3px); }
+      100% { opacity: 1;   transform: translateX(0) skewX(0deg); }
+    }
+
+    .glitch-mode {
+      animation: glitch-mode 0.45s ease forwards;
     }
 
     /* ═══ CAPA INSTRUMENTO ═══ */
@@ -435,7 +467,7 @@
 <div id="site">
 <main>
   <header>
-    <div class="site-name">
+    <div class="site-name" id="site-name-el">
       cristián heyne
       <span class="dot" id="mode-trigger" title="instrumento"></span>
     </div>
@@ -516,8 +548,7 @@
       <span id="meta-ip">···</span><br>
       <span id="meta-loc">···</span><br>
       <span id="site-date">···</span> · <span id="site-time">00:00:00</span><br>
-      <span id="sv-sismo" style="transition:color 0.6s ease;">—</span><br>
-      <span id="sv-vuelos" style="transition:color 0.6s ease;">—</span>
+      <span id="sv-sismo" style="transition:color 0.6s ease;">—</span>
     </div>
   </footer>
 
@@ -526,7 +557,6 @@
     <div class="sys-val">hora santiago<span id="sv-hour">—</span></div>
     <div class="sys-val">espaciado<span id="sv-pad">—</span></div>
     <div class="sys-val">fuente<span id="sv-font">—</span></div>
-
   </div>
 </main>
 </div>
@@ -535,7 +565,7 @@
   <div class="inst-wrap">
 
     <header class="inst-header">
-      <div class="inst-name">
+      <div class="inst-name" id="inst-name-el">
         instrumento
         <span class="dot" id="inst-trigger"></span>
         <span class="inst-name-main">cristián heyne</span>
@@ -580,13 +610,24 @@ function tick() {
 tick(); setInterval(tick, 1000);
 
 function updateAccent() {
-  const sgo = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
+  const sgo  = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
   const hour = sgo.getHours() + sgo.getMinutes() / 60;
-  const L = 30 + Math.sin((hour / 24) * Math.PI) * 20;
+
+  // Acento: luminosidad según hora
+  const L      = 30 + Math.sin((hour / 24) * Math.PI) * 20;
   const accent = `hsl(0, 100%, ${L.toFixed(1)}%)`;
   document.documentElement.style.setProperty('--accent', accent);
   document.getElementById('sv-accent').textContent = accent;
   document.getElementById('sv-hour').textContent   = `${hour.toFixed(2)}h → L=${L.toFixed(1)}%`;
+
+  // Temperatura del fondo y texto según momento del día:
+  // Mediodía: fondo blanco puro (255), texto negro puro (17)
+  // Madrugada: fondo levemente cálido (247), texto levemente más claro (32)
+  const day = Math.sin((hour / 24) * Math.PI); // 0 de noche, 1 al mediodía
+  const bgV = Math.round(247 + day * 8);        // 247–255
+  const fgV = Math.round(32  - day * 15);       // 32–17
+  document.documentElement.style.setProperty('--bg', `rgb(${bgV},${bgV},${bgV})`);
+  document.documentElement.style.setProperty('--fg', `rgb(${fgV},${fgV},${fgV})`);
 }
 updateAccent(); setInterval(updateAccent, 60000);
 
@@ -614,8 +655,26 @@ async function counter() {
   } catch(_) {}
 }
 
+// ── Glitch sísmico ──
+function triggerSeismicGlitch() {
+  const el = document.getElementById('site-name-el');
+  el.classList.remove('glitch-seismic');
+  void el.offsetWidth; // reflow para reiniciar animación
+  el.classList.add('glitch-seismic');
+  el.addEventListener('animationend', () => el.classList.remove('glitch-seismic'), { once: true });
+}
+
+// ── Glitch de transición de modo ──
+function triggerModeGlitch() {
+  const el = document.getElementById('site-name-el');
+  el.classList.remove('glitch-mode');
+  void el.offsetWidth;
+  el.classList.add('glitch-mode');
+  el.addEventListener('animationend', () => el.classList.remove('glitch-mode'), { once: true });
+}
+
 // Estado del último sismo
-let sismoData = null; // { mag, ms, place, depth }
+let sismoData = null;
 
 function sismoTimeStr(ms) {
   const diff  = Date.now() - ms;
@@ -665,32 +724,19 @@ async function seismicFetch() {
     sismoData = { mag, ms, place, depth };
     sismoRender();
 
-    if (isNew && mag >= 4.0) {
-      const el = document.getElementById('sv-sismo');
-      el.classList.remove('sismo-new');
-      void el.offsetWidth;
-      el.classList.add('sismo-new');
+    if (isNew) {
+      if (mag >= 4.0) {
+        const el = document.getElementById('sv-sismo');
+        el.classList.remove('sismo-new');
+        void el.offsetWidth;
+        el.classList.add('sismo-new');
+      }
+      // Glitch en el nombre si el sismo es reciente (última hora)
+      const secsAgo = (Date.now() - ms) / 1000;
+      if (secsAgo < 3600) triggerSeismicGlitch();
     }
   } catch(_) {}
 }
-
-async function flights() {
-  const el = document.getElementById('sv-vuelos');
-  try {
-    // OpenSky: bbox Santiago ~80km radio
-    const url = 'https://opensky-network.org/api/states/all?lamin=-34.2&lomin=-71.6&lamax=-32.9&lomax=-70.1';
-    const res = await fetch(url);
-    if (!res.ok) { el.textContent = '— vuelos sobre santiago'; return; }
-    const data = await res.json();
-    const n = (data.states && Array.isArray(data.states)) ? data.states.length : null;
-    if (n === null) { el.textContent = '— vuelos sobre santiago'; return; }
-    el.textContent = `${n} avión${n !== 1 ? 'es' : ''} sobre santiago ahora`;
-    el.style.color = n === 0 ? '' : n >= 15 ? 'var(--fg)' : '';
-  } catch(_) {
-    el.textContent = '— vuelos sobre santiago';
-  }
-}
-
 
 window.addEventListener('load', () => {
   const f = window.getComputedStyle(document.body).fontFamily;
@@ -698,12 +744,12 @@ window.addEventListener('load', () => {
   if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
 });
 
-geo(); counter(); seismicFetch(); flights();
-setInterval(seismicFetch, 300000); // sismo cada 5 min
-setInterval(sismoRender, 60000);   // contador sismo cada 1 min
-setInterval(flights, 120000);      // vuelos cada 2 min
+geo(); counter(); seismicFetch();
+setInterval(seismicFetch, 300000);
+setInterval(sismoRender,  60000);
 
 function toggleMode() {
+  triggerModeGlitch();
   const entering = !document.body.classList.contains('inst-mode');
   document.body.classList.toggle('inst-mode');
   document.getElementById('layer').setAttribute('aria-hidden', entering ? 'false' : 'true');
@@ -827,6 +873,7 @@ ZONES_CFG.forEach((cfg, i) => {
 });
 
 const activeSet = new Set();
+const activationOrder = []; // rastrea orden de activación para límite de 2
 let hinted = false;
 
 function hideHint() {
@@ -846,10 +893,26 @@ function toggleZone(i) {
   initAudio();
   if (actx.state === 'suspended') actx.resume();
   hideHint();
+
   if (synths[i].on) {
-    synths[i].deactivate(); zoneEls[i].classList.remove('active'); activeSet.delete(i);
+    // Desactivar zona
+    synths[i].deactivate();
+    zoneEls[i].classList.remove('active');
+    activeSet.delete(i);
+    const idx = activationOrder.indexOf(i);
+    if (idx > -1) activationOrder.splice(idx, 1);
   } else {
-    synths[i].activate(); zoneEls[i].classList.add('active'); activeSet.add(i);
+    // Si ya hay 2 activas, desactivar la más antigua
+    if (activationOrder.length >= 2) {
+      const oldest = activationOrder.shift();
+      synths[oldest].deactivate();
+      zoneEls[oldest].classList.remove('active');
+      activeSet.delete(oldest);
+    }
+    synths[i].activate();
+    zoneEls[i].classList.add('active');
+    activeSet.add(i);
+    activationOrder.push(i);
   }
   updateActiveDisplay();
 }
@@ -895,8 +958,13 @@ layer.addEventListener('touchstart', e => {
     if (i >= 0) {
       touchMap[t.identifier] = i;
       if (!synths[i].on) {
+        // Límite de 2 en touch también
+        if (activationOrder.length >= 2) {
+          const oldest = activationOrder.shift();
+          synths[oldest].deactivate(); zoneEls[oldest].classList.remove('active'); activeSet.delete(oldest);
+        }
         synths[i].activate(); zoneEls[i].classList.add('active');
-        activeSet.add(i); updateActiveDisplay();
+        activeSet.add(i); activationOrder.push(i); updateActiveDisplay();
       }
       applyMove(i, t.clientX, t.clientY);
     }
@@ -917,7 +985,10 @@ layer.addEventListener('touchend', e => {
     const i = touchMap[t.identifier];
     if (i !== undefined) {
       synths[i].deactivate(); zoneEls[i].classList.remove('active');
-      activeSet.delete(i); delete touchMap[t.identifier];
+      activeSet.delete(i);
+      const idx = activationOrder.indexOf(i);
+      if (idx > -1) activationOrder.splice(idx, 1);
+      delete touchMap[t.identifier];
     }
   }
   updateActiveDisplay();
