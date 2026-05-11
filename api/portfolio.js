@@ -14,6 +14,7 @@ async function getSpotifyToken(clientId, clientSecret) {
     body: 'grant_type=client_credentials',
   });
   const d = await r.json();
+  if (!d.access_token) throw new Error('Spotify token failed: ' + JSON.stringify(d));
   return d.access_token;
 }
 
@@ -29,32 +30,16 @@ async function getSpotifyScore(token, artist) {
     if (!a) return null;
     const pop = a.popularity || 0;
     const fol = Math.min(a.followers?.total || 0, 5000000);
-    const folScore = (fol / 5000000) * 100;
-    return Math.round(pop * 0.6 + folScore * 0.4);
+    return Math.round(pop * 0.6 + (fol / 5000000) * 100 * 0.4);
   } catch {
     return null;
   }
 }
 
-// Process artists in parallel batches to stay within Vercel's 10s limit
-async function batchSpotifyScores(token, artists, batchSize = 10) {
-  const scores = {};
-  const unique = [...new Set(artists)];
-
-  for (let i = 0; i < unique.length; i += batchSize) {
-    const batch = unique.slice(i, i + batchSize);
-    const results = await Promise.all(
-      batch.map(artist => getSpotifyScore(token, artist).then(score => ({ artist, score })))
-    );
-    results.forEach(({ artist, score }) => { scores[artist] = score; });
-  }
-
-  return scores;
-}
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  // No cache — always fresh
+  res.setHeader('Cache-Control', 'no-store');
 
   const notionKey     = process.env.NOTION_API_KEY;
   const spotifyId     = process.env.SPOTIFY_CLIENT_ID;
@@ -89,29 +74,36 @@ export default async function handler(req, res) {
         if (!artist) continue;
         entries.push({
           id:     p.id,
-          artist: artist,
+          artist,
           title:  props['Título']?.rich_text?.[0]?.plain_text?.trim() || '',
           format: props['Formato']?.rich_text?.[0]?.plain_text?.trim() || '',
           role:   props['Rol']?.rich_text?.[0]?.plain_text?.trim() || '',
           year:   props['Año']?.number ?? null,
+          spotifyScore: null,
         });
       }
 
       cursor = data.has_more ? data.next_cursor : undefined;
     } while (cursor && page < 20);
 
-    // 2. Fetch Spotify scores in parallel batches
+    // 2. Spotify scores — parallel batches of 10
     if (spotifyId && spotifySecret) {
-      const token  = await getSpotifyToken(spotifyId, spotifySecret);
-      const artists = entries.map(e => e.artist);
-      const scores  = await batchSpotifyScores(token, artists, 10);
+      const token   = await getSpotifyToken(spotifyId, spotifySecret);
+      const unique  = [...new Set(entries.map(e => e.artist))];
+      const scores  = {};
+      const BATCH   = 10;
+
+      for (let i = 0; i < unique.length; i += BATCH) {
+        const batch   = unique.slice(i, i + BATCH);
+        const results = await Promise.all(
+          batch.map(artist => getSpotifyScore(token, artist).then(score => ({ artist, score })))
+        );
+        results.forEach(({ artist, score }) => { scores[artist] = score; });
+      }
+
       entries.forEach(e => { e.spotifyScore = scores[e.artist] ?? null; });
-    } else {
-      entries.forEach(e => { e.spotifyScore = null; });
     }
 
-    // Cache 1 hour on CDN
-    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).json({ entries, total: entries.length });
 
   } catch (e) {
