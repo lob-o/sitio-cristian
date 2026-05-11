@@ -16,7 +16,6 @@
       font-size:11px; height:100vh; overflow:hidden;
       -webkit-font-smoothing:antialiased; user-select:none;
     }
-
     #hd {
       position:fixed; top:0; left:0; right:0; height:44px;
       border-bottom:1px solid var(--dim);
@@ -46,29 +45,17 @@
     #cv svg { width:100%; height:100%; cursor:grab; }
     #cv svg:active { cursor:grabbing; }
 
-    /* Panel */
     #pnl {
       position:fixed; top:64px; right:24px; width:230px;
       background:#090909; border:1px solid var(--dim); padding:16px 18px;
       opacity:0; pointer-events:none;
       transform:translateX(8px);
-      transition:opacity .2s ease, transform .2s ease; z-index:20;
+      transition:opacity .25s ease, transform .25s ease; z-index:20;
     }
     #pnl.vis { opacity:1; pointer-events:all; transform:translateX(0); }
-
-    .p-artist {
-      font-size:12px; font-weight:800; letter-spacing:-.01em;
-      color:var(--fg); margin-bottom:3px;
-    }
-    .p-title {
-      font-size:12px; font-weight:500; letter-spacing:-.01em;
-      color:#888; margin-bottom:12px;
-    }
-    .p-row {
-      border-top:1px solid var(--dim); padding-top:8px;
-      font-size:9px; letter-spacing:.08em; text-transform:uppercase;
-      color:#222; line-height:1.9;
-    }
+    .p-artist { font-size:13px; font-weight:800; color:var(--fg); margin-bottom:3px; letter-spacing:-.01em; }
+    .p-title  { font-size:13px; font-weight:500; color:var(--fg); margin-bottom:12px; letter-spacing:-.01em; }
+    .p-row    { border-top:1px solid var(--dim); padding-top:8px; font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:#222; line-height:1.9; }
     .p-score-wrap { margin-top:10px; border-top:1px solid var(--dim); padding-top:8px; }
     .p-score-label { font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:#1e1e1e; margin-bottom:4px; }
     .p-bar-bg { height:2px; background:var(--dim); }
@@ -81,23 +68,20 @@
     }
     .pc:hover { color:#444; }
 
-    /* Legend */
     #leg { position:fixed; bottom:22px; left:24px; display:flex; gap:16px; z-index:20; }
     .li { display:flex; align-items:center; gap:6px; }
     .ld { width:6px; height:6px; border-radius:50%; }
     .ll { font-size:8px; letter-spacing:.07em; text-transform:uppercase; color:#1c1c1c; }
 
-    /* Tooltip */
     #tip {
       position:fixed; background:#0c0c0c; border:1px solid var(--dim);
       padding:7px 11px; pointer-events:none;
-      opacity:0; transition:opacity .08s; z-index:30; max-width:200px;
+      opacity:0; transition:opacity .15s; z-index:30; max-width:200px;
     }
     #tip.vis { opacity:1; }
     .tt { font-size:11px; font-weight:700; line-height:1.2; margin-bottom:2px; }
     .ts { font-size:9px; color:#333; letter-spacing:.05em; }
 
-    /* Overlay */
     #overlay {
       position:fixed; inset:44px 0 0 0;
       display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -142,7 +126,7 @@
   <div class="p-score-wrap" id="p-score-wrap">
     <div class="p-score-label">impacto · spotify</div>
     <div class="p-bar-bg"><div class="p-bar-fill" id="p-bar"></div></div>
-    <div class="p-score-num"  id="p-score-num"></div>
+    <div class="p-score-num" id="p-score-num"></div>
   </div>
   <button class="pc" id="pc">cerrar ×</button>
 </div>
@@ -165,6 +149,8 @@
 <script>
 const DC = { 1990:'#5555bb', 2000:'#bb9911', 2010:'#119966', 2020:'#bb2222' };
 const CINE_COLOR = '#aa55cc';
+const T_HOVER  = 320; // ms — hover transition
+const T_LEAVE  = 500; // ms — leave transition (slower = more elegant)
 
 function decOf(y)  { return Math.floor((y||2000)/10)*10; }
 function dCol(y)   { return DC[decOf(y)] || '#666'; }
@@ -178,35 +164,51 @@ function nodeColor(d, m) {
 
 function fCol(f) {
   const u = (f||'').toLowerCase();
-  if (u.includes('lp'))          return '#cc0000';
-  if (u.includes('ep'))          return '#cc7700';
-  if (u.includes('single'))      return '#ccaa00';
+  if (u.includes('lp'))                          return '#cc0000';
+  if (u.includes('ep'))                          return '#cc7700';
+  if (u.includes('single'))                      return '#ccaa00';
   if (u.includes('remix')||u.includes('rework')) return '#0088cc';
-  if (u.includes('banda sonora')) return CINE_COLOR;
+  if (u.includes('banda sonora'))                return CINE_COLOR;
   return '#555555';
 }
 
 function fKey(f) {
   const u = (f||'').toLowerCase();
-  if (u.includes('lp'))          return 'lp';
-  if (u.includes('ep'))          return 'ep';
-  if (u.includes('single'))      return 'single';
+  if (u.includes('lp'))                          return 'lp';
+  if (u.includes('ep'))                          return 'ep';
+  if (u.includes('single'))                      return 'single';
   if (u.includes('remix')||u.includes('rework')) return 'remix';
-  if (u.includes('banda sonora')) return 'cine';
+  if (u.includes('banda sonora'))                return 'cine';
   return 'otro';
 }
 
 function nodeR(d) {
   if (d.isHub) return 16;
-  // base size by format, scaled up if Spotify score available
   const base = { lp:7, ep:6, single:5, remix:5.5, cine:7, otro:5 }[fKey(d.format)] || 5.5;
-  if (d.spotifyScore != null) {
-    return base + (d.spotifyScore / 100) * 8;
-  }
-  return base;
+  return d.spotifyScore != null ? base + (d.spotifyScore / 100) * 8 : base;
 }
 
-let mode='artista', selId=null, hovArtist=null, sim=null, DATA=[];
+// ── opacity levels ──────────────────────────────────────────────────────────
+// base: what everything looks like at rest
+// hover: same-artist chain when hovering
+// click: same-artist chain when selected (a bit more intense)
+// dim: everything else when an artist is active
+const FILL_BASE  = '18'; // hex opacity ~9%
+const FILL_HOVER = '55'; // ~33%
+const FILL_CLICK = '88'; // ~53%
+const FILL_DIM   = '08'; // ~3%
+
+const STR_BASE  = '55'; // stroke base
+const STR_HOVER = 'aa';
+const STR_CLICK = 'ee';
+const STR_DIM   = '12';
+
+const LINE_BASE_OPACITY  = 0.6;
+const LINE_HOVER_OPACITY = 1;
+const LINE_DIM_OPACITY   = 0.08;
+
+// ── state ───────────────────────────────────────────────────────────────────
+let mode='artista', selId=null, activeArtist=null, sim=null, DATA=[];
 
 const svg   = d3.select('#g');
 const gRoot = svg.append('g');
@@ -214,7 +216,7 @@ const gL    = gRoot.append('g');
 const gN    = gRoot.append('g');
 
 svg.call(d3.zoom().scaleExtent([0.06,8]).on('zoom', e => gRoot.attr('transform', e.transform)));
-svg.on('click', () => { selId=null; hovArtist=null; showPanel(null); applyHighlight(); });
+svg.on('click', () => { selId=null; activeArtist=null; showPanel(null); applyHighlight(T_LEAVE); });
 
 async function load() {
   try {
@@ -226,8 +228,7 @@ async function load() {
     document.getElementById('overlay').style.display = 'none';
     render(mode);
   } catch(e) {
-    const ov = document.getElementById('overlay');
-    ov.innerHTML = `<div class="ov-err">error: ${e.message}</div>`;
+    document.getElementById('overlay').innerHTML = `<div class="ov-err">error: ${e.message}</div>`;
   }
 }
 
@@ -240,25 +241,23 @@ function buildGraph(data, m) {
     nodes.forEach(n => { (g[n.artist] = g[n.artist]||[]).push(n); });
     Object.values(g).forEach(arr => {
       const s = [...arr].sort((a,b)=>(a.year||0)-(b.year||0));
-      for (let i=0; i<s.length-1; i++) links.push({source:s[i].id, target:s[i+1].id, artist:s[i].artist});
+      for (let i=0; i<s.length-1; i++)
+        links.push({source:s[i].id, target:s[i+1].id, artist:s[i].artist});
     });
-
-    // Extra attraction for cine nodes
-    const cineNodes = nodes.filter(n => isCine(n));
-    for (let i=0; i<cineNodes.length-1; i++) {
-      links.push({source:cineNodes[i].id, target:cineNodes[i+1].id, isCine:true, strength:0.15});
-    }
+    // soft cine cluster
+    const cine = nodes.filter(n => isCine(n));
+    for (let i=0; i<cine.length-1; i++)
+      links.push({source:cine[i].id, target:cine[i+1].id, isCine:true, strength:0.12});
 
   } else if (m === 'era') {
     [...new Set(nodes.map(n=>decOf(n.year)))].forEach(d => {
       nodes.push({id:`h${d}`,artist:`${d}s`,year:d+5,format:'hub',role:'hub',title:`${d}s`,isHub:true});
     });
     nodes.forEach(n => { if (!n.isHub) links.push({source:n.id,target:`h${decOf(n.year)}`}); });
-    // Cine cluster hub
-    const cineNodes = nodes.filter(n => isCine(n));
-    if (cineNodes.length) {
+    const cine = nodes.filter(n => isCine(n));
+    if (cine.length) {
       nodes.push({id:'hcine',artist:'cine',year:2005,format:'hub',role:'hub',title:'cine',isHub:true,isCineHub:true});
-      cineNodes.forEach(n => links.push({source:n.id,target:'hcine',strength:0.5}));
+      cine.forEach(n => links.push({source:n.id,target:'hcine',strength:0.5}));
     }
 
   } else {
@@ -271,35 +270,29 @@ function buildGraph(data, m) {
   return {nodes, links};
 }
 
-let currentNodes = [], currentLinks = [];
-
 function render(m) {
   const W = document.getElementById('cv').clientWidth;
   const H = document.getElementById('cv').clientHeight;
   const {nodes, links} = buildGraph(DATA, m);
-  currentNodes = nodes; currentLinks = links;
 
   if (sim) sim.stop();
   gL.selectAll('*').remove();
   gN.selectAll('*').remove();
 
   const lSel = gL.selectAll('line').data(links).join('line')
-    .attr('stroke','#181818')
+    .attr('stroke', '#1a1a1a')
     .attr('stroke-width', d => d.isCine ? 0.5 : 0.8)
-    .attr('stroke-opacity', d => d.isCine ? 0.3 : 0.85);
+    .attr('stroke-opacity', LINE_BASE_OPACITY);
 
   const nSel = gN.selectAll('g').data(nodes, d=>d.id).join('g')
     .style('cursor', d => d.isHub ? 'default':'pointer');
 
   nSel.append('circle')
     .attr('r', d => nodeR(d))
-    .attr('fill', d => {
-      if (d.isHub) return 'transparent';
-      return nodeColor(d, m) + '2e';
-    })
+    .attr('fill',   d => d.isHub ? 'transparent' : nodeColor(d, m) + FILL_BASE)
     .attr('stroke', d => {
       if (d.isHub) return (d.isCineHub ? CINE_COLOR : (d.hf ? fCol(d.format) : dCol(d.year))) + '55';
-      return nodeColor(d, m) + '77';
+      return nodeColor(d, m) + STR_BASE;
     })
     .attr('stroke-width', 1)
     .attr('stroke-dasharray', d => d.isHub ? '3 2' : 'none');
@@ -314,22 +307,24 @@ function render(m) {
   nSel.filter(d=>!d.isHub)
     .on('click', (e,d) => {
       e.stopPropagation();
-      selId   = selId===d.id ? null : d.id;
-      hovArtist = selId ? d.artist : null;
-      showPanel(selId ? d : null);
-      applyHighlight();
+      if (selId === d.id) {
+        selId = null; activeArtist = null; showPanel(null);
+      } else {
+        selId = d.id; activeArtist = d.artist; showPanel(d);
+      }
+      applyHighlight(T_HOVER);
     })
     .on('mouseenter', (e,d) => {
       showTip(e,d);
-      hovArtist = d.artist;
-      applyHighlight();
+      activeArtist = d.artist;
+      applyHighlight(T_HOVER);
     })
     .on('mousemove', moveTip)
-    .on('mouseleave', (e,d) => {
+    .on('mouseleave', () => {
       hideTip();
-      if (!selId) hovArtist = null;
-      else hovArtist = DATA.find(x=>x.id===selId)?.artist || null;
-      applyHighlight();
+      // on leave, revert to selected artist (if any) or none
+      activeArtist = selId ? DATA.find(x=>x.id===selId)?.artist || null : null;
+      applyHighlight(T_LEAVE);
     })
     .call(d3.drag()
       .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.08).restart(); d.fx=d.x; d.fy=d.y; })
@@ -338,108 +333,114 @@ function render(m) {
     );
 
   sim = d3.forceSimulation(nodes)
-    .alphaMin(0.003)     // never fully stops — perpetual subtle motion
+    .alphaMin(0.003)
     .alphaDecay(0.015)
     .velocityDecay(0.35)
     .force('link', d3.forceLink(links).id(d=>d.id)
-      .distance(d => {
-        if (d.isCine) return 40;
-        return (d.source?.isHub||d.target?.isHub) ? 85 : 52;
-      })
+      .distance(d => d.isCine ? 38 : (d.source?.isHub||d.target?.isHub) ? 85 : 52)
       .strength(d => d.strength || ((d.source?.isHub||d.target?.isHub) ? 0.35 : 0.5))
     )
     .force('charge', d3.forceManyBody().strength(d=>d.isHub?-450:-110).distanceMax(280))
     .force('center', d3.forceCenter(W/2,H/2).strength(0.035))
     .force('collision', d3.forceCollide(d=>nodeR(d)+5).iterations(3))
-    // Gentle random perturbation to keep nodes alive
     .force('jitter', () => {
       nodes.forEach(n => {
-        if (!n.isHub && !n.fx) {
-          n.vx += (Math.random()-0.5)*0.08;
-          n.vy += (Math.random()-0.5)*0.08;
-        }
+        if (!n.isHub && !n.fx) { n.vx+=(Math.random()-.5)*.06; n.vy+=(Math.random()-.5)*.06; }
       });
     })
     .on('tick', () => {
       lSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
           .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
       nSel.attr('transform', d=>`translate(${d.x},${d.y})`);
-      applyHighlight();
     });
 }
 
-// Highlight: illuminate artist chain, dim everything else
-function applyHighlight() {
-  const activeArtist = hovArtist;
+// ── highlight with smooth d3 transitions ────────────────────────────────────
+function applyHighlight(duration=T_HOVER) {
+  const artist = activeArtist;
+  const ease   = d3.easeCubicOut;
 
   gN.selectAll('g').each(function(d) {
     if (d.isHub) return;
-    const circ = d3.select(this).select('circle');
-    const c = nodeColor(d, mode);
+    const c    = nodeColor(d, mode);
+    const same = artist && d.artist === artist;
+    const sel  = d.id === selId;
+    const base = nodeR(d);
 
-    if (!activeArtist) {
-      // no hover — everything normal
-      circ.attr('fill', c+'2e').attr('stroke', c+'77').attr('r', nodeR(d));
-    } else if (d.artist === activeArtist) {
-      // same artist — illuminate
-      circ.attr('fill', d.id===selId ? c : c+'66')
-          .attr('stroke', c+'ee')
-          .attr('r', nodeR(d) + (d.id===selId ? 2 : 1));
+    let fill, stroke, r;
+
+    if (!artist) {
+      fill = c + FILL_BASE; stroke = c + STR_BASE; r = base;
+    } else if (same) {
+      fill   = c + (sel ? FILL_CLICK : FILL_HOVER);
+      stroke = c + (sel ? STR_CLICK  : STR_HOVER);
+      r      = base + (sel ? 2 : 0.5);
     } else {
-      // different artist — dim
-      circ.attr('fill', c+'0a').attr('stroke', c+'18').attr('r', nodeR(d));
+      fill = c + FILL_DIM; stroke = c + STR_DIM; r = base;
     }
+
+    d3.select(this).select('circle')
+      .transition().duration(duration).ease(ease)
+      .attr('fill', fill)
+      .attr('stroke', stroke)
+      .attr('r', r);
   });
 
   gL.selectAll('line').each(function(d) {
-    const link = d3.select(this);
-    if (!activeArtist) {
-      link.attr('stroke','#181818').attr('stroke-opacity', d.isCine ? 0.3 : 0.85);
-    } else if (d.artist === activeArtist) {
-      link.attr('stroke','#555').attr('stroke-opacity',1);
-    } else {
-      link.attr('stroke','#0e0e0e').attr('stroke-opacity',0.2);
-    }
+    const sameArtist = artist && d.artist === artist;
+    const opacity = !artist
+      ? LINE_BASE_OPACITY
+      : sameArtist ? LINE_HOVER_OPACITY : LINE_DIM_OPACITY;
+
+    d3.select(this)
+      .transition().duration(duration).ease(ease)
+      .attr('stroke', sameArtist ? '#444' : '#1a1a1a')
+      .attr('stroke-opacity', opacity);
   });
 }
 
+// ── panel ────────────────────────────────────────────────────────────────────
 function showPanel(d) {
   const p = document.getElementById('pnl');
   if (!d) { p.classList.remove('vis'); return; }
   document.getElementById('p-artist').textContent = d.artist || '—';
-  document.getElementById('p-title').textContent  = [d.year, d.format].filter(Boolean).join(' · ') + (d.title ? ' — ' + d.title : '');
-  document.getElementById('p-row').textContent    = d.role || '—';
-
-  const scoreWrap = document.getElementById('p-score-wrap');
+  document.getElementById('p-title').textContent  =
+    [d.title, d.year, d.format].filter(Boolean).join(' · ');
+  document.getElementById('p-row').textContent = d.role || '—';
+  const sw = document.getElementById('p-score-wrap');
   if (d.spotifyScore != null) {
-    document.getElementById('p-bar').style.width    = d.spotifyScore + '%';
+    document.getElementById('p-bar').style.width     = d.spotifyScore + '%';
     document.getElementById('p-score-num').textContent = d.spotifyScore + ' / 100';
-    scoreWrap.style.display = 'block';
+    sw.style.display = 'block';
   } else {
-    scoreWrap.style.display = 'none';
+    sw.style.display = 'none';
   }
   p.classList.add('vis');
 }
-document.getElementById('pc').onclick = () => { selId=null; hovArtist=null; showPanel(null); applyHighlight(); };
+document.getElementById('pc').onclick = () => {
+  selId=null; activeArtist=null; showPanel(null); applyHighlight(T_LEAVE);
+};
 
+// ── tooltip ──────────────────────────────────────────────────────────────────
 const tip = document.getElementById('tip');
 function showTip(e,d) {
   document.getElementById('tt').textContent = d.artist;
-  document.getElementById('ts').textContent = [d.title, d.year].filter(Boolean).join(' · ');
+  document.getElementById('ts').textContent = [d.title,d.year].filter(Boolean).join(' · ');
   tip.classList.add('vis'); moveTip(e);
 }
 function moveTip(e) {
-  tip.style.left = Math.min(e.clientX+14, innerWidth-210)+'px';
-  tip.style.top  = Math.max(e.clientY-10, 50)+'px';
+  tip.style.left = Math.min(e.clientX+14,innerWidth-210)+'px';
+  tip.style.top  = Math.max(e.clientY-10,50)+'px';
 }
 function hideTip() { tip.classList.remove('vis'); }
 
+// ── mode switch ───────────────────────────────────────────────────────────────
 document.querySelectorAll('.mb').forEach(b => {
   b.onclick = () => {
     mode=b.dataset.m;
     document.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
-    selId=null; hovArtist=null; showPanel(null);
+    selId=null; activeArtist=null; showPanel(null);
     if (DATA.length) render(mode);
   };
 });
