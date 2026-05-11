@@ -142,7 +142,7 @@
       <button class="mb"    data-m="era">por era</button>
       <button class="mb"    data-m="formato">por formato</button>
     </div>
-    <a href="/" class="back">← cristián heyne</a>
+    <a href="https://cristianheyne.xyz" class="back">← cristián heyne</a>
   </div>
 </div>
 
@@ -252,6 +252,9 @@ svg.call(d3.zoom().scaleExtent([0.06,8]).on('zoom',e=>gRoot.attr('transform',e.t
 svg.on('click',()=>{ selId=null; activeArtist=null; showPanel(null); applyHL(T_OUT); });
 
 async function load() {
+  // Count this visit same as the main site
+  fetch('https://countapi.mileshilliard.com/api/v1/hit/cristianheyne-xyz').catch(()=>{});
+
   try {
     const r = await fetch('/api/portfolio');
     const j = await r.json();
@@ -341,11 +344,15 @@ function render(m) {
       e.stopPropagation();
       selId=selId===d.id?null:d.id;
       activeArtist=selId?d.artist:null;
+      hideTip(); // always hide tooltip on click
       showPanel(selId?d:null);
       applyHL(T_IN);
     })
-    .on('mouseenter',(e,d)=>{ showTip(e,d); activeArtist=d.artist; applyHL(T_IN); })
-    .on('mousemove',moveTip)
+    .on('mouseenter',(e,d)=>{
+      if(!window.matchMedia('(hover:none)').matches) showTip(e,d);
+      activeArtist=d.artist; applyHL(T_IN);
+    })
+    .on('mousemove',(e)=>{ if(!window.matchMedia('(hover:none)').matches) moveTip(e); })
     .on('mouseleave',()=>{
       hideTip();
       activeArtist=selId?DATA.find(x=>x.id===selId)?.artist||null:null;
