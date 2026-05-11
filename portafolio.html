@@ -8,7 +8,7 @@
   <link rel="canonical" href="https://cristianheyne.xyz/portafolio">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
   <style>
-    :root { --bg:#080808; --fg:#e0e0e0; --dim:#141414; --accent:#cc0000; }
+    :root { --bg:#080808; --fg:#ffffff; --dim:#1e1e1e; --accent:#cc0000; }
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     body {
       background:var(--bg); color:var(--fg);
@@ -16,6 +16,7 @@
       font-size:11px; height:100vh; overflow:hidden;
       -webkit-font-smoothing:antialiased; user-select:none;
     }
+
     #hd {
       position:fixed; top:0; left:0; right:0; height:44px;
       border-bottom:1px solid var(--dim);
@@ -25,62 +26,90 @@
     .hd-l { display:flex; align-items:center; gap:10px; }
     .dot { width:5px; height:5px; background:var(--accent); display:inline-block; }
     .lbl { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
-    .muted { color:#252525; }
+    .muted { color:#333; }
     .hd-r { display:flex; align-items:center; gap:20px; }
     .modes { display:flex; gap:12px; }
     .mb {
       background:none; border:none; cursor:pointer;
       font:500 9px/1 inherit; letter-spacing:.1em; text-transform:uppercase;
-      color:#282828; padding:0; transition:color .15s;
+      color:#444; padding:0; transition:color .15s;
     }
     .mb.on { color:var(--accent); font-weight:700; }
-    .mb:hover { color:#555; }
+    .mb:hover { color:#aaa; }
     .back {
       font-size:9px; letter-spacing:.1em; text-transform:uppercase;
-      color:#1e1e1e; text-decoration:none; transition:color .15s;
+      color:#333; text-decoration:none; transition:color .15s;
     }
-    .back:hover { color:#444; }
+    .back:hover { color:#aaa; }
 
     #cv { position:fixed; top:44px; left:0; right:0; bottom:0; }
     #cv svg { width:100%; height:100%; cursor:grab; }
     #cv svg:active { cursor:grabbing; }
 
+    /* ── Tooltip ── */
+    #tip {
+      position:fixed;
+      background:#111;
+      border:1px solid #2a2a2a;
+      padding:12px 16px;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .15s;
+      z-index:30;
+      max-width:260px;
+      min-width:160px;
+    }
+    #tip.vis { opacity:1; }
+    .tip-artist {
+      font-size:15px; font-weight:800; color:#ffffff;
+      letter-spacing:-.02em; line-height:1.1;
+      margin-bottom:4px;
+    }
+    .tip-title {
+      font-size:14px; font-weight:500; color:#ffffff;
+      letter-spacing:-.01em; line-height:1.2;
+      margin-bottom:8px;
+    }
+    .tip-meta {
+      font-size:11px; font-weight:700;
+      letter-spacing:.04em;
+      margin-bottom:4px;
+    }
+    .tip-role {
+      font-size:10px; font-weight:400; color:#777;
+      letter-spacing:.06em; text-transform:uppercase;
+      line-height:1.5;
+    }
+
+    /* ── Side panel ── */
     #pnl {
-      position:fixed; top:64px; right:24px; width:230px;
-      background:#090909; border:1px solid var(--dim); padding:16px 18px;
+      position:fixed; top:64px; right:24px; width:240px;
+      background:#0f0f0f; border:1px solid #222; padding:18px 20px;
       opacity:0; pointer-events:none;
       transform:translateX(8px);
       transition:opacity .25s ease, transform .25s ease; z-index:20;
     }
     #pnl.vis { opacity:1; pointer-events:all; transform:translateX(0); }
-    .p-artist { font-size:13px; font-weight:800; color:var(--fg); margin-bottom:3px; letter-spacing:-.01em; }
-    .p-title  { font-size:13px; font-weight:500; color:var(--fg); margin-bottom:12px; letter-spacing:-.01em; }
-    .p-row    { border-top:1px solid var(--dim); padding-top:8px; font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:#222; line-height:1.9; }
-    .p-score-wrap { margin-top:10px; border-top:1px solid var(--dim); padding-top:8px; }
-    .p-score-label { font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:#1e1e1e; margin-bottom:4px; }
-    .p-bar-bg { height:2px; background:var(--dim); }
+    .p-artist { font-size:15px; font-weight:800; color:#fff; margin-bottom:3px; letter-spacing:-.02em; }
+    .p-title  { font-size:14px; font-weight:500; color:#fff; margin-bottom:10px; letter-spacing:-.01em; }
+    .p-meta   { font-size:11px; font-weight:700; margin-bottom:6px; }
+    .p-role   { font-size:10px; color:#666; text-transform:uppercase; letter-spacing:.06em; margin-bottom:14px; }
+    .p-divider { border:none; border-top:1px solid #1e1e1e; margin:10px 0; }
+    .p-score-label { font-size:8px; letter-spacing:.12em; text-transform:uppercase; color:#333; margin-bottom:5px; }
+    .p-bar-bg   { height:2px; background:#1e1e1e; }
     .p-bar-fill { height:2px; background:var(--accent); transition:width .4s ease; }
-    .p-score-num { font-size:9px; font-weight:700; color:var(--accent); margin-top:3px; }
+    .p-score-num { font-size:10px; font-weight:700; color:var(--accent); margin-top:4px; }
     .pc {
       background:none; border:none; cursor:pointer; font:inherit;
-      font-size:8px; letter-spacing:.1em; text-transform:uppercase;
-      color:#1a1a1a; padding:10px 0 0; display:block; transition:color .15s;
+      font-size:8px; letter-spacing:.12em; text-transform:uppercase;
+      color:#333; padding:12px 0 0; display:block; transition:color .15s;
     }
-    .pc:hover { color:#444; }
+    .pc:hover { color:#aaa; }
 
     #leg { position:fixed; bottom:22px; left:24px; display:flex; gap:16px; z-index:20; }
     .li { display:flex; align-items:center; gap:6px; }
-    .ld { width:6px; height:6px; border-radius:50%; }
-    .ll { font-size:8px; letter-spacing:.07em; text-transform:uppercase; color:#1c1c1c; }
-
-    #tip {
-      position:fixed; background:#0c0c0c; border:1px solid var(--dim);
-      padding:7px 11px; pointer-events:none;
-      opacity:0; transition:opacity .15s; z-index:30; max-width:200px;
-    }
-    #tip.vis { opacity:1; }
-    .tt { font-size:11px; font-weight:700; line-height:1.2; margin-bottom:2px; }
-    .ts { font-size:9px; color:#333; letter-spacing:.05em; }
+    .ld { width:7px; height:7px; border-radius:50%; }
+    .ll { font-size:9px; letter-spacing:.07em; text-transform:uppercase; color:#333; }
 
     #overlay {
       position:fixed; inset:44px 0 0 0;
@@ -92,10 +121,10 @@
     .ov-dot:nth-child(2) { animation-delay:.2s; }
     .ov-dot:nth-child(3) { animation-delay:.4s; }
     @keyframes pulse { 0%,100%{opacity:0} 50%{opacity:1} }
-    .ov-msg { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:#1e1e1e; }
+    .ov-msg { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:#333; }
     .ov-err { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); }
 
-    #hint { position:fixed; bottom:22px; right:24px; font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:#141414; z-index:20; }
+    #hint { position:fixed; bottom:22px; right:24px; font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:#222; z-index:20; }
   </style>
 </head>
 <body>
@@ -119,10 +148,21 @@
 
 <div id="cv"><svg id="g"></svg></div>
 
+<!-- Tooltip on hover -->
+<div id="tip">
+  <div class="tip-artist" id="tip-artist"></div>
+  <div class="tip-title"  id="tip-title"></div>
+  <div class="tip-meta"   id="tip-meta"></div>
+  <div class="tip-role"   id="tip-role"></div>
+</div>
+
+<!-- Side panel on click -->
 <div id="pnl">
   <div class="p-artist" id="p-artist"></div>
   <div class="p-title"  id="p-title"></div>
-  <div class="p-row"    id="p-row"></div>
+  <div class="p-meta"   id="p-meta"></div>
+  <div class="p-role"   id="p-role"></div>
+  <hr class="p-divider">
   <div class="p-score-wrap" id="p-score-wrap">
     <div class="p-score-label">impacto · spotify</div>
     <div class="p-bar-bg"><div class="p-bar-fill" id="p-bar"></div></div>
@@ -132,10 +172,10 @@
 </div>
 
 <div id="leg">
-  <div class="li"><div class="ld" style="background:#5555bb33;border:1px solid #5555bb66"></div><span class="ll">90s</span></div>
-  <div class="li"><div class="ld" style="background:#bb991133;border:1px solid #bb991166"></div><span class="ll">00s</span></div>
-  <div class="li"><div class="ld" style="background:#11996633;border:1px solid #11996666"></div><span class="ll">10s</span></div>
-  <div class="li"><div class="ld" style="background:#bb222233;border:1px solid #bb222266"></div><span class="ll">20s</span></div>
+  <div class="li"><div class="ld" style="background:#6655ee;opacity:.7"></div><span class="ll">90s</span></div>
+  <div class="li"><div class="ld" style="background:#ddaa00;opacity:.7"></div><span class="ll">00s</span></div>
+  <div class="li"><div class="ld" style="background:#00cc77;opacity:.7"></div><span class="ll">10s</span></div>
+  <div class="li"><div class="ld" style="background:#ee3333;opacity:.7"></div><span class="ll">20s</span></div>
 </div>
 
 <div id="overlay">
@@ -144,32 +184,45 @@
 </div>
 
 <div id="hint">clic · arrastrar · scroll</div>
-<div id="tip"><div class="tt" id="tt"></div><div class="ts" id="ts"></div></div>
 
 <script>
-const DC = { 1990:'#5555bb', 2000:'#bb9911', 2010:'#119966', 2020:'#bb2222' };
-const CINE_COLOR = '#aa55cc';
-const T_HOVER  = 320; // ms — hover transition
-const T_LEAVE  = 500; // ms — leave transition (slower = more elegant)
+const DC = { 1990:'#6655ee', 2000:'#ddaa00', 2010:'#00cc77', 2020:'#ee3333' };
+const CINE_COLOR = '#cc55ff';
+
+const T_IN  = 280;
+const T_OUT = 480;
+
+// Opacity levels — much brighter than before
+const FILL_BASE  = '40';
+const FILL_HOVER = '77';
+const FILL_CLICK = 'bb';
+const FILL_DIM   = '0c';
+const STR_BASE   = '99';
+const STR_HOVER  = 'dd';
+const STR_CLICK  = 'ff';
+const STR_DIM    = '18';
+const LINE_BASE  = 0.65;
+const LINE_HOVER = 1;
+const LINE_DIM   = 0.06;
 
 function decOf(y)  { return Math.floor((y||2000)/10)*10; }
-function dCol(y)   { return DC[decOf(y)] || '#666'; }
+function dCol(y)   { return DC[decOf(y)] || '#888'; }
 function isCine(d) { return (d.format||'').toLowerCase().includes('banda sonora'); }
 
 function nodeColor(d, m) {
   if (isCine(d)) return CINE_COLOR;
-  if (m === 'formato') return fCol(d.format);
+  if (m==='formato') return fCol(d.format);
   return dCol(d.year);
 }
 
 function fCol(f) {
   const u = (f||'').toLowerCase();
-  if (u.includes('lp'))                          return '#cc0000';
-  if (u.includes('ep'))                          return '#cc7700';
-  if (u.includes('single'))                      return '#ccaa00';
-  if (u.includes('remix')||u.includes('rework')) return '#0088cc';
+  if (u.includes('lp'))                          return '#ff2222';
+  if (u.includes('ep'))                          return '#ff8800';
+  if (u.includes('single'))                      return '#ffcc00';
+  if (u.includes('remix')||u.includes('rework')) return '#0099ff';
   if (u.includes('banda sonora'))                return CINE_COLOR;
-  return '#555555';
+  return '#888888';
 }
 
 function fKey(f) {
@@ -183,31 +236,11 @@ function fKey(f) {
 }
 
 function nodeR(d) {
-  if (d.isHub) return 16;
-  const base = { lp:7, ep:6, single:5, remix:5.5, cine:7, otro:5 }[fKey(d.format)] || 5.5;
-  return d.spotifyScore != null ? base + (d.spotifyScore / 100) * 8 : base;
+  if (d.isHub) return 18;
+  const base = { lp:8, ep:7, single:6, remix:6.5, cine:8, otro:6 }[fKey(d.format)] || 6;
+  return d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
 }
 
-// ── opacity levels ──────────────────────────────────────────────────────────
-// base: what everything looks like at rest
-// hover: same-artist chain when hovering
-// click: same-artist chain when selected (a bit more intense)
-// dim: everything else when an artist is active
-const FILL_BASE  = '18'; // hex opacity ~9%
-const FILL_HOVER = '55'; // ~33%
-const FILL_CLICK = '88'; // ~53%
-const FILL_DIM   = '08'; // ~3%
-
-const STR_BASE  = '55'; // stroke base
-const STR_HOVER = 'aa';
-const STR_CLICK = 'ee';
-const STR_DIM   = '12';
-
-const LINE_BASE_OPACITY  = 0.6;
-const LINE_HOVER_OPACITY = 1;
-const LINE_DIM_OPACITY   = 0.08;
-
-// ── state ───────────────────────────────────────────────────────────────────
 let mode='artista', selId=null, activeArtist=null, sim=null, DATA=[];
 
 const svg   = d3.select('#g');
@@ -215,237 +248,219 @@ const gRoot = svg.append('g');
 const gL    = gRoot.append('g');
 const gN    = gRoot.append('g');
 
-svg.call(d3.zoom().scaleExtent([0.06,8]).on('zoom', e => gRoot.attr('transform', e.transform)));
-svg.on('click', () => { selId=null; activeArtist=null; showPanel(null); applyHighlight(T_LEAVE); });
+svg.call(d3.zoom().scaleExtent([0.06,8]).on('zoom',e=>gRoot.attr('transform',e.transform)));
+svg.on('click',()=>{ selId=null; activeArtist=null; showPanel(null); applyHL(T_OUT); });
 
 async function load() {
   try {
     const r = await fetch('/api/portfolio');
     const j = await r.json();
-    if (!r.ok) throw new Error(j.error || r.statusText);
-    DATA = j.entries || [];
-    document.getElementById('cnt').textContent = '· ' + DATA.length;
-    document.getElementById('overlay').style.display = 'none';
+    if(!r.ok) throw new Error(j.error||r.statusText);
+    DATA = j.entries||[];
+    document.getElementById('cnt').textContent = '· '+DATA.length;
+    document.getElementById('overlay').style.display='none';
     render(mode);
   } catch(e) {
-    document.getElementById('overlay').innerHTML = `<div class="ov-err">error: ${e.message}</div>`;
+    document.getElementById('overlay').innerHTML=`<div class="ov-err">error: ${e.message}</div>`;
   }
 }
 
 function buildGraph(data, m) {
-  const nodes = data.map(d => ({...d}));
+  const nodes = data.map(d=>({...d}));
   const links = [];
 
-  if (m === 'artista') {
-    const g = {};
-    nodes.forEach(n => { (g[n.artist] = g[n.artist]||[]).push(n); });
-    Object.values(g).forEach(arr => {
-      const s = [...arr].sort((a,b)=>(a.year||0)-(b.year||0));
-      for (let i=0; i<s.length-1; i++)
-        links.push({source:s[i].id, target:s[i+1].id, artist:s[i].artist});
+  if (m==='artista') {
+    const g={};
+    nodes.forEach(n=>{ (g[n.artist]=g[n.artist]||[]).push(n); });
+    Object.values(g).forEach(arr=>{
+      const s=[...arr].sort((a,b)=>(a.year||0)-(b.year||0));
+      for(let i=0;i<s.length-1;i++)
+        links.push({source:s[i].id,target:s[i+1].id,artist:s[i].artist});
     });
-    // soft cine cluster
-    const cine = nodes.filter(n => isCine(n));
-    for (let i=0; i<cine.length-1; i++)
-      links.push({source:cine[i].id, target:cine[i+1].id, isCine:true, strength:0.12});
+    const cine=nodes.filter(n=>isCine(n));
+    for(let i=0;i<cine.length-1;i++)
+      links.push({source:cine[i].id,target:cine[i+1].id,isCine:true,strength:0.12});
 
-  } else if (m === 'era') {
-    [...new Set(nodes.map(n=>decOf(n.year)))].forEach(d => {
+  } else if (m==='era') {
+    [...new Set(nodes.map(n=>decOf(n.year)))].forEach(d=>{
       nodes.push({id:`h${d}`,artist:`${d}s`,year:d+5,format:'hub',role:'hub',title:`${d}s`,isHub:true});
     });
-    nodes.forEach(n => { if (!n.isHub) links.push({source:n.id,target:`h${decOf(n.year)}`}); });
-    const cine = nodes.filter(n => isCine(n));
-    if (cine.length) {
+    nodes.forEach(n=>{ if(!n.isHub) links.push({source:n.id,target:`h${decOf(n.year)}`}); });
+    const cine=nodes.filter(n=>isCine(n));
+    if(cine.length){
       nodes.push({id:'hcine',artist:'cine',year:2005,format:'hub',role:'hub',title:'cine',isHub:true,isCineHub:true});
-      cine.forEach(n => links.push({source:n.id,target:'hcine',strength:0.5}));
+      cine.forEach(n=>links.push({source:n.id,target:'hcine',strength:0.5}));
     }
 
   } else {
-    [...new Set(nodes.map(n=>fKey(n.format)))].forEach(f => {
+    [...new Set(nodes.map(n=>fKey(n.format)))].forEach(f=>{
       nodes.push({id:`hf${f}`,artist:f.toUpperCase(),year:2000,format:'hub',role:'hub',title:f.toUpperCase(),isHub:true,hf:f});
     });
-    nodes.forEach(n => { if (!n.isHub) links.push({source:n.id,target:`hf${fKey(n.format)}`}); });
+    nodes.forEach(n=>{ if(!n.isHub) links.push({source:n.id,target:`hf${fKey(n.format)}`}); });
   }
 
-  return {nodes, links};
+  return {nodes,links};
 }
 
 function render(m) {
-  const W = document.getElementById('cv').clientWidth;
-  const H = document.getElementById('cv').clientHeight;
-  const {nodes, links} = buildGraph(DATA, m);
+  const W=document.getElementById('cv').clientWidth;
+  const H=document.getElementById('cv').clientHeight;
+  const {nodes,links}=buildGraph(DATA,m);
 
-  if (sim) sim.stop();
+  if(sim) sim.stop();
   gL.selectAll('*').remove();
   gN.selectAll('*').remove();
 
-  const lSel = gL.selectAll('line').data(links).join('line')
-    .attr('stroke', '#1a1a1a')
-    .attr('stroke-width', d => d.isCine ? 0.5 : 0.8)
-    .attr('stroke-opacity', LINE_BASE_OPACITY);
+  const lSel=gL.selectAll('line').data(links).join('line')
+    .attr('stroke','#222')
+    .attr('stroke-width',d=>d.isCine?0.6:1)
+    .attr('stroke-opacity',LINE_BASE);
 
-  const nSel = gN.selectAll('g').data(nodes, d=>d.id).join('g')
-    .style('cursor', d => d.isHub ? 'default':'pointer');
+  const nSel=gN.selectAll('g').data(nodes,d=>d.id).join('g')
+    .style('cursor',d=>d.isHub?'default':'pointer');
 
   nSel.append('circle')
-    .attr('r', d => nodeR(d))
-    .attr('fill',   d => d.isHub ? 'transparent' : nodeColor(d, m) + FILL_BASE)
-    .attr('stroke', d => {
-      if (d.isHub) return (d.isCineHub ? CINE_COLOR : (d.hf ? fCol(d.format) : dCol(d.year))) + '55';
-      return nodeColor(d, m) + STR_BASE;
+    .attr('r',d=>nodeR(d))
+    .attr('fill',d=>d.isHub?'transparent':nodeColor(d,m)+FILL_BASE)
+    .attr('stroke',d=>{
+      if(d.isHub) return (d.isCineHub?CINE_COLOR:(d.hf?fCol(d.format):dCol(d.year)))+'77';
+      return nodeColor(d,m)+STR_BASE;
     })
-    .attr('stroke-width', 1)
-    .attr('stroke-dasharray', d => d.isHub ? '3 2' : 'none');
+    .attr('stroke-width',1.5)
+    .attr('stroke-dasharray',d=>d.isHub?'3 2':'none');
 
   nSel.filter(d=>d.isHub).append('text')
     .text(d=>d.title)
     .attr('text-anchor','middle').attr('dy','0.35em')
-    .attr('fill', d => d.isCineHub ? CINE_COLOR : (d.hf ? fCol(d.format) : dCol(d.year)))
-    .attr('font-size','8px').attr('font-weight','700').attr('letter-spacing','0.1em')
+    .attr('fill',d=>d.isCineHub?CINE_COLOR:(d.hf?fCol(d.format):dCol(d.year)))
+    .attr('font-size','9px').attr('font-weight','700').attr('letter-spacing','0.1em')
     .attr('pointer-events','none');
 
   nSel.filter(d=>!d.isHub)
-    .on('click', (e,d) => {
+    .on('click',(e,d)=>{
       e.stopPropagation();
-      if (selId === d.id) {
-        selId = null; activeArtist = null; showPanel(null);
-      } else {
-        selId = d.id; activeArtist = d.artist; showPanel(d);
-      }
-      applyHighlight(T_HOVER);
+      selId=selId===d.id?null:d.id;
+      activeArtist=selId?d.artist:null;
+      showPanel(selId?d:null);
+      applyHL(T_IN);
     })
-    .on('mouseenter', (e,d) => {
-      showTip(e,d);
-      activeArtist = d.artist;
-      applyHighlight(T_HOVER);
-    })
-    .on('mousemove', moveTip)
-    .on('mouseleave', () => {
+    .on('mouseenter',(e,d)=>{ showTip(e,d); activeArtist=d.artist; applyHL(T_IN); })
+    .on('mousemove',moveTip)
+    .on('mouseleave',()=>{
       hideTip();
-      // on leave, revert to selected artist (if any) or none
-      activeArtist = selId ? DATA.find(x=>x.id===selId)?.artist || null : null;
-      applyHighlight(T_LEAVE);
+      activeArtist=selId?DATA.find(x=>x.id===selId)?.artist||null:null;
+      applyHL(T_OUT);
     })
     .call(d3.drag()
-      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.08).restart(); d.fx=d.x; d.fy=d.y; })
-      .on('drag', (e,d)=>{ d.fx=e.x; d.fy=e.y; })
-      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.003); d.fx=null; d.fy=null; })
+      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.08).restart(); d.fx=d.x;d.fy=d.y; })
+      .on('drag', (e,d)=>{ d.fx=e.x;d.fy=e.y; })
+      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.003); d.fx=null;d.fy=null; })
     );
 
-  sim = d3.forceSimulation(nodes)
-    .alphaMin(0.003)
-    .alphaDecay(0.015)
-    .velocityDecay(0.35)
-    .force('link', d3.forceLink(links).id(d=>d.id)
-      .distance(d => d.isCine ? 38 : (d.source?.isHub||d.target?.isHub) ? 85 : 52)
-      .strength(d => d.strength || ((d.source?.isHub||d.target?.isHub) ? 0.35 : 0.5))
+  sim=d3.forceSimulation(nodes)
+    .alphaMin(0.003).alphaDecay(0.015).velocityDecay(0.35)
+    .force('link',d3.forceLink(links).id(d=>d.id)
+      .distance(d=>d.isCine?40:(d.source?.isHub||d.target?.isHub)?90:55)
+      .strength(d=>d.strength||((d.source?.isHub||d.target?.isHub)?0.35:0.5))
     )
-    .force('charge', d3.forceManyBody().strength(d=>d.isHub?-450:-110).distanceMax(280))
-    .force('center', d3.forceCenter(W/2,H/2).strength(0.035))
-    .force('collision', d3.forceCollide(d=>nodeR(d)+5).iterations(3))
-    .force('jitter', () => {
-      nodes.forEach(n => {
-        if (!n.isHub && !n.fx) { n.vx+=(Math.random()-.5)*.06; n.vy+=(Math.random()-.5)*.06; }
-      });
+    .force('charge',d3.forceManyBody().strength(d=>d.isHub?-500:-130).distanceMax(300))
+    .force('center',d3.forceCenter(W/2,H/2).strength(0.035))
+    .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
+    .force('jitter',()=>{
+      nodes.forEach(n=>{ if(!n.isHub&&!n.fx){n.vx+=(Math.random()-.5)*.06;n.vy+=(Math.random()-.5)*.06;} });
     })
-    .on('tick', () => {
+    .on('tick',()=>{
       lSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
           .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-      nSel.attr('transform', d=>`translate(${d.x},${d.y})`);
+      nSel.attr('transform',d=>`translate(${d.x},${d.y})`);
     });
 }
 
-// ── highlight with smooth d3 transitions ────────────────────────────────────
-function applyHighlight(duration=T_HOVER) {
-  const artist = activeArtist;
-  const ease   = d3.easeCubicOut;
+function applyHL(dur) {
+  const artist=activeArtist;
+  const ease=d3.easeCubicOut;
 
-  gN.selectAll('g').each(function(d) {
-    if (d.isHub) return;
-    const c    = nodeColor(d, mode);
-    const same = artist && d.artist === artist;
-    const sel  = d.id === selId;
-    const base = nodeR(d);
-
-    let fill, stroke, r;
-
-    if (!artist) {
-      fill = c + FILL_BASE; stroke = c + STR_BASE; r = base;
-    } else if (same) {
-      fill   = c + (sel ? FILL_CLICK : FILL_HOVER);
-      stroke = c + (sel ? STR_CLICK  : STR_HOVER);
-      r      = base + (sel ? 2 : 0.5);
+  gN.selectAll('g').each(function(d){
+    if(d.isHub) return;
+    const c=nodeColor(d,mode);
+    const same=artist&&d.artist===artist;
+    const sel=d.id===selId;
+    let fill,stroke,r;
+    if(!artist){
+      fill=c+FILL_BASE; stroke=c+STR_BASE; r=nodeR(d);
+    } else if(same){
+      fill=c+(sel?FILL_CLICK:FILL_HOVER);
+      stroke=c+(sel?STR_CLICK:STR_HOVER);
+      r=nodeR(d)+(sel?2.5:1);
     } else {
-      fill = c + FILL_DIM; stroke = c + STR_DIM; r = base;
+      fill=c+FILL_DIM; stroke=c+STR_DIM; r=nodeR(d);
     }
-
     d3.select(this).select('circle')
-      .transition().duration(duration).ease(ease)
-      .attr('fill', fill)
-      .attr('stroke', stroke)
-      .attr('r', r);
+      .transition().duration(dur).ease(ease)
+      .attr('fill',fill).attr('stroke',stroke).attr('r',r);
   });
 
-  gL.selectAll('line').each(function(d) {
-    const sameArtist = artist && d.artist === artist;
-    const opacity = !artist
-      ? LINE_BASE_OPACITY
-      : sameArtist ? LINE_HOVER_OPACITY : LINE_DIM_OPACITY;
-
+  gL.selectAll('line').each(function(d){
+    const same=artist&&d.artist===artist;
     d3.select(this)
-      .transition().duration(duration).ease(ease)
-      .attr('stroke', sameArtist ? '#444' : '#1a1a1a')
-      .attr('stroke-opacity', opacity);
+      .transition().duration(dur).ease(ease)
+      .attr('stroke',same?'#777':'#1e1e1e')
+      .attr('stroke-opacity',!artist?LINE_BASE:same?LINE_HOVER:LINE_DIM);
   });
 }
 
-// ── panel ────────────────────────────────────────────────────────────────────
-function showPanel(d) {
-  const p = document.getElementById('pnl');
-  if (!d) { p.classList.remove('vis'); return; }
-  document.getElementById('p-artist').textContent = d.artist || '—';
-  document.getElementById('p-title').textContent  =
-    [d.title, d.year, d.format].filter(Boolean).join(' · ');
-  document.getElementById('p-row').textContent = d.role || '—';
-  const sw = document.getElementById('p-score-wrap');
-  if (d.spotifyScore != null) {
-    document.getElementById('p-bar').style.width     = d.spotifyScore + '%';
-    document.getElementById('p-score-num').textContent = d.spotifyScore + ' / 100';
-    sw.style.display = 'block';
-  } else {
-    sw.style.display = 'none';
-  }
-  p.classList.add('vis');
-}
-document.getElementById('pc').onclick = () => {
-  selId=null; activeArtist=null; showPanel(null); applyHighlight(T_LEAVE);
-};
+// ── Tooltip ──────────────────────────────────────────────────────────────────
+const tip=document.getElementById('tip');
 
-// ── tooltip ──────────────────────────────────────────────────────────────────
-const tip = document.getElementById('tip');
 function showTip(e,d) {
-  document.getElementById('tt').textContent = d.artist;
-  document.getElementById('ts').textContent = [d.title,d.year].filter(Boolean).join(' · ');
-  tip.classList.add('vis'); moveTip(e);
+  const c = nodeColor(d, mode);
+  document.getElementById('tip-artist').textContent = d.artist||'—';
+  document.getElementById('tip-title').textContent  = d.title||'—';
+  document.getElementById('tip-meta').style.color   = c;
+  document.getElementById('tip-meta').textContent   = [d.year, d.format].filter(Boolean).join(' · ');
+  document.getElementById('tip-role').textContent   = d.role||'';
+  tip.classList.add('vis');
+  moveTip(e);
 }
 function moveTip(e) {
-  tip.style.left = Math.min(e.clientX+14,innerWidth-210)+'px';
-  tip.style.top  = Math.max(e.clientY-10,50)+'px';
+  const x=e.clientX+16, y=e.clientY-10;
+  tip.style.left=Math.min(x,innerWidth-270)+'px';
+  tip.style.top =Math.max(y,54)+'px';
 }
 function hideTip() { tip.classList.remove('vis'); }
 
-// ── mode switch ───────────────────────────────────────────────────────────────
-document.querySelectorAll('.mb').forEach(b => {
-  b.onclick = () => {
+// ── Side panel ───────────────────────────────────────────────────────────────
+function showPanel(d) {
+  const p=document.getElementById('pnl');
+  if(!d){ p.classList.remove('vis'); return; }
+  const c=nodeColor(d,mode);
+  document.getElementById('p-artist').textContent   = d.artist||'—';
+  document.getElementById('p-title').textContent    = d.title||'—';
+  document.getElementById('p-meta').textContent     = [d.year,d.format].filter(Boolean).join(' · ');
+  document.getElementById('p-meta').style.color     = c;
+  document.getElementById('p-role').textContent     = d.role||'—';
+  const sw=document.getElementById('p-score-wrap');
+  if(d.spotifyScore!=null){
+    document.getElementById('p-bar').style.width      = d.spotifyScore+'%';
+    document.getElementById('p-score-num').textContent = d.spotifyScore+' / 100';
+    sw.style.display='block';
+  } else { sw.style.display='none'; }
+  p.classList.add('vis');
+}
+document.getElementById('pc').onclick=()=>{ selId=null;activeArtist=null;showPanel(null);applyHL(T_OUT); };
+
+// ── Mode switch ───────────────────────────────────────────────────────────────
+document.querySelectorAll('.mb').forEach(b=>{
+  b.onclick=()=>{
     mode=b.dataset.m;
     document.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
-    selId=null; activeArtist=null; showPanel(null);
-    if (DATA.length) render(mode);
+    selId=null;activeArtist=null;showPanel(null);
+    if(DATA.length) render(mode);
   };
 });
 
-window.addEventListener('resize', () => { if(DATA.length) render(mode); });
+window.addEventListener('resize',()=>{ if(DATA.length) render(mode); });
 load();
 </script>
 </body>
