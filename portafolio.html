@@ -303,11 +303,6 @@ function buildGraph(data, m) {
       nodes.push({id:`h${d}`,artist:`${d}s`,year:d+5,format:'hub',role:'hub',title:`${d}s`,isHub:true});
     });
     nodes.forEach(n=>{ if(!n.isHub) links.push({source:n.id,target:`h${decOf(n.year)}`}); });
-    const cine=nodes.filter(n=>isCine(n));
-    if(cine.length){
-      nodes.push({id:'hcine',artist:'cine',year:2005,format:'hub',role:'hub',title:'cine',isHub:true,isCineHub:true});
-      cine.forEach(n=>links.push({source:n.id,target:'hcine',strength:0.5}));
-    }
 
   } else {
     [...new Set(nodes.map(n=>fKey(n.format)))].forEach(f=>{
