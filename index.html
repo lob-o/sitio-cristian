@@ -100,7 +100,8 @@
       flex-direction: column;
     }
 
-    #site header { margin-bottom: clamp(3rem, 10vh, 5rem); }
+    /* ── CAMBIO: margen inferior del header reducido ── */
+    #site header { margin-bottom: clamp(1.2rem, 4vh, 2rem); }
 
     .site-name {
       font-size: 11px;
@@ -516,20 +517,13 @@
     </div>
 
     <div class="group" style="animation-delay:0.40s">
-      <div class="cat-label">bio</div>
-      <div class="items-col">
-        <a class="item" href="https://es.wikipedia.org/wiki/Cristi%C3%A1n_Heyne" target="_blank" rel="noopener"><span class="item-name">wiki</span></a>
-      </div>
-    </div>
-
-    <div class="group" style="animation-delay:0.47s">
       <div class="cat-label">contacto</div>
       <div class="items-col">
         <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">email</span></a>
       </div>
     </div>
 
-    <div class="group" style="animation-delay:0.54s">
+    <div class="group" style="animation-delay:0.47s">
       <div class="cat-label"></div>
       <div class="items-col">
         <span class="item" id="grid-mode-trigger" style="cursor:pointer">
@@ -614,19 +608,15 @@ function updateAccent() {
   const sgo  = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Santiago' }));
   const hour = sgo.getHours() + sgo.getMinutes() / 60;
 
-  // Acento: luminosidad según hora
   const L      = 30 + Math.sin((hour / 24) * Math.PI) * 20;
   const accent = `hsl(0, 100%, ${L.toFixed(1)}%)`;
   document.documentElement.style.setProperty('--accent', accent);
   document.getElementById('sv-accent').textContent = accent;
   document.getElementById('sv-hour').textContent   = `${hour.toFixed(2)}h → L=${L.toFixed(1)}%`;
 
-  // Temperatura del fondo y texto según momento del día:
-  // Mediodía: fondo blanco puro (255), texto negro puro (17)
-  // Madrugada: fondo levemente cálido (247), texto levemente más claro (32)
-  const day = Math.sin((hour / 24) * Math.PI); // 0 de noche, 1 al mediodía
-  const bgV = Math.round(247 + day * 8);        // 247–255
-  const fgV = Math.round(32  - day * 15);       // 32–17
+  const day = Math.sin((hour / 24) * Math.PI);
+  const bgV = Math.round(247 + day * 8);
+  const fgV = Math.round(32  - day * 15);
   document.documentElement.style.setProperty('--bg', `rgb(${bgV},${bgV},${bgV})`);
   document.documentElement.style.setProperty('--fg', `rgb(${fgV},${fgV},${fgV})`);
 }
@@ -656,16 +646,14 @@ async function counter() {
   } catch(_) {}
 }
 
-// ── Glitch sísmico ──
 function triggerSeismicGlitch() {
   const el = document.getElementById('site-name-el');
   el.classList.remove('glitch-seismic');
-  void el.offsetWidth; // reflow para reiniciar animación
+  void el.offsetWidth;
   el.classList.add('glitch-seismic');
   el.addEventListener('animationend', () => el.classList.remove('glitch-seismic'), { once: true });
 }
 
-// ── Glitch de transición de modo ──
 function triggerModeGlitch() {
   const el = document.getElementById('site-name-el');
   el.classList.remove('glitch-mode');
@@ -674,7 +662,6 @@ function triggerModeGlitch() {
   el.addEventListener('animationend', () => el.classList.remove('glitch-mode'), { once: true });
 }
 
-// Estado del último sismo
 let sismoData = null;
 
 function sismoTimeStr(ms) {
@@ -732,7 +719,6 @@ async function seismicFetch() {
         void el.offsetWidth;
         el.classList.add('sismo-new');
       }
-      // Glitch en el nombre si el sismo es reciente (última hora)
       const secsAgo = (Date.now() - ms) / 1000;
       if (secsAgo < 3600) triggerSeismicGlitch();
     }
@@ -874,7 +860,7 @@ ZONES_CFG.forEach((cfg, i) => {
 });
 
 const activeSet = new Set();
-const activationOrder = []; // rastrea orden de activación para límite de 2
+const activationOrder = [];
 let hinted = false;
 
 function hideHint() {
@@ -896,14 +882,12 @@ function toggleZone(i) {
   hideHint();
 
   if (synths[i].on) {
-    // Desactivar zona
     synths[i].deactivate();
     zoneEls[i].classList.remove('active');
     activeSet.delete(i);
     const idx = activationOrder.indexOf(i);
     if (idx > -1) activationOrder.splice(idx, 1);
   } else {
-    // Si ya hay 2 activas, desactivar la más antigua
     if (activationOrder.length >= 2) {
       const oldest = activationOrder.shift();
       synths[oldest].deactivate();
@@ -959,7 +943,6 @@ layer.addEventListener('touchstart', e => {
     if (i >= 0) {
       touchMap[t.identifier] = i;
       if (!synths[i].on) {
-        // Límite de 2 en touch también
         if (activationOrder.length >= 2) {
           const oldest = activationOrder.shift();
           synths[oldest].deactivate(); zoneEls[oldest].classList.remove('active'); activeSet.delete(oldest);
