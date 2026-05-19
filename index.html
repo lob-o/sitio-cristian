@@ -17,9 +17,15 @@
   <meta property="og:description" content="Músico, productor discográfico chileno. Creador de Shogun, Tormenta y Christianes.">
   <meta property="og:url" content="https://cristianheyne.xyz/">
   <meta property="og:site_name" content="Cristián Heyne">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="https://cristianheyne.xyz/CH.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Cristián Heyne">
   <meta name="twitter:description" content="Músico, productor discográfico chileno. Creador de Shogun, Tormenta y Christianes.">
+  <meta name="twitter:image" content="https://cristianheyne.xyz/CH.jpg">
 
   <!-- Structured data -->
   <script type="application/ld+json">
@@ -29,6 +35,7 @@
     "name": "Cristián Heyne",
     "alternateName": ["Cristian Heyne", "Shogun", "Shogún"],
     "url": "https://cristianheyne.xyz/",
+    "image": "https://cristianheyne.xyz/CH.jpg",
     "jobTitle": ["Productor musical", "Músico"],
     "birthDate": "1973-01-13",
     "birthPlace": { "@type": "Place", "name": "Santiago de Chile" },
@@ -100,10 +107,12 @@
       flex-direction: column;
     }
 
-    /* ── CAMBIO: margen inferior del header reducido ── */
     #site header { margin-bottom: clamp(1.2rem, 4vh, 2rem); }
 
-    .site-name {
+    /* ── h1 reset + estilo site-name ── */
+    h1.site-name {
+      margin: 0;
+      padding: 0;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -112,6 +121,20 @@
       align-items: center;
       gap: 8px;
       color: var(--fg);
+      line-height: 1;
+    }
+
+    /* ── h2 reset + estilo cat-label ── */
+    h2.cat-label {
+      margin: 0;
+      padding: 0;
+      padding-top: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      line-height: 1;
     }
 
     .seo-only {
@@ -138,15 +161,6 @@
     }
 
     .group:last-child { border-bottom: 1px solid var(--line); }
-
-    .cat-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      padding-top: 3px;
-    }
 
     .items-col { display: flex; flex-direction: column; gap: 0.35rem; }
 
@@ -241,7 +255,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Glitch sísmico: desplazamiento horizontal sutil ── */
+    /* ── Glitch sísmico ── */
     @keyframes glitch-seismic {
       0%   { transform: translateX(0); }
       8%   { transform: translateX(-1.5px); }
@@ -468,17 +482,17 @@
 <div id="site">
 <main>
   <header>
-    <div class="site-name" id="site-name-el">
+    <h1 class="site-name" id="site-name-el">
       cristián heyne
       <span class="dot" id="mode-trigger" title="instrumento"></span>
-    </div>
+    </h1>
     <p class="seo-only">Cristián Heyne es músico, productor discográfico y consultor chileno. Creador de los proyectos Shogun, Tormenta y Christianes. Fundador de Process, consultora de estrategia cultural, y de Ethereal, estudio de entretenimiento. Ha producido discos de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.</p>
   </header>
 
   <div class="table">
 
     <div class="group" style="animation-delay:0.05s">
-      <div class="cat-label">música</div>
+      <h2 class="cat-label">música</h2>
       <div class="items-col">
         <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener"><span class="item-name">shogun</span></a>
         <a class="item" href="https://www.instagram.com/tormenta_tormenta/" target="_blank" rel="noopener"><span class="item-name">tormenta</span></a>
@@ -487,28 +501,28 @@
     </div>
 
     <div class="group" style="animation-delay:0.12s">
-      <div class="cat-label">process</div>
+      <h2 class="cat-label">process</h2>
       <div class="items-col">
         <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay:0.19s">
-      <div class="cat-label">ethereal</div>
+      <h2 class="cat-label">ethereal</h2>
       <div class="items-col">
         <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">etherealart.online</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay:0.26s">
-      <div class="cat-label">ónyx</div>
+      <h2 class="cat-label">ónyx</h2>
       <div class="items-col">
         <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener"><span class="item-name">instagram</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay:0.33s">
-      <div class="cat-label">producciones</div>
+      <h2 class="cat-label">producciones</h2>
       <div class="items-col">
         <a class="item" href="/portafolio"><span class="item-name">mapa</span></a>
         <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener"><span class="item-name">portafolio</span></a>
@@ -517,7 +531,7 @@
     </div>
 
     <div class="group" style="animation-delay:0.40s">
-      <div class="cat-label">contacto</div>
+      <h2 class="cat-label">contacto</h2>
       <div class="items-col">
         <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">email</span></a>
       </div>
