@@ -214,6 +214,10 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
     }
 
     .system-values {
@@ -489,7 +493,7 @@
       .group { grid-template-columns: 1fr; gap: 0.5rem; padding: 1rem 0; }
       .item-name { font-size: 14px; }
       #site footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
-      .site-meta { text-align: left; }
+      .site-meta { text-align: left; align-items: flex-start; }
       #sv-sismos { align-items: flex-start; }
       .zone { grid-template-columns: 50px 1fr 80px; }
     }
@@ -572,9 +576,9 @@
       <span class="visitor-num" id="visitor-num">——</span>
     </div>
     <div class="site-meta">
-      <span id="meta-ip">···</span><br>
-      <span id="meta-loc">···</span><br>
-      <span id="site-date">···</span> · <span id="site-time">00:00:00</span><br>
+      <span id="meta-ip">···</span>
+      <span id="meta-loc">···</span>
+      <span><span id="site-date">···</span> · <span id="site-time">00:00:00</span></span>
       <div id="sv-sismos"></div>
     </div>
   </footer>
@@ -726,7 +730,7 @@ function sismoRender() {
       row.classList.add('sismo-muted');
     }
 
-    row.textContent = `M${mag.toFixed(1)} · ${timeStr} · ${place} · ${depth}KM`;
+    row.innerHTML = `<strong>M${mag.toFixed(1)}</strong> · ${timeStr} · ${place} · ${depth}KM`;
     container.appendChild(row);
   });
 }
