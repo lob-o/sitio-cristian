@@ -104,6 +104,8 @@
       max-width: 820px;
       margin: 0 auto;
       min-height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
@@ -161,7 +163,7 @@
       animation: reveal 0.5s ease forwards;
     }
 
-    .group:last-child { border-bottom: 1px solid var(--line); }
+    .group:last-child { border-bottom: 1px solid var(--line); padding-bottom: 0.3rem; }
 
     .items-col { display: flex; flex-direction: column; gap: 0.35rem; }
 
@@ -182,8 +184,8 @@
     .item:hover { color: var(--accent); transform: translateX(6px); }
 
     #site footer {
-      margin-top: 1rem;
-      padding-top: 0.8rem;
+      margin-top: auto;
+      padding-top: 0.3rem;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -682,7 +684,7 @@ async function counter() {
     if (d && d.value != null) {
       const n = Number(d.value);
       document.getElementById('visitor-num').textContent = n.toLocaleString('es-CL');
-      const rowPad = Math.min(0.8 + Math.log10(Math.max(n, 1)) * 0.5, 2.4);
+      const rowPad = Math.min(0.5 + Math.log10(Math.max(n, 1)) * 0.2, 1.0);
       const padStr = `${rowPad.toFixed(3)}rem`;
       document.documentElement.style.setProperty('--row-pad', padStr);
       document.getElementById('sv-pad').textContent = `n=${n} → ${padStr}`;
