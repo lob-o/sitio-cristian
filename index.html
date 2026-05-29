@@ -60,7 +60,7 @@
       --accent: #ff0000;
       --muted: #999999;
       --line: #e0e0e0;
-      --row-pad: 0.9rem;
+      --row-pad: 1.1rem;
       /* instrumento */
       --ibg: #080808;
       --ifg: #e0e0e0;
@@ -181,8 +181,8 @@
     .item:hover { color: var(--accent); transform: translateX(6px); }
 
     #site footer {
-      margin-top: 0.8rem;
-      padding-top: 0.3rem;
+      margin-top: 1.8rem;
+      padding-top: 0;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -220,8 +220,8 @@
     }
 
     .system-values {
-      margin-top: 1.2rem;
-      padding-top: 0.8rem;
+      margin-top: 1.8rem;
+      padding-top: 1rem;
       border-top: 1px solid var(--line);
       display: flex;
       gap: 2rem;
@@ -583,8 +583,8 @@
       <span class="visitor-num" id="visitor-num">——</span>
     </div>
     <div class="site-meta">
-      <span id="meta-ip">···</span>
-      <span id="meta-loc">···</span>
+      <span id="meta-ip"></span>
+      <span id="meta-loc"></span>
       <span><span id="site-date">···</span> · <span id="site-time">00:00:00</span></span>
       <div id="sv-sismos"></div>
     </div>
@@ -681,10 +681,7 @@ async function counter() {
     if (d && d.value != null) {
       const n = Number(d.value);
       document.getElementById('visitor-num').textContent = n.toLocaleString('es-CL');
-      const rowPad = Math.min(0.5 + Math.log10(Math.max(n, 1)) * 0.2, 1.0);
-      const padStr = `${rowPad.toFixed(3)}rem`;
-      document.documentElement.style.setProperty('--row-pad', padStr);
-      document.getElementById('sv-pad').textContent = `n=${n} → ${padStr}`;
+      document.getElementById('sv-pad').textContent = `n=${n} → 1.100REM`;
     }
   } catch(_) {}
 }
