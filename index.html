@@ -236,10 +236,26 @@
 
     .sys-val span { display: block; color: var(--muted); font-weight: 600; }
 
-    /* ── Sismo ── */
-    #sv-sismo {
-      transition: color 0.6s ease;
+    /* ── Sismos ── */
+    #sv-sismos {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: flex-end;
     }
+
+    .sismo-row {
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      transition: color 0.6s ease;
+      line-height: 1.6;
+    }
+
+    .sismo-row.sismo-accent { color: var(--accent); }
+    .sismo-row.sismo-fg     { color: var(--fg); }
+    .sismo-row.sismo-muted  { color: var(--muted); }
 
     @keyframes sismo-settle {
       0%   { letter-spacing: 0.18em; opacity: 0.4; }
@@ -474,6 +490,7 @@
       .item-name { font-size: 14px; }
       #site footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .site-meta { text-align: left; }
+      #sv-sismos { align-items: flex-start; }
       .zone { grid-template-columns: 50px 1fr 80px; }
     }
   </style>
@@ -558,7 +575,7 @@
       <span id="meta-ip">···</span><br>
       <span id="meta-loc">···</span><br>
       <span id="site-date">···</span> · <span id="site-time">00:00:00</span><br>
-      <span id="sv-sismo" style="transition:color 0.6s ease;">—</span>
+      <div id="sv-sismos"></div>
     </div>
   </footer>
 
@@ -677,7 +694,8 @@ function triggerModeGlitch() {
   el.addEventListener('animationend', () => el.classList.remove('glitch-mode'), { once: true });
 }
 
-let sismoData = null;
+// ── Sismos: array de hasta 5 ──
+let sismoList = [];
 
 function sismoTimeStr(ms) {
   const diff  = Date.now() - ms;
@@ -690,51 +708,60 @@ function sismoTimeStr(ms) {
 }
 
 function sismoRender() {
-  if (!sismoData) return;
-  const { mag, ms, place, depth } = sismoData;
-  const el = document.getElementById('sv-sismo');
-  const timeStr = sismoTimeStr(ms);
-  el.textContent = `último sismo · M${mag.toFixed(1)} · hace ${timeStr} · ${place} · ${depth}KM`;
+  const container = document.getElementById('sv-sismos');
+  if (!container || !sismoList.length) return;
 
-  const secsAgo = (Date.now() - ms) / 1000;
-  if (mag >= 6.0 || secsAgo < 1800) {
-    el.style.color = 'var(--accent)';
-  } else if (mag >= 4.0) {
-    el.style.color = 'var(--fg)';
-  } else {
-    el.style.color = '';
-  }
+  container.innerHTML = '';
+  sismoList.forEach(({ mag, ms, place, depth }, idx) => {
+    const timeStr = sismoTimeStr(ms);
+    const row = document.createElement('div');
+    row.className = 'sismo-row';
+
+    const secsAgo = (Date.now() - ms) / 1000;
+    if (idx === 0 && (mag >= 6.0 || secsAgo < 1800)) {
+      row.classList.add('sismo-accent');
+    } else if (idx === 0 && mag >= 4.0) {
+      row.classList.add('sismo-fg');
+    } else {
+      row.classList.add('sismo-muted');
+    }
+
+    row.textContent = `M${mag.toFixed(1)} · ${timeStr} · ${place} · ${depth}KM`;
+    container.appendChild(row);
+  });
 }
 
 async function seismicFetch() {
   try {
     const url = 'https://earthquake.usgs.gov/fdsnws/event/1/query' +
-      '?format=geojson&limit=1&orderby=time&minmagnitude=1.5' +
+      '?format=geojson&limit=5&orderby=time&minmagnitude=1.5' +
       '&minlatitude=-56&maxlatitude=-17&minlongitude=-76&maxlongitude=-66';
     const data = await (await fetch(url)).json();
-    const eq = data.features && data.features[0];
-    if (!eq) return;
+    if (!data.features || !data.features.length) return;
 
-    const mag   = parseFloat(eq.properties.mag);
-    const ms    = eq.properties.time;
-    const depth = Math.round(eq.geometry.coordinates[2]);
-    let place   = eq.properties.place || '';
-    place = place.replace(/^\d+\s*km\s+[A-Z]+\s+of\s+/i, '');
-    place = place.replace(/,?\s*chile$/i, '').trim().toUpperCase();
-    if (place.length > 20) place = place.substring(0, 20) + '…';
+    const prevFirst = sismoList.length ? sismoList[0].ms : null;
 
-    const isNew = !sismoData || sismoData.ms !== ms;
-    sismoData = { mag, ms, place, depth };
+    sismoList = data.features.map(eq => {
+      const mag   = parseFloat(eq.properties.mag);
+      const ms    = eq.properties.time;
+      const depth = Math.round(eq.geometry.coordinates[2]);
+      let place   = eq.properties.place || '';
+      place = place.replace(/^\d+\s*km\s+[A-Z]+\s+of\s+/i, '');
+      place = place.replace(/,?\s*chile$/i, '').trim().toUpperCase();
+      if (place.length > 20) place = place.substring(0, 20) + '…';
+      return { mag, ms, place, depth };
+    });
+
     sismoRender();
 
-    if (isNew) {
-      if (mag >= 4.0) {
-        const el = document.getElementById('sv-sismo');
-        el.classList.remove('sismo-new');
-        void el.offsetWidth;
-        el.classList.add('sismo-new');
+    // glitch y animación solo si el más reciente cambió
+    const newFirst = sismoList[0].ms;
+    if (newFirst !== prevFirst) {
+      const firstRow = document.getElementById('sv-sismos')?.firstChild;
+      if (firstRow && sismoList[0].mag >= 4.0) {
+        firstRow.classList.add('sismo-new');
       }
-      const secsAgo = (Date.now() - ms) / 1000;
+      const secsAgo = (Date.now() - newFirst) / 1000;
       if (secsAgo < 3600) triggerSeismicGlitch();
     }
   } catch(_) {}
