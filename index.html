@@ -60,7 +60,7 @@
       --accent: #ff0000;
       --muted: #999999;
       --line: #e0e0e0;
-      --row-pad: 1.4rem;
+      --row-pad: 0.9rem;
       /* instrumento */
       --ibg: #080808;
       --ifg: #e0e0e0;
@@ -183,7 +183,7 @@
 
     #site footer {
       margin-top: auto;
-      padding-top: 4rem;
+      padding-top: 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -221,8 +221,8 @@
     }
 
     .system-values {
-      margin-top: 3rem;
-      padding-top: 1rem;
+      margin-top: 1.2rem;
+      padding-top: 0.8rem;
       border-top: 1px solid var(--line);
       display: flex;
       gap: 2rem;
@@ -258,8 +258,16 @@
     }
 
     .sismo-row.sismo-accent { color: var(--accent); }
-    .sismo-row.sismo-fg     { color: var(--fg); }
+    .sismo-row.sismo-fg     { color: var(--muted); }
     .sismo-row.sismo-muted  { color: var(--muted); }
+
+    /* magnitud siempre en --fg, sin importar el color de la fila */
+    .sismo-mag {
+      color: var(--fg);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .sismo-row.sismo-accent .sismo-mag { color: var(--accent); }
 
     @keyframes sismo-settle {
       0%   { letter-spacing: 0.18em; opacity: 0.4; }
@@ -730,7 +738,7 @@ function sismoRender() {
       row.classList.add('sismo-muted');
     }
 
-    row.innerHTML = `<strong>M${mag.toFixed(1)}</strong> · ${timeStr} · ${place} · ${depth}KM`;
+    row.innerHTML = `<span class="sismo-mag">M${mag.toFixed(1)}</span> · ${timeStr} · ${place} · ${depth}KM`;
     container.appendChild(row);
   });
 }
