@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
   <!-- SEO -->
-  <title>Cristián Heyne — sitio</title>
-  <meta name="description" content="Música · Producción · Estrategia · Santiago de Chile.">
+  <title>cristián heyne</title>
+  <meta name="description" content="cristián heyne. proyectos. process. ethereal. discos.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://cristianheyne.xyz/">
   <meta name="google-site-verification" content="ZS6RnXbJx8DUiGagxtIGVts7-MyGjNp5JUSDsAVUbGs" />
@@ -14,10 +14,10 @@
   <!-- Open Graph -->
   <meta property="og:type" content="profile">
   <meta property="og:locale" content="es_CL">
-  <meta property="og:title" content="Cristián Heyne — sitio">
-  <meta property="og:description" content="Música · Producción · Estrategia · Santiago de Chile.">
+  <meta property="og:title" content="cristián heyne">
+  <meta property="og:description" content="cristián heyne. proyectos. process. ethereal. discos.">
   <meta property="og:url" content="https://cristianheyne.xyz/">
-  <meta property="og:site_name" content="Cristián Heyne">
+  <meta property="og:site_name" content="cristián heyne">
   <meta property="og:image" content="https://cristianheyne.xyz/CH.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -25,7 +25,7 @@
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Cristián Heyne — sitio">
-  <meta name="twitter:description" content="Música · Producción · Estrategia · Santiago de Chile.">
+  <meta name="twitter:description" content="cristián heyne. proyectos. process. ethereal. discos.">
   <meta name="twitter:image" content="https://cristianheyne.xyz/CH.jpg">
 
   <!-- Structured data -->
@@ -113,10 +113,10 @@
     h1.site-name {
       margin: 0;
       padding: 0;
-      font-size: 11px;
+      font-size: 17px;
       font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      text-transform: none;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -160,7 +160,7 @@
       animation: reveal 0.5s ease forwards;
     }
 
-    .group:last-child { border-bottom: 1px solid var(--line); padding-bottom: 0; }
+    .group:last-child { border-bottom: 1px solid var(--line); }
 
     .items-col { display: flex; flex-direction: column; gap: 0.35rem; }
 
@@ -513,7 +513,6 @@
   <header>
     <h1 class="site-name" id="site-name-el">
       cristián heyne
-      <span class="dot" id="mode-trigger" title="instrumento"></span>
     </h1>
     <p class="seo-only">Cristián Heyne, periodista, músico, productor discográfico y consultor chileno. Shogun, Tormenta y Christianes. Fundador de Process, consultora de estrategia cultural, y de Ethereal, estudio de entretenimiento. Ha producido discos de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.</p>
   </header>
@@ -617,7 +616,7 @@
 
     <footer class="inst-footer">
       <div class="readout">
-        <div class="readout-freq" id="inst-r-freq">——&nbsp;hz</div>
+        <div class="readout-freq" id="inst-r-freq">—— hz</div>
         <div class="readout-sub" id="inst-r-wave">—</div>
       </div>
       <div class="inst-meta">
@@ -702,7 +701,6 @@ function triggerModeGlitch() {
   el.addEventListener('animationend', () => el.classList.remove('glitch-mode'), { once: true });
 }
 
-// ── Sismos: array de hasta 5 ──
 let sismoList = [];
 
 function sismoTimeStr(ms) {
@@ -762,7 +760,6 @@ async function seismicFetch() {
 
     sismoRender();
 
-    // glitch y animación solo si el más reciente cambió
     const newFirst = sismoList[0].ms;
     if (newFirst !== prevFirst) {
       const firstRow = document.getElementById('sv-sismos')?.firstChild;
@@ -792,7 +789,6 @@ function toggleMode() {
   document.getElementById('layer').setAttribute('aria-hidden', entering ? 'false' : 'true');
 }
 
-document.getElementById('mode-trigger').addEventListener('click', toggleMode);
 document.getElementById('inst-trigger').addEventListener('click', toggleMode);
 document.getElementById('grid-mode-trigger').addEventListener('click', toggleMode);
 
