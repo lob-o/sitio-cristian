@@ -6,8 +6,8 @@
   <title>chile</title>
   <style>
     :root {
-      --bg: #0a0a0a; --fg: #e8e8e0; --muted: #888880;
-      --accent: #c8b89a; --dim: #aaaa9e;
+      --bg: #0a0a0a; --fg: #e8e8e0; --accent: #c8b89a;
+      --muted: #888880; --line: #1e1e1c;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -16,64 +16,83 @@
       overflow: hidden; user-select: none; -webkit-user-select: none;
     }
     #canvas-bg { position: fixed; inset: 0; z-index: 0; }
+
+    /* ── UI ── */
     #ui {
       position: fixed; inset: 0; z-index: 10;
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: clamp(1.2rem, 3.5vw, 2.5rem); pointer-events: none;
+      display: flex; flex-direction: column;
+      padding: clamp(1rem, 3vw, 2rem);
+      gap: 1rem;
+      pointer-events: none;
     }
+
+    /* ── TOP ── */
     #top {
       display: flex; justify-content: space-between; align-items: flex-start;
-      opacity: 0; animation: fadein 2s ease 0.3s forwards;
+      opacity: 0; animation: fadein 1.5s ease 0.3s forwards; flex-shrink: 0;
     }
-    #title { font-size: clamp(2.2rem, 7vw, 5rem); font-weight: 400; letter-spacing: -0.04em; line-height: 1; }
-    #status { text-align: right; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 2.1; color: #888880; }
+    #title { font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 400; letter-spacing: -0.04em; line-height: 1; }
+    #status { text-align: right; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 2; color: var(--muted); }
     #status .val { color: var(--accent); }
-    #hist-badge {
-      font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--bg); background: var(--accent); padding: 2px 6px;
-      display: none; margin-top: 2px;
-    }
+    #hist-badge { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bg); background: var(--accent); padding: 2px 6px; display: none; }
     #hist-badge.on { display: inline-block; }
 
-    /* TIMELINE */
-    #timeline {
-      pointer-events: all;
-      opacity: 0; animation: fadein 2s ease 1s forwards;
-      display: flex; flex-direction: column; gap: 0.75rem;
+    /* ── MAPA CENTRAL ── */
+    #map-center {
+      flex: 1; min-height: 0;
+      display: flex; align-items: center;
+      opacity: 0; animation: fadein 2s ease 0.8s forwards;
     }
+    #map-svg {
+      width: 100%; height: 100%;
+      max-height: 260px;
+      display: block;
+    }
+    /* dots */
+    .qdot-ring {
+      transform-box: fill-box; transform-origin: center;
+      animation: ring-pulse 2.5s ease-out infinite;
+    }
+    @keyframes ring-pulse {
+      0%   { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 0;   transform: scale(3.5); }
+    }
+    .qdot-core { transition: fill 0.4s, opacity 0.4s; }
+
+    /* ── BOTTOM ── */
+    #bottom {
+      flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      opacity: 0; animation: fadein 2s ease 1.2s forwards;
+    }
+
+    /* timeline */
+    #timeline { pointer-events: all; display: flex; flex-direction: column; gap: 0.5rem; }
     #mode-bar { display: flex; gap: 1.8rem; }
     .mode-btn {
       background: none; border: none; cursor: pointer; font-family: inherit;
       font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: #888880; padding: 0; transition: color 0.2s;
+      color: var(--muted); padding: 0; transition: color 0.2s;
     }
-    .mode-btn:hover { color: #bbbbB0; }
+    .mode-btn:hover { color: var(--fg); }
     .mode-btn.on { color: var(--accent); }
     .ctrl { display: none; }
-    .ctrl.on { display: flex; flex-direction: column; gap: 0.5rem; }
+    .ctrl.on { display: flex; flex-direction: column; gap: 0.4rem; }
 
     /* slider */
-    #slider-row { display: flex; flex-direction: column; gap: 0.35rem; }
-    #slider-labels {
-      display: flex; justify-content: space-between;
-      font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #888880;
-    }
+    #slider-labels { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
     #slider-cur { color: var(--accent); }
     input[type=range] {
       -webkit-appearance: none; appearance: none;
-      width: 100%; height: 1px; background: var(--muted); cursor: pointer; outline: none;
+      width: 100%; height: 1px; background: #333330; cursor: pointer; outline: none;
     }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
-    }
-    input[type=range]::-moz-range-thumb {
-      width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: none;
-    }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    input[type=range]::-moz-range-thumb { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: none; }
 
     /* fecha */
     #fecha-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
     input[type=date], input[type=time] {
-      background: none; border: none; border-bottom: 1px solid var(--muted);
+      background: none; border: none; border-bottom: 1px solid #333330;
       color: var(--fg); font-family: inherit; font-size: 10px;
       letter-spacing: 0.08em; padding: 2px 4px; cursor: pointer; outline: none;
     }
@@ -87,86 +106,39 @@
     #btn-ir:hover { color: var(--fg); }
 
     /* eventos */
-    #eventos-list { display: flex; flex-direction: column; gap: 0.3rem; }
-    .ev {
-      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-      color: #888880; cursor: pointer; transition: color 0.2s;
-      display: grid; grid-template-columns: 8rem 1fr 3.5rem; gap: 0.8rem;
-    }
+    #eventos-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    .ev { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: color 0.2s; display: grid; grid-template-columns: 8rem 1fr 3.5rem; gap: 0.8rem; }
     .ev:hover { color: var(--fg); }
     .ev.on { color: var(--accent); }
 
-    /* BOTTOM */
-    #bottom {
-      display: flex; flex-direction: column; gap: 0.75rem;
-      opacity: 0; animation: fadein 2s ease 1.2s forwards;
-    }
-    #sismo-list { display: flex; flex-direction: column; gap: 0.3rem; }
-    .sq {
-      display: grid; grid-template-columns: 3.5rem 1fr 6rem;
-      gap: 1rem; font-size: 10px; letter-spacing: 0.08em;
-      text-transform: uppercase; color: #555550;
-      line-height: 1.6; transition: color 0.5s;
-    }
-    .sq.act  { color: #888880; }
+    /* lista sismos */
+    #sismo-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    .sq { display: grid; grid-template-columns: 3.5rem 1fr 6rem; gap: 1rem; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #444440; line-height: 1.6; transition: color 0.5s; }
+    .sq.act  { color: var(--muted); }
     .sq.loud { color: var(--accent); }
     .sq.new  { color: var(--fg); }
-    .sq-mag  { font-weight: 700; }
-    .sq-pl   { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sq-dep  { text-align: right; }
-    #scope-wrap { width: 100%; height: 22px; }
+    .sq-mag { font-weight: 700; }
+    .sq-pl  { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sq-dep { text-align: right; }
+
+    /* scope */
+    #scope-wrap { width: 100%; height: 20px; }
     #scope { width: 100%; height: 100%; display: block; }
 
-    /* mapa */
-    #map-wrap {
-      position: fixed; right: clamp(2rem, 6vw, 8rem); top: 50%; transform: translateY(-50%);
-      z-index: 5; pointer-events: none; opacity: 0; animation: fadein 3s ease 1s forwards;
-    }
-    #chile-map { height: clamp(180px, 48vh, 400px); width: auto; opacity: 0.07; fill: var(--fg); }
-
     /* veil */
-    #veil {
-      position: fixed; inset: 0; z-index: 40;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; pointer-events: all;
-    }
+    #veil { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; cursor: pointer; pointer-events: all; }
     #veil.gone { pointer-events: none; }
-    #veil-txt {
-      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: #444440; animation: breathe 3s ease-in-out infinite; transition: opacity 0.8s;
-    }
+    #veil-txt { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #444440; animation: breathe 3s ease-in-out infinite; transition: opacity 0.8s; }
     #veil.gone #veil-txt { opacity: 0; }
 
-    @keyframes fadein { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
-    @keyframes breathe { 0%,100%{opacity:.25;} 50%{opacity:.7;} }
-    @media(max-width:600px){ #map-wrap{display:none;} .ev{grid-template-columns:6rem 1fr 3rem;} }
+    @keyframes fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    @keyframes breathe { 0%,100%{opacity:.2;} 50%{opacity:.6;} }
+    @media(max-width:600px){ .ev{grid-template-columns:6rem 1fr 3rem;} #map-svg{max-height:160px;} }
   </style>
 </head>
 <body>
 
 <canvas id="canvas-bg"></canvas>
-
-<div id="map-wrap">
-  <svg id="chile-map" viewBox="0 0 100 500" xmlns="http://www.w3.org/2000/svg">
-    <path d="M55,5 C60,5 68,8 72,14 C76,20 74,28 70,34 C66,40 60,44 58,50
-             C56,56 62,60 64,66 C66,72 62,80 58,86 C54,92 48,96 46,104
-             C44,112 48,120 46,128 C44,136 38,140 36,148 C34,156 38,164 36,172
-             C34,180 28,184 26,192 C24,200 28,210 26,220 C24,230 18,236 16,246
-             C14,256 18,266 16,276 C14,286 8,292 8,302 C8,312 14,318 14,328
-             C14,338 8,344 8,354 C8,364 14,372 16,382 C18,392 16,402 18,412
-             C20,422 26,428 28,438 C30,448 26,458 28,466 C30,474 36,478 38,486
-             C40,494 38,500 40,500 C42,496 44,490 42,484 C40,478 36,474 36,468
-             C36,462 40,456 38,450 C36,444 30,440 30,434 C30,428 34,424 34,418
-             C34,412 30,406 30,400 C30,394 34,388 34,382 C34,376 30,370 30,364
-             C30,358 34,352 34,346 C34,340 30,334 30,328 C30,322 34,316 36,310
-             C38,304 38,296 40,290 C42,284 46,280 48,274 C50,268 50,260 52,254
-             C54,248 58,244 60,238 C62,232 62,224 64,218 C66,212 70,208 70,202
-             C70,196 66,192 66,186 C66,180 70,174 70,168 C70,162 66,158 66,152
-             C66,146 70,140 70,134 C70,128 66,124 66,118 C66,112 70,106 68,100
-             C66,94 60,92 58,86 C56,80 58,72 56,66 C54,60 48,58 48,52
-             C48,46 52,40 52,34 C52,28 48,22 50,16 C52,10 55,5 55,5 Z"/>
-  </svg>
-</div>
 
 <div id="ui">
   <div id="top">
@@ -180,58 +152,109 @@
     </div>
   </div>
 
-  <div id="timeline">
-    <div id="mode-bar">
-      <button class="mode-btn on"  data-m="live">vivo</button>
-      <button class="mode-btn"     data-m="24h">24h</button>
-      <button class="mode-btn"     data-m="fecha">fecha</button>
-      <button class="mode-btn"     data-m="eventos">eventos</button>
-    </div>
+  <!-- MAPA CENTRAL HORIZONTAL -->
+  <div id="map-center">
+    <svg id="map-svg" viewBox="0 0 510 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <clipPath id="map-clip">
+          <rect x="0" y="0" width="510" height="110" rx="18" ry="18"/>
+        </clipPath>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
 
-    <div class="ctrl on" id="ctrl-live"></div>
+      <g clip-path="url(#map-clip)">
+        <!-- fondo del mapa -->
+        <rect x="0" y="0" width="510" height="110" fill="#0d0d0b"/>
 
-    <div class="ctrl" id="ctrl-24h">
-      <div id="slider-row">
-        <input type="range" id="sl" min="0" max="1380" step="60" value="0">
-        <div id="slider-labels">
-          <span>hace 24h</span>
-          <span id="slider-cur">ahora</span>
-          <span>ahora</span>
-        </div>
-      </div>
-    </div>
+        <!-- Líneas de latitud sutiles -->
+        <g stroke="#1a1a18" stroke-width="0.5" opacity="0.6">
+          <!-- Norte Chile -20° aprox x=42 -->
+          <line x1="42" y1="0" x2="42" y2="110"/>
+          <!-- Atacama -27° aprox x=131 -->
+          <line x1="131" y1="0" x2="131" y2="110"/>
+          <!-- Centro -33° aprox x="207" -->
+          <line x1="207" y1="0" x2="207" y2="110"/>
+          <!-- Sur -40° aprox x="295" -->
+          <line x1="295" y1="0" x2="295" y2="110"/>
+          <!-- Patagonia -48° aprax x="397" -->
+          <line x1="397" y1="0" x2="397" y2="110"/>
+        </g>
 
-    <div class="ctrl" id="ctrl-fecha">
-      <div id="fecha-row">
-        <input type="date" id="inp-d" value="2010-02-27">
-        <input type="time" id="inp-t" value="06:34">
-        <button id="btn-ir">→ ir</button>
-      </div>
-    </div>
+        <!-- Chile outline — rotado 90° para mostrar horizontal: translate(0,100) rotate(-90) -->
+        <g transform="translate(0, 100) rotate(-90)" fill="#e8e8e0" fill-opacity="0.12" stroke="none">
+          <path d="M55,5 C60,5 68,8 72,14 C76,20 74,28 70,34 C66,40 60,44 58,50
+                   C56,56 62,60 64,66 C66,72 62,80 58,86 C54,92 48,96 46,104
+                   C44,112 48,120 46,128 C44,136 38,140 36,148 C34,156 38,164 36,172
+                   C34,180 28,184 26,192 C24,200 28,210 26,220 C24,230 18,236 16,246
+                   C14,256 18,266 16,276 C14,286 8,292 8,302 C8,312 14,318 14,328
+                   C14,338 8,344 8,354 C8,364 14,372 16,382 C18,392 16,402 18,412
+                   C20,422 26,428 28,438 C30,448 26,458 28,466 C30,474 36,478 38,486
+                   C40,494 38,500 40,500 C42,496 44,490 42,484 C40,478 36,474 36,468
+                   C36,462 40,456 38,450 C36,444 30,440 30,434 C30,428 34,424 34,418
+                   C34,412 30,406 30,400 C30,394 34,388 34,382 C34,376 30,370 30,364
+                   C30,358 34,352 34,346 C34,340 30,334 30,328 C30,322 34,316 36,310
+                   C38,304 38,296 40,290 C42,284 46,280 48,274 C50,268 50,260 52,254
+                   C54,248 58,244 60,238 C62,232 62,224 64,218 C66,212 70,208 70,202
+                   C70,196 66,192 66,186 C66,180 70,174 70,168 C70,162 66,158 66,152
+                   C66,146 70,140 70,134 C70,128 66,124 66,118 C66,112 70,106 68,100
+                   C66,94 60,92 58,86 C56,80 58,72 56,66 C54,60 48,58 48,52
+                   C48,46 52,40 52,34 C52,28 48,22 50,16 C52,10 55,5 55,5 Z"/>
+        </g>
 
-    <div class="ctrl" id="ctrl-eventos">
-      <div id="eventos-list">
-        <div class="ev" data-s="1960-05-22T19:00:00" data-e="1960-05-22T23:30:00" data-mm="5.0">
-          <span>22 may 1960</span><span>valdivia</span><span>M9.5</span>
-        </div>
-        <div class="ev" data-s="1985-03-03T22:30:00" data-e="1985-03-04T02:30:00" data-mm="3.0">
-          <span>03 mar 1985</span><span>algarrobo</span><span>M7.8</span>
-        </div>
-        <div class="ev" data-s="2010-02-27T06:00:00" data-e="2010-02-27T10:30:00" data-mm="3.0">
-          <span>27 feb 2010</span><span>biobío</span><span>M8.8</span>
-        </div>
-        <div class="ev" data-s="2014-04-01T23:30:00" data-e="2014-04-02T03:30:00" data-mm="3.0">
-          <span>01 abr 2014</span><span>iquique</span><span>M8.2</span>
-        </div>
-        <div class="ev" data-s="2015-09-16T22:30:00" data-e="2015-09-17T02:30:00" data-mm="3.0">
-          <span>16 sep 2015</span><span>illapel</span><span>M8.3</span>
-        </div>
-      </div>
-    </div>
+        <!-- Puntos sísmicos — se generan desde JS -->
+        <g id="quake-dots"></g>
+      </g>
+
+      <!-- Borde redondeado encima -->
+      <rect x="0.5" y="0.5" width="509" height="109" rx="17.5" ry="17.5" fill="none" stroke="rgba(200,184,154,0.18)" stroke-width="1"/>
+
+      <!-- Labels N/S -->
+      <text x="8" y="106" font-family="'Courier New',monospace" font-size="7" letter-spacing="0.1em" fill="#333330" text-anchor="start">N</text>
+      <text x="502" y="106" font-family="'Courier New',monospace" font-size="7" letter-spacing="0.1em" fill="#333330" text-anchor="end">S</text>
+    </svg>
   </div>
 
   <div id="bottom">
+    <!-- TIMELINE -->
+    <div id="timeline">
+      <div id="mode-bar">
+        <button class="mode-btn on" data-m="live">vivo</button>
+        <button class="mode-btn" data-m="24h">24h</button>
+        <button class="mode-btn" data-m="fecha">fecha</button>
+        <button class="mode-btn" data-m="eventos">eventos</button>
+      </div>
+      <div class="ctrl on" id="ctrl-live"></div>
+      <div class="ctrl" id="ctrl-24h">
+        <input type="range" id="sl" min="0" max="1380" step="60" value="0">
+        <div id="slider-labels">
+          <span>hace 24h</span><span id="slider-cur">ahora</span><span>ahora</span>
+        </div>
+      </div>
+      <div class="ctrl" id="ctrl-fecha">
+        <div id="fecha-row">
+          <input type="date" id="inp-d" value="2010-02-27">
+          <input type="time" id="inp-t" value="06:34">
+          <button id="btn-ir">→ ir</button>
+        </div>
+      </div>
+      <div class="ctrl" id="ctrl-eventos">
+        <div id="eventos-list">
+          <div class="ev" data-s="1960-05-22T19:00:00" data-e="1960-05-22T23:00:00" data-mm="5.0"><span>22 may 1960</span><span>valdivia</span><span>M9.5</span></div>
+          <div class="ev" data-s="1985-03-03T22:30:00" data-e="1985-03-04T02:30:00" data-mm="3.0"><span>03 mar 1985</span><span>algarrobo</span><span>M7.8</span></div>
+          <div class="ev" data-s="2010-02-27T06:00:00" data-e="2010-02-27T10:30:00" data-mm="3.0"><span>27 feb 2010</span><span>biobío</span><span>M8.8</span></div>
+          <div class="ev" data-s="2014-04-01T23:30:00" data-e="2014-04-02T03:30:00" data-mm="3.0"><span>01 abr 2014</span><span>iquique</span><span>M8.2</span></div>
+          <div class="ev" data-s="2015-09-16T22:30:00" data-e="2015-09-17T02:30:00" data-mm="3.0"><span>16 sep 2015</span><span>illapel</span><span>M8.3</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA -->
     <div id="sismo-list"></div>
+
+    <!-- SCOPE -->
     <div id="scope-wrap"><canvas id="scope"></canvas></div>
   </div>
 </div>
@@ -245,8 +268,7 @@ const MO=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic
 function tick(){
   const s=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Santiago'}));
   document.getElementById('st-time').textContent=
-    pad(s.getHours())+':'+pad(s.getMinutes())+':'+pad(s.getSeconds())+
-    ' · '+pad(s.getDate())+' '+MO[s.getMonth()];
+    pad(s.getHours())+':'+pad(s.getMinutes())+':'+pad(s.getSeconds())+' · '+pad(s.getDate())+' '+MO[s.getMonth()];
 }
 tick(); setInterval(tick,1000);
 
@@ -260,8 +282,7 @@ const BASE='https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orde
 
 function pq(eq){
   const p=eq.properties,c=eq.geometry.coordinates;
-  let pl=(p.place||'').replace(/^\d+\s*km\s+[A-Z]+\s+of\s+/i,'')
-    .replace(/,?\s*chile$/i,'').trim().toUpperCase();
+  let pl=(p.place||'').replace(/^\d+\s*km\s+[A-Z]+\s+of\s+/i,'').replace(/,?\s*chile$/i,'').trim().toUpperCase();
   if(pl.length>24) pl=pl.slice(0,24)+'…';
   return{id:eq.id,mag:parseFloat(p.mag)||0,lat:c[1],lon:c[0],dep:c[2],ms:p.time,pl};
 }
@@ -286,7 +307,7 @@ async function fetchLive(){
 async function fetchHist(s,e,mm){
   const q=await doFetch({limit:50,minmagnitude:mm,starttime:s,endtime:e});
   quakes=q; killPool(); renderUI([]);
-  if(audioReady) quakes.slice(0,12).forEach(x=>spawnOsc(x));
+  if(audioReady) quakes.slice(0,MAX).forEach(x=>spawnOsc(x));
 }
 
 // ── Audio ─────────────────────────────────────────────────────────────────────
@@ -295,7 +316,7 @@ const MAX=12, pool=[];
 function initAudio(){
   if(audioReady)return;
   const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC){ console.warn('Web Audio not supported'); return; }
+  if(!AC)return;
   actx=new AC();
   analyser=actx.createAnalyser(); analyser.fftSize=512;
   masterGain=actx.createGain(); masterGain.gain.value=0.65;
@@ -303,7 +324,7 @@ function initAudio(){
   audioReady=true;
 }
 
-function rev(t,d){
+function mkRev(t,d){
   const l=Math.floor(actx.sampleRate*t),b=actx.createBuffer(2,l,actx.sampleRate);
   for(let c=0;c<2;c++){const a=b.getChannelData(c);for(let i=0;i<l;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/l,d);}
   const v=actx.createConvolver(); v.buffer=b; return v;
@@ -313,16 +334,16 @@ function l2f(lat){const t=(lat-(-17))/((-56)-(-17));return 880*Math.pow(55/880,t
 function l2p(lon){return((lon-(-76))/((-66)-(-76)))*2-1;}
 function d2w(dep){if(dep<25)return'sine';if(dep<70)return'triangle';if(dep<150)return'sawtooth';return'square';}
 function m2g(mag){return Math.min(0.28,0.022*Math.pow(2,mag-1.5));}
-function age(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.15,1-h/48);}
+function ageM(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.15,1-h/48);}
 
 function spawnOsc(q){
   if(!audioReady||pool.length>=MAX)return;
   const freq=l2f(q.lat),wave=d2w(q.dep);
-  const gval=m2g(q.mag)*(historic?1:age(q.ms));
+  const gval=m2g(q.mag)*(historic?1:ageM(q.ms));
   const pan=l2p(q.lon),rt=Math.max(2,6-q.dep/60);
   const osc=actx.createOscillator(),filt=actx.createBiquadFilter();
   const gain=actx.createGain(),pn=actx.createStereoPanner?actx.createStereoPanner():null;
-  const cv=rev(rt,2.2),dry=actx.createGain(),wet=actx.createGain();
+  const cv=mkRev(rt,2.2),dry=actx.createGain(),wet=actx.createGain();
   osc.type=wave; osc.frequency.value=freq; osc.detune.value=(q.dep%30)*1.2-18;
   filt.type='lowpass'; filt.frequency.value=400+q.mag*180; filt.Q.value=1.2;
   gain.gain.value=0; dry.gain.value=0.4; wet.gain.value=0.6;
@@ -332,7 +353,8 @@ function spawnOsc(q){
   osc.start(); gain.gain.setTargetAtTime(gval,actx.currentTime,0.4);
   const fd=historic?90:Math.max(30,300-q.dep);
   gain.gain.setTargetAtTime(0,actx.currentTime+fd,12);
-  const node={osc,gain,filt,cv,dry,wet,pn,id:q.id}; pool.push(node); updOsc(); addRing(q);
+  const node={osc,gain,filt,cv,dry,wet,pn,id:q.id};
+  pool.push(node); updOsc(); addRing(q);
   setTimeout(()=>{
     const i=pool.indexOf(node);if(i>-1)pool.splice(i,1);
     try{osc.stop();[osc,filt,gain,cv,dry,wet,pn].forEach(n=>n&&n.disconnect());}catch(e){}
@@ -342,34 +364,91 @@ function spawnOsc(q){
 
 function killPool(){
   pool.forEach(n=>{
-    try{n.gain.gain.cancelScheduledValues(actx.currentTime);
-      n.gain.gain.setTargetAtTime(0,actx.currentTime,0.08);
+    try{n.gain.gain.cancelScheduledValues(actx.currentTime);n.gain.gain.setTargetAtTime(0,actx.currentTime,0.08);
       setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.cv,n.dry,n.wet,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},400);
     }catch(e){}
   });
   pool.length=0; updOsc();
 }
 
-function updOsc(){document.getElementById('st-osc').textContent=pool.length;}
+function updOsc(){
+  document.getElementById('st-osc').textContent=pool.length;
+  updateMapDots();
+}
+
+// ── Mapa — posición de sismos ─────────────────────────────────────────────────
+// Chile horizontal: norte=izquierda, sur=derecha
+// transform SVG: translate(0,100) rotate(-90)
+// original (xo,yo) → new (yo, 100-xo)
+// lat → yo:  yo = 5 + (lat-(-17))/((-56)-(-17))*495
+// lon → xo:  xo = 8 + (lon-(-76))/((-66)-(-76))*68
+// → svg_x = yo = 5 + t_lat*495
+// → svg_y = 100 - xo = 92 - t_lon*68
+
+function q2xy(lat,lon){
+  const tx=(lat-(-17))/((-56)-(-17));
+  const ty=(lon-(-76))/((-66)-(-76));
+  return{x: 5+tx*495, y: 92-ty*68};
+}
+
+const NS='http://www.w3.org/2000/svg';
+function mkEl(tag,attrs){
+  const el=document.createElementNS(NS,tag);
+  Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));
+  return el;
+}
+
+function updateMapDots(){
+  const g=document.getElementById('quake-dots');
+  g.innerHTML='';
+  const activeIds=new Set(pool.map(n=>n.id));
+
+  quakes.forEach(q=>{
+    const{x,y}=q2xy(q.lat,q.lon);
+    const r=Math.max(1.5, q.mag*1.4);
+    const active=activeIds.has(q.id);
+
+    if(active){
+      // anillo pulsante
+      g.appendChild(mkEl('circle',{
+        cx:x,cy:y,r:r*1.8,
+        fill:'none',
+        stroke:'rgba(200,184,154,0.5)',
+        'stroke-width':'0.8',
+        class:'qdot-ring'
+      }));
+      // glow
+      g.appendChild(mkEl('circle',{
+        cx:x,cy:y,r:r+2,
+        fill:'rgba(200,184,154,0.12)',
+        filter:'url(#glow)'
+      }));
+    }
+
+    // punto central
+    g.appendChild(mkEl('circle',{
+      cx:x,cy:y,r:r,
+      fill: active ? '#c8b89a' : '#444440',
+      opacity: active ? '1' : '0.5',
+      class:'qdot-core'
+    }));
+  });
+}
 
 // ── Activación ────────────────────────────────────────────────────────────────
 const veil=document.getElementById('veil');
-
 function go(){
-  // crear AudioContext sincrónicamente dentro del click handler
   initAudio();
   if(!audioReady)return;
-  // resume() puede devolver un Promise en Chrome — esperamos que resuelva
   const p=actx.resume();
   const start=()=>{
     veil.classList.add('gone');
     if(quakes.length) quakes.slice(0,MAX).forEach(x=>spawnOsc(x));
     updOsc();
   };
-  if(p && typeof p.then==='function') p.then(start); else start();
+  if(p&&typeof p.then==='function') p.then(start); else start();
 }
-
-veil.addEventListener('click', go);
+veil.addEventListener('click',go);
 veil.addEventListener('touchend',e=>{e.preventDefault();go();},{passive:false});
 
 // ── Modos ─────────────────────────────────────────────────────────────────────
@@ -395,7 +474,7 @@ document.querySelectorAll('.mode-btn').forEach(b=>{
   });
 });
 
-// ── Slider 24h ────────────────────────────────────────────────────────────────
+// slider
 const sl=document.getElementById('sl');
 const slC=document.getElementById('slider-cur');
 sl.addEventListener('input',()=>{
@@ -405,24 +484,19 @@ sl.addEventListener('input',()=>{
 sl.addEventListener('change',()=>{
   const v=parseInt(sl.value);
   if(v===0){goLive();return;}
-  // ventana acumulativa: desde v minutos atrás hasta ahora
-  const ahora=new Date();
-  const inicio=new Date(Date.now()-v*60000);
-  goHist(inicio.toISOString(),ahora.toISOString(),1.5);
+  goHist(new Date(Date.now()-v*60000).toISOString(),new Date().toISOString(),1.5);
 });
 
-// ── Fecha ─────────────────────────────────────────────────────────────────────
+// fecha
 document.getElementById('btn-ir').addEventListener('click',()=>{
   const d=document.getElementById('inp-d').value;
   const t=document.getElementById('inp-t').value||'00:00';
   if(!d)return;
-  // desde el momento elegido hasta 4 horas después, M1.5+
   const c=new Date(d+'T'+t+':00Z');
-  const fin=new Date(c.getTime()+14400000); // +4h
-  goHist(c.toISOString(),fin.toISOString(),1.5);
+  goHist(c.toISOString(),new Date(c.getTime()+14400000).toISOString(),1.5);
 });
 
-// ── Eventos ───────────────────────────────────────────────────────────────────
+// eventos
 document.querySelectorAll('.ev').forEach(ev=>{
   ev.addEventListener('click',()=>{
     document.querySelectorAll('.ev').forEach(e=>e.classList.remove('on'));
@@ -432,12 +506,8 @@ document.querySelectorAll('.ev').forEach(ev=>{
 });
 
 // ── Render UI ─────────────────────────────────────────────────────────────────
-function fmtTime(ms){
-  if(historic){
-    const d=new Date(ms);
-    return pad(d.getUTCDate())+' '+MO[d.getUTCMonth()]+' '+d.getUTCFullYear()+
-      ' '+pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+'Z';
-  }
+function fmtT(ms){
+  if(historic){const d=new Date(ms);return pad(d.getUTCDate())+' '+MO[d.getUTCMonth()]+' '+d.getUTCFullYear()+' '+pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+'Z';}
   const df=Date.now()-ms,m=Math.floor(df/60000),h=Math.floor(m/60);
   if(h>23)return Math.floor(h/24)+'d '+pad(h%24)+'h';
   if(h>0)return pad(h)+'h '+pad(m%60)+'m';
@@ -447,22 +517,19 @@ function fmtTime(ms){
 function renderUI(fresh=[]){
   const fi=new Set((fresh||[]).map(x=>x.id));
   const list=document.getElementById('sismo-list'); list.innerHTML='';
-  quakes.slice(0,10).forEach((q,i)=>{
+  quakes.slice(0,8).forEach((q,i)=>{
     const el=document.createElement('div');
     let c='sq';
     if(fi.has(q.id))c+=' new';
     else if(q.mag>=4.5)c+=' loud';
     else if(i<MAX)c+=' act';
     el.className=c;
-    el.innerHTML='<span class="sq-mag">M'+q.mag.toFixed(1)+'</span>'+
-      '<span class="sq-pl">'+q.pl+'</span>'+
-      '<span class="sq-dep">'+Math.round(q.dep)+'km '+fmtTime(q.ms)+'</span>';
+    el.innerHTML='<span class="sq-mag">M'+q.mag.toFixed(1)+'</span><span class="sq-pl">'+q.pl+'</span><span class="sq-dep">'+Math.round(q.dep)+'km '+fmtT(q.ms)+'</span>';
     list.appendChild(el);
   });
   document.getElementById('st-n').textContent=quakes.length;
-  if(quakes.length)
-    document.getElementById('st-last').textContent=
-      'M'+quakes[0].mag.toFixed(1)+(historic?' hist':' '+fmtTime(quakes[0].ms));
+  if(quakes.length)document.getElementById('st-last').textContent='M'+quakes[0].mag.toFixed(1)+(historic?' hist':' '+fmtT(quakes[0].ms));
+  updateMapDots();
 }
 setInterval(()=>{if(quakes.length&&!historic)renderUI();},30000);
 
@@ -473,10 +540,7 @@ rsz(); window.addEventListener('resize',rsz);
 function drawSc(){
   requestAnimationFrame(drawSc);
   const W=sc.width,H=sc.height; sctx.clearRect(0,0,W,H);
-  if(!analyser||pool.length===0){
-    sctx.beginPath();sctx.strokeStyle='#1a1a18';sctx.lineWidth=1;
-    sctx.moveTo(0,H/2);sctx.lineTo(W,H/2);sctx.stroke();return;
-  }
+  if(!analyser||pool.length===0){sctx.beginPath();sctx.strokeStyle='#1a1a18';sctx.lineWidth=1;sctx.moveTo(0,H/2);sctx.lineTo(W,H/2);sctx.stroke();return;}
   const data=new Float32Array(analyser.fftSize); analyser.getFloatTimeDomainData(data);
   sctx.beginPath();sctx.strokeStyle='#c8b89a';sctx.lineWidth=devicePixelRatio;sctx.lineJoin='round';
   const sw=W/data.length;
@@ -490,19 +554,22 @@ const bg=document.getElementById('canvas-bg'),bctx=bg.getContext('2d');
 let bW,bH; const rings=[];
 function rbg(){bW=bg.width=window.innerWidth;bH=bg.height=window.innerHeight;}
 rbg(); window.addEventListener('resize',rbg);
-function qxy(q){
-  return{x:bW*(0.10+((q.lon-(-76))/((-66)-(-76)))*0.38),
-         y:bH*(0.05+((q.lat-(-17))/((-56)-(-17)))*0.90)};
+function addRing(q){
+  const rect=document.getElementById('map-center').getBoundingClientRect();
+  const{x,y}=q2xy(q.lat,q.lon);
+  const svgW=510,svgH=110;
+  const px=rect.left+x/svgW*rect.width;
+  const py=rect.top+y/svgH*rect.height;
+  rings.push({x:px,y:py,r:0,maxR:50+q.mag*25,t:0});
 }
-function addRing(q){const{x,y}=qxy(q);rings.push({x,y,r:0,maxR:40+q.mag*28,t:0});}
 function drawBg(){
   requestAnimationFrame(drawBg);
   bctx.clearRect(0,0,bW,bH); bctx.fillStyle='#0a0a0a'; bctx.fillRect(0,0,bW,bH);
   for(let i=rings.length-1;i>=0;i--){
-    const r=rings[i]; r.t+=0.006; r.r=r.maxR*Math.pow(r.t,0.6);
-    const a=Math.max(0,0.18*(1-r.t)),lw=Math.max(0.3,1.2*(1-r.t));
-    bctx.beginPath(); bctx.arc(r.x,r.y,r.r,0,Math.PI*2);
-    bctx.strokeStyle='rgba(200,184,154,'+a+')'; bctx.lineWidth=lw; bctx.stroke();
+    const r=rings[i]; r.t+=0.005; r.r=r.maxR*Math.pow(r.t,0.6);
+    const a=Math.max(0,0.12*(1-r.t));
+    bctx.beginPath();bctx.arc(r.x,r.y,r.r,0,Math.PI*2);
+    bctx.strokeStyle='rgba(200,184,154,'+a+')';bctx.lineWidth=Math.max(0.3,1*(1-r.t));bctx.stroke();
     if(r.t>=1)rings.splice(i,1);
   }
 }
@@ -510,7 +577,7 @@ drawBg();
 
 // ── Inicio ────────────────────────────────────────────────────────────────────
 fetchLive(); liveInt=setInterval(fetchLive,60000);
-setInterval(()=>{if(quakes.length&&!historic)quakes.slice(0,6).forEach(q=>addRing(q));},12000);
+setInterval(()=>{if(quakes.length&&!historic)quakes.slice(0,6).forEach(q=>addRing(q));},15000);
 </script>
 </body>
 </html>
