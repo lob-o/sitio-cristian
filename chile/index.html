@@ -405,9 +405,10 @@ sl.addEventListener('input',()=>{
 sl.addEventListener('change',()=>{
   const v=parseInt(sl.value);
   if(v===0){goLive();return;}
-  const e2=new Date(Date.now()-v*60000);
-  const s2=new Date(e2.getTime()-3600000);
-  goHist(s2.toISOString(),e2.toISOString(),1.5);
+  // ventana acumulativa: desde v minutos atrás hasta ahora
+  const ahora=new Date();
+  const inicio=new Date(Date.now()-v*60000);
+  goHist(inicio.toISOString(),ahora.toISOString(),1.5);
 });
 
 // ── Fecha ─────────────────────────────────────────────────────────────────────
@@ -415,8 +416,10 @@ document.getElementById('btn-ir').addEventListener('click',()=>{
   const d=document.getElementById('inp-d').value;
   const t=document.getElementById('inp-t').value||'00:00';
   if(!d)return;
+  // desde el momento elegido hasta 4 horas después, M1.5+
   const c=new Date(d+'T'+t+':00Z');
-  goHist(new Date(c-3600000).toISOString(),new Date(c+3600000).toISOString(),2.0);
+  const fin=new Date(c.getTime()+14400000); // +4h
+  goHist(c.toISOString(),fin.toISOString(),1.5);
 });
 
 // ── Eventos ───────────────────────────────────────────────────────────────────
