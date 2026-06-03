@@ -65,7 +65,7 @@
 
     /* MODE BAR */
     #mode-bar { display:flex; gap:2rem; align-items:baseline; pointer-events:all; }
-    .mode-btn { font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--dim); transition:color 0.2s; pointer-events:all; }
+    .mode-btn { font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); transition:color 0.2s; pointer-events:all; }
     .mode-btn.on { color:var(--accent); }
     .mode-btn:hover:not(.on) { color:var(--muted); }
     #mode-context { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); margin-left:auto; }
@@ -313,11 +313,12 @@ function mkRev(t,d){
 function l2f(lat){const t=(lat-(-17))/((-56)-(-17));return 880*Math.pow(55/880,t);}
 function l2p(lon){return((lon-(-76))/((-66)-(-76)))*2-1;}
 function d2w(d){if(d<25)return'sine';if(d<70)return'triangle';if(d<150)return'sawtooth';return'square';}
-function m2g(m){return Math.min(0.28,0.022*Math.pow(2,m-1.5));}
-function ageM(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.2,1-h/14);}
+function m2g(m){return Math.min(0.38,0.03*Math.pow(2,m-1.5));}
+function ageM(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.55,1-h/48);}
 
 function spawnOsc(q){
   if(!S.audio||pool.length>=MAX)return;
+  if(actx.state!=='running') actx.resume();
   const freq=l2f(q.lat),wave=d2w(q.dep),pan=l2p(q.lon),rt=Math.max(2,6-q.dep/60);
   const gval=m2g(q.mag)*ageM(q.ms);
   const osc=actx.createOscillator(),filt=actx.createBiquadFilter(),gain=actx.createGain();
@@ -402,6 +403,8 @@ btnAct.addEventListener('touchend',e=>{e.preventDefault();activate();},{passive:
 // ── LIVE ──────────────────────────────────────────────────────────────────────
 function gotoLive(){
   S.mode='live'; clearInterval(S.liveInt); killPool(); quakes=[]; evQuakes=[];
+  // AudioContext puede quedar suspendido tras el silencio — lo forzamos activo
+  if(S.audio&&actx&&actx.state!=='running') actx.resume();
   setBtnActive('live'); switchCtrl('live'); closeEventPanel();
   document.getElementById('hist-badge').className='';
   document.getElementById('mode-context').textContent='';
