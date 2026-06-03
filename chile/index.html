@@ -65,7 +65,7 @@
 
     /* MODE BAR */
     #mode-bar { display:flex; gap:2rem; align-items:baseline; pointer-events:all; }
-    .mode-btn { font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--dim); transition:color 0.2s; pointer-events:all; }
+    .mode-btn { font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--dim); transition:color 0.2s; pointer-events:all; }
     .mode-btn.on { color:var(--accent); }
     .mode-btn:hover:not(.on) { color:var(--muted); }
     #mode-context { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); margin-left:auto; }
@@ -92,8 +92,8 @@
     #sismo-list { display:flex; flex-direction:column; gap:0.25rem; overflow:hidden; }
     .sq {
       display:grid; grid-template-columns:3.5rem 1fr 5.5rem;
-      gap:0.8rem; font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
-      color:var(--dim); line-height:1.6; opacity:0;
+      gap:0.8rem; font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+      color:var(--dim); line-height:1.7; opacity:0;
     }
     .sq.act { color:var(--muted); }
     .sq.big { color:var(--accent); }
@@ -401,7 +401,7 @@ btnAct.addEventListener('touchend',e=>{e.preventDefault();activate();},{passive:
 
 // ── LIVE ──────────────────────────────────────────────────────────────────────
 function gotoLive(){
-  S.mode='live'; clearInterval(S.liveInt); killPool(); evQuakes=[];
+  S.mode='live'; clearInterval(S.liveInt); killPool(); quakes=[]; evQuakes=[];
   setBtnActive('live'); switchCtrl('live'); closeEventPanel();
   document.getElementById('hist-badge').className='';
   document.getElementById('mode-context').textContent='';
