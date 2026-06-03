@@ -16,103 +16,99 @@
       font-family: 'Courier New', Courier, monospace;
       overflow: hidden; user-select: none; -webkit-user-select: none;
     }
+    /* reset total de botones */
+    button {
+      -webkit-appearance: none; appearance: none;
+      background: none; border: none; cursor: pointer;
+      font-family: inherit; color: inherit; padding: 0;
+    }
+    button:disabled { cursor: default; }
+
     #canvas-bg { position: fixed; inset: 0; z-index: 0; }
 
-    /* ── LAYOUT PRINCIPAL: grid de 3 filas fijas ── */
+    /* ── LAYOUT ── */
     #ui {
       position: fixed; inset: 0; z-index: 10;
       display: grid;
-      grid-template-rows: auto 210px 1fr;
+      grid-template-rows: auto 200px 1fr;
       padding: clamp(1rem, 3vw, 2rem);
       gap: 0.8rem;
       pointer-events: none;
     }
 
-    /* ── TOP ── */
+    /* TOP */
     #top {
       display: flex; justify-content: space-between; align-items: flex-start;
-      opacity: 0; animation: fadein 1.5s ease 0.3s forwards;
+      opacity: 0; animation: fadein 1s ease 0.2s forwards;
     }
     #title { font-size: clamp(1.8rem, 5vw, 3.5rem); font-weight: 400; letter-spacing: -0.04em; line-height: 1; }
     #status { text-align: right; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; line-height: 2.1; color: var(--muted); }
     #status .val { color: var(--accent); }
-    /* visibility:hidden en vez de display:none → no cambia altura del header */
-    #hist-badge {
-      font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--bg); background: var(--accent); padding: 2px 6px;
-      visibility: hidden; display: inline-block;
-    }
+    #hist-badge { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--bg); background: var(--accent); padding: 2px 6px; visibility: hidden; display: inline-block; }
     #hist-badge.on { visibility: visible; }
 
-    /* ── MAPA — fila fija 210px ── */
+    /* MAP */
     #map-center {
-      display: flex; align-items: center;
-      opacity: 0; animation: fadein 2s ease 0.6s forwards;
-      min-height: 0;
+      display: flex; align-items: center; min-height: 0;
+      opacity: 0; animation: fadein 1.5s ease 0.4s forwards;
     }
-    #map-svg { width: 100%; height: 100%; max-height: 210px; display: block; }
-    .qdot-ring {
-      transform-box: fill-box; transform-origin: center;
-      animation: ring-pulse 2.8s ease-out infinite;
-    }
+    #map-svg { width: 100%; height: 100%; max-height: 200px; display: block; }
+    .qdot-ring { transform-box: fill-box; transform-origin: center; animation: ring-pulse 2.8s ease-out infinite; }
     .qdot-ring.red { animation-duration: 1.8s; }
-    @keyframes ring-pulse {
-      0%   { opacity: 0.65; transform: scale(1); }
-      100% { opacity: 0;    transform: scale(4.5); }
-    }
+    @keyframes ring-pulse { 0%{opacity:.65;transform:scale(1);}100%{opacity:0;transform:scale(4.5);} }
 
-    /* ── BOTTOM — fila flexible, panel evento posicionado absolutamente ── */
+    /* BOTTOM */
     #bottom {
       position: relative;
       display: flex; flex-direction: column; gap: 0.5rem;
       min-height: 0; overflow: hidden;
-      opacity: 0; animation: fadein 2s ease 1s forwards;
+      opacity: 0; animation: fadein 1.5s ease 0.6s forwards;
+      pointer-events: all;
     }
-    #bottom-left { display: flex; flex-direction: column; gap: 0.45rem; }
 
-    /* panel evento flota sobre la derecha — no desplaza nada */
-    #event-panel {
-      position: absolute;
-      top: 0; right: 0;
-      width: 54%;
-      height: 100%;
-      display: flex; flex-direction: column; gap: 0.35rem;
-      background: linear-gradient(to left, #0a0a0a 60%, rgba(10,10,10,0));
-      padding-left: 2.5rem;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.45s ease;
+    /* ── PANTALLA DE ACTIVACIÓN (inline, no veil) ── */
+    #activate-screen {
+      display: flex; flex-direction: column;
+      align-items: flex-start; justify-content: flex-start;
+      gap: 1.2rem; padding-top: 0.5rem;
     }
-    #event-panel.on { opacity: 1; pointer-events: all; }
-    #event-header {
+    #activate-screen.hidden { display: none; }
+
+    #activate-desc {
       font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent); padding-bottom: 0.3rem;
-      border-bottom: 1px solid var(--line); margin-bottom: 0.1rem;
+      color: var(--muted); line-height: 2;
     }
 
-    /* ── TIMELINE ── */
-    #timeline { pointer-events: all; }
+    #btn-activate {
+      display: inline-flex; align-items: center; gap: 0.8rem;
+      border: 1px solid var(--accent); color: var(--accent);
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 0.65rem 1.4rem;
+      transition: background 0.2s, color 0.2s;
+      pointer-events: all; cursor: pointer;
+    }
+    #btn-activate:hover { background: var(--accent); color: var(--bg); }
+    #btn-activate:active { background: var(--accent); color: var(--bg); opacity: 0.8; }
+    #btn-activate .play-icon { font-size: 13px; }
+
+    /* ── CONTENIDO ACTIVO ── */
+    #active-screen {
+      display: flex; flex-direction: column; gap: 0.5rem; flex: 1; min-height: 0;
+    }
+    #active-screen.hidden { display: none; }
+
+    /* mode bar */
     #mode-bar { display: flex; gap: 2rem; align-items: baseline; }
     .mode-btn {
-      background: none; border: none; cursor: pointer; font-family: inherit;
       font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--muted); padding: 0; transition: color 0.2s;
+      color: var(--dim); transition: color 0.2s; pointer-events: all;
     }
-    .mode-btn:hover { color: var(--fg); }
     .mode-btn.on { color: var(--accent); }
-    #mode-context {
-      font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--dim); margin-left: auto;
-      opacity: 0; transition: opacity 0.6s ease;
-    }
-    #mode-context.on { opacity: 1; }
+    .mode-btn:hover:not(.on) { color: var(--muted); }
+    #mode-context { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-left: auto; }
 
-    #ctrl-wrap { position: relative; min-height: 52px; margin-top: 0.3rem; }
-    .ctrl {
-      position: absolute; top: 0; left: 0; width: 100%;
-      display: flex; flex-direction: column; gap: 0.28rem;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
+    #ctrl-wrap { position: relative; min-height: 52px; }
+    .ctrl { position: absolute; top: 0; left: 0; width: 100%; display: flex; flex-direction: column; gap: 0.28rem; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .ctrl.on { opacity: 1; pointer-events: all; }
 
     /* eventos */
@@ -120,71 +116,62 @@
       font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
       color: var(--muted); cursor: pointer; transition: color 0.2s;
       display: grid; grid-template-columns: 7.5rem 1fr 3.5rem; gap: 0.8rem;
+      padding: 0.3rem 0; border-bottom: 1px solid var(--line);
       pointer-events: all;
     }
+    .ev:first-child { border-top: 1px solid var(--line); }
     .ev:hover { color: var(--fg); }
     .ev.on { color: var(--accent); }
     .mag-r { color: var(--red); }
+    #ev-hint { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-top: 0.5rem; }
+    #ev-hint.hidden { display: none; }
 
     /* listas */
-    #sismo-list, #event-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    #sismo-list { display: flex; flex-direction: column; gap: 0.25rem; overflow: hidden; }
     .sq {
       display: grid; grid-template-columns: 3.5rem 1fr 5.5rem;
       gap: 0.8rem; font-size: 10px; letter-spacing: 0.08em;
       text-transform: uppercase; color: var(--dim);
       line-height: 1.6; opacity: 0;
     }
-    #event-list .sq { font-size: 11.5px; letter-spacing: 0.06em; grid-template-columns: 4rem 1fr 6rem; }
     .sq.act  { color: var(--muted); }
     .sq.big  { color: var(--accent); }
     .sq.huge { color: var(--red); }
     .sq-mag { font-weight: 700; }
     .sq-pl  { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .sq-dep { text-align: right; }
-    @keyframes item-in {
-      from { opacity: 0; transform: translateX(-6px); }
-      to   { opacity: 1; transform: none; }
-    }
+    .sq-loading { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); opacity: 0; animation: fadein 0.5s ease 0.5s forwards, breathe 2s ease-in-out 0.5s infinite; }
+    @keyframes item-in { from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:none;} }
 
-    /* scope */
-    #scope-wrap { height: 20px; flex-shrink: 0; }
+    /* event panel */
+    #event-panel {
+      position: absolute; top: 0; right: 0;
+      width: 54%; height: 100%;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      background: linear-gradient(to left, #0a0a0a 58%, transparent);
+      padding-left: 2.5rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #event-panel.on { opacity: 1; pointer-events: all; }
+    #event-header-row { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 0.3rem; border-bottom: 1px solid var(--line); }
+    #event-title { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+    #ev-close { font-size: 14px; color: var(--dim); transition: color 0.2s; pointer-events: all; }
+    #ev-close:hover { color: var(--fg); }
+    #event-list { display: flex; flex-direction: column; gap: 0.25rem; overflow-y: auto; }
+    #event-list .sq { font-size: 11px; letter-spacing: 0.06em; grid-template-columns: 4rem 1fr 6rem; }
+    #event-status { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-top: 0.3rem; }
+
+    #scope-wrap { height: 18px; flex-shrink: 0; margin-top: auto; }
     #scope { width: 100%; height: 100%; display: block; }
 
-    /* ── VEIL — pantalla completa, mensaje claro ── */
-    #veil {
-      position: fixed; inset: 0; z-index: 40;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      cursor: pointer; pointer-events: all;
-      transition: opacity 1.2s ease;
-      gap: 0;
-    }
-    #veil.gone { opacity: 0; pointer-events: none; }
-    #veil-title {
-      font-size: clamp(3rem, 10vw, 7rem);
-      font-weight: 400; letter-spacing: -0.04em;
-      line-height: 1; color: var(--fg);
-      margin-bottom: 2rem;
-    }
-    #veil-desc {
-      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 2.5rem;
-      text-align: center; line-height: 2;
-    }
-    #veil-cta {
-      font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--accent); animation: breathe 2s ease-in-out infinite;
-    }
-
-    @keyframes fadein  { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
-    @keyframes breathe { 0%,100%{opacity:.3;} 50%{opacity:1;} }
+    @keyframes fadein  { from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;} }
+    @keyframes breathe { 0%,100%{opacity:.3;}50%{opacity:.8;} }
 
     @media(max-width:600px){
-      #ui { grid-template-rows: auto 140px 1fr; }
-      #map-svg { max-height: 140px; }
+      #ui { grid-template-rows: auto 130px 1fr; }
       .ev { grid-template-columns: 6rem 1fr 3rem; }
-      #event-panel { width: 100%; height: 45%; top: auto; bottom: 0; background: linear-gradient(to top, #0a0a0a 70%, transparent); padding: 1.5rem 0 0 0; }
+      #event-panel { width:100%; height:45%; top:auto; bottom:0; padding:1.5rem 0 0 0; background:linear-gradient(to top,#0a0a0a 70%,transparent); }
     }
   </style>
 </head>
@@ -207,28 +194,18 @@
   <div id="map-center">
     <svg id="map-svg" viewBox="0 0 510 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <clipPath id="map-clip">
-          <rect x="0" y="0" width="510" height="110" rx="18" ry="18"/>
-        </clipPath>
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2.5" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-        <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
+        <clipPath id="map-clip"><rect x="0" y="0" width="510" height="110" rx="18" ry="18"/></clipPath>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
       <g clip-path="url(#map-clip)">
         <rect x="0" y="0" width="510" height="110" fill="#0d0d0b"/>
         <g stroke="#1a1a18" stroke-width="0.4" opacity="0.9">
-          <line x1="42"  y1="0" x2="42"  y2="110"/>
-          <line x1="131" y1="0" x2="131" y2="110"/>
-          <line x1="207" y1="0" x2="207" y2="110"/>
-          <line x1="295" y1="0" x2="295" y2="110"/>
+          <line x1="42" y1="0" x2="42" y2="110"/><line x1="131" y1="0" x2="131" y2="110"/>
+          <line x1="207" y1="0" x2="207" y2="110"/><line x1="295" y1="0" x2="295" y2="110"/>
           <line x1="397" y1="0" x2="397" y2="110"/>
         </g>
-        <g transform="translate(0,100) rotate(-90)" fill="#e8e8e0" fill-opacity="0.11" stroke="none">
+        <g transform="translate(0,100) rotate(-90)" fill="#e8e8e0" fill-opacity="0.11">
           <path d="M55,5 C60,5 68,8 72,14 C76,20 74,28 70,34 C66,40 60,44 58,50
                    C56,56 62,60 64,66 C66,72 62,80 58,86 C54,92 48,96 46,104
                    C44,112 48,120 46,128 C44,136 38,140 36,148 C34,156 38,164 36,172
@@ -249,61 +226,71 @@
         </g>
         <g id="quake-dots"></g>
       </g>
-      <rect x="0.5" y="0.5" width="509" height="109" rx="17.5" ry="17.5" fill="none" stroke="rgba(200,184,154,0.14)" stroke-width="1"/>
-      <text x="8"   y="106" font-family="'Courier New',monospace" font-size="7" letter-spacing="0.1em" fill="#252522">N</text>
-      <text x="502" y="106" font-family="'Courier New',monospace" font-size="7" letter-spacing="0.1em" fill="#252522" text-anchor="end">S</text>
+      <rect x="0.5" y="0.5" width="509" height="109" rx="17.5" ry="17.5" fill="none" stroke="rgba(200,184,154,0.13)" stroke-width="1"/>
+      <text x="8"   y="106" font-family="'Courier New',monospace" font-size="7" fill="#252522">N</text>
+      <text x="502" y="106" font-family="'Courier New',monospace" font-size="7" fill="#252522" text-anchor="end">S</text>
     </svg>
   </div>
 
   <div id="bottom">
-    <div id="bottom-left">
-      <div id="timeline">
-        <div id="mode-bar">
-          <button class="mode-btn on" data-m="live">vivo</button>
-          <button class="mode-btn"    data-m="eventos">eventos</button>
-          <span id="mode-context">cada frecuencia es un movimiento sísmico</span>
+
+    <!-- PANTALLA ANTES DE ACTIVAR -->
+    <div id="activate-screen">
+      <div id="activate-desc">
+        instrumento sísmico en tiempo real<br>
+        cada frecuencia representa un movimiento sísmico
+      </div>
+      <button id="btn-activate">
+        <span class="play-icon">▶</span>
+        sonar en vivo
+      </button>
+    </div>
+
+    <!-- PANTALLA ACTIVA -->
+    <div id="active-screen" class="hidden">
+      <div id="mode-bar">
+        <button class="mode-btn on" id="btn-live">vivo</button>
+        <button class="mode-btn"    id="btn-eventos">eventos</button>
+        <span id="mode-context"></span>
+      </div>
+      <div id="ctrl-wrap">
+        <div class="ctrl on" id="ctrl-live">
+          <div id="sismo-list"></div>
         </div>
-        <div id="ctrl-wrap">
-          <div class="ctrl on" id="ctrl-live"></div>
-          <div class="ctrl"    id="ctrl-eventos">
-            <div class="ev" data-s="1960-05-22T19:00:00" data-e="1960-05-22T23:00:00" data-mm="5.0" data-label="22 may 1960 · valdivia · M9.5">
-              <span>22 may 1960</span><span>valdivia</span><span class="mag-r">M9.5</span>
-            </div>
-            <div class="ev" data-s="1985-03-03T22:30:00" data-e="1985-03-04T02:30:00" data-mm="3.0" data-label="03 mar 1985 · algarrobo · M7.8">
-              <span>03 mar 1985</span><span>algarrobo</span><span>M7.8</span>
-            </div>
-            <div class="ev" data-s="2010-02-27T06:00:00" data-e="2010-02-27T10:30:00" data-mm="3.0" data-label="27 feb 2010 · biobío · M8.8">
-              <span>27 feb 2010</span><span>biobío</span><span class="mag-r">M8.8</span>
-            </div>
-            <div class="ev" data-s="2014-04-01T23:30:00" data-e="2014-04-02T03:30:00" data-mm="3.0" data-label="01 abr 2014 · iquique · M8.2">
-              <span>01 abr 2014</span><span>iquique</span><span class="mag-r">M8.2</span>
-            </div>
-            <div class="ev" data-s="2015-09-16T22:30:00" data-e="2015-09-17T02:30:00" data-mm="3.0" data-label="16 sep 2015 · illapel · M8.3">
-              <span>16 sep 2015</span><span>illapel</span><span class="mag-r">M8.3</span>
-            </div>
+        <div class="ctrl" id="ctrl-eventos">
+          <div class="ev" data-s="1960-05-22T19:00:00" data-e="1960-05-22T23:00:00" data-mm="5.0" data-label="22 may 1960 · valdivia · M9.5">
+            <span>22 may 1960</span><span>valdivia</span><span class="mag-r">M9.5</span>
           </div>
+          <div class="ev" data-s="1985-03-03T22:30:00" data-e="1985-03-04T02:30:00" data-mm="3.0" data-label="03 mar 1985 · algarrobo · M7.8">
+            <span>03 mar 1985</span><span>algarrobo</span><span>M7.8</span>
+          </div>
+          <div class="ev" data-s="2010-02-27T06:00:00" data-e="2010-02-27T10:30:00" data-mm="3.0" data-label="27 feb 2010 · biobío · M8.8">
+            <span>27 feb 2010</span><span>biobío</span><span class="mag-r">M8.8</span>
+          </div>
+          <div class="ev" data-s="2014-04-01T23:30:00" data-e="2014-04-02T03:30:00" data-mm="3.0" data-label="01 abr 2014 · iquique · M8.2">
+            <span>01 abr 2014</span><span>iquique</span><span class="mag-r">M8.2</span>
+          </div>
+          <div class="ev" data-s="2015-09-16T22:30:00" data-e="2015-09-17T02:30:00" data-mm="3.0" data-label="16 sep 2015 · illapel · M8.3">
+            <span>16 sep 2015</span><span>illapel</span><span class="mag-r">M8.3</span>
+          </div>
+          <div id="ev-hint">→ selecciona un evento para escuchar</div>
         </div>
       </div>
-      <div id="sismo-list"></div>
+
+      <!-- Panel evento: flota sobre la derecha -->
+      <div id="event-panel">
+        <div id="event-header-row">
+          <span id="event-title"></span>
+          <button id="ev-close">×</button>
+        </div>
+        <div id="event-status"></div>
+        <div id="event-list"></div>
+      </div>
+
+      <div id="scope-wrap"><canvas id="scope"></canvas></div>
     </div>
 
-    <div id="event-panel">
-      <div id="event-header"></div>
-      <div id="event-list"></div>
-    </div>
-
-    <div id="scope-wrap"><canvas id="scope"></canvas></div>
   </div>
-</div>
-
-<!-- VEIL: pantalla de activación clara y explícita -->
-<div id="veil">
-  <div id="veil-title">chile</div>
-  <div id="veil-desc">
-    instrumento sísmico en tiempo real<br>
-    cada frecuencia es un movimiento sísmico
-  </div>
-  <div id="veil-cta">→ toca para escuchar</div>
 </div>
 
 <script>
@@ -318,7 +305,8 @@ function tick(){
 tick(); setInterval(tick,1000);
 
 // ── Estado ────────────────────────────────────────────────────────────────────
-let quakes=[], evQuakes=[], audioReady=false, liveInt=null;
+const S={audio:false,mode:'init',loading:false,liveInt:null};
+let quakes=[], evQuakes=[];
 let actx, analyser, masterGain;
 
 // ── USGS ──────────────────────────────────────────────────────────────────────
@@ -330,99 +318,78 @@ function pq(eq){
   if(pl.length>24)pl=pl.slice(0,24)+'…';
   return{id:eq.id,mag:parseFloat(p.mag)||0,lat:c[1],lon:c[0],dep:c[2],ms:p.time,pl};
 }
-async function doFetch(extra){
-  try{const u=BASE+'&'+new URLSearchParams(extra).toString();const d=await(await fetch(u)).json();return(d.features||[]).map(pq);}catch(e){return[];}
-}
-
-async function fetchLive(){
-  const start12=new Date(Date.now()-12*3600000).toISOString();
-  const q=await doFetch({limit:50,minmagnitude:1.5,starttime:start12});
-  if(!q.length)return;
-  const prev=new Set(quakes.map(x=>x.id));
-  const fresh=q.filter(x=>!prev.has(x.id));
-  quakes=q; renderMainList(fresh.length?fresh:null);
-  if(audioReady)fresh.forEach(x=>spawnOsc(x));
-}
-
-async function fetchEvent(s,e,mm){
-  const q=await doFetch({limit:50,minmagnitude:mm,starttime:s,endtime:e});
-  evQuakes=q; renderEventPanel();
-  killPool();
-  if(audioReady)evQuakes.slice(0,MAX).forEach(x=>spawnOsc(x));
-  updateMapDots();
+async function doFetch(params){
+  try{
+    const u=BASE+'&'+new URLSearchParams(params).toString();
+    const d=await(await fetch(u)).json();
+    return(d.features||[]).map(pq);
+  }catch(e){return[];}
 }
 
 // ── Audio ─────────────────────────────────────────────────────────────────────
-const MAX=12, pool=[];
+const MAX=12,pool=[];
 function initAudio(){
-  if(audioReady)return;
+  if(S.audio)return;
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
   actx=new AC(); analyser=actx.createAnalyser(); analyser.fftSize=512;
   masterGain=actx.createGain(); masterGain.gain.value=0.65;
   masterGain.connect(actx.destination); masterGain.connect(analyser);
-  audioReady=true;
+  S.audio=true;
 }
 function mkRev(t,d){
   const l=Math.floor(actx.sampleRate*t),b=actx.createBuffer(2,l,actx.sampleRate);
-  for(let c=0;c<2;c++){const a=b.getChannelData(c);for(let i=0;i<l;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/l,d);}
+  for(let ch=0;ch<2;ch++){const a=b.getChannelData(ch);for(let i=0;i<l;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/l,d);}
   const v=actx.createConvolver();v.buffer=b;return v;
 }
 function l2f(lat){const t=(lat-(-17))/((-56)-(-17));return 880*Math.pow(55/880,t);}
 function l2p(lon){return((lon-(-76))/((-66)-(-76)))*2-1;}
-function d2w(dep){if(dep<25)return'sine';if(dep<70)return'triangle';if(dep<150)return'sawtooth';return'square';}
-function m2g(mag){return Math.min(0.28,0.022*Math.pow(2,mag-1.5));}
+function d2w(d){if(d<25)return'sine';if(d<70)return'triangle';if(d<150)return'sawtooth';return'square';}
+function m2g(m){return Math.min(0.28,0.022*Math.pow(2,m-1.5));}
 function ageM(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.2,1-h/14);}
 
 function spawnOsc(q){
-  if(!audioReady||pool.length>=MAX)return;
+  if(!S.audio||pool.length>=MAX)return;
   const freq=l2f(q.lat),wave=d2w(q.dep),pan=l2p(q.lon),rt=Math.max(2,6-q.dep/60);
   const gval=m2g(q.mag)*ageM(q.ms);
   const osc=actx.createOscillator(),filt=actx.createBiquadFilter(),gain=actx.createGain();
   const pn=actx.createStereoPanner?actx.createStereoPanner():null;
   const cv=mkRev(rt,2.2),dry=actx.createGain(),wet=actx.createGain();
-  osc.type=wave;osc.frequency.value=freq;osc.detune.value=(q.dep%30)*1.2-18;
-  filt.type='lowpass';filt.frequency.value=400+q.mag*180;filt.Q.value=1.2;
-  gain.gain.value=0;dry.gain.value=0.4;wet.gain.value=0.6;
-  osc.connect(filt);filt.connect(gain);
+  osc.type=wave; osc.frequency.value=freq; osc.detune.value=(q.dep%30)*1.2-18;
+  filt.type='lowpass'; filt.frequency.value=400+q.mag*180; filt.Q.value=1.2;
+  gain.gain.value=0; dry.gain.value=0.4; wet.gain.value=0.6;
+  osc.connect(filt); filt.connect(gain);
   const pre=pn?(()=>{gain.connect(pn);pn.pan.value=pan;return pn;})():gain;
-  pre.connect(dry);pre.connect(cv);dry.connect(masterGain);cv.connect(wet);wet.connect(masterGain);
-  osc.start();gain.gain.setTargetAtTime(gval,actx.currentTime,0.4);
+  pre.connect(dry); pre.connect(cv); dry.connect(masterGain); cv.connect(wet); wet.connect(masterGain);
+  osc.start(); gain.gain.setTargetAtTime(gval,actx.currentTime,0.4);
   const fd=Math.max(30,300-q.dep);
   gain.gain.setTargetAtTime(0,actx.currentTime+fd,12);
-  const node={osc,gain,filt,cv,dry,wet,pn,id:q.id};pool.push(node);
-  updOsc();addRing(q);
+  const node={osc,gain,filt,cv,dry,wet,pn,id:q.id}; pool.push(node); updOsc(); addRing(q);
   setTimeout(()=>{
-    const i=pool.indexOf(node);if(i>-1)pool.splice(i,1);
+    const i=pool.indexOf(node); if(i>-1)pool.splice(i,1);
     try{osc.stop();[osc,filt,gain,cv,dry,wet,pn].forEach(n=>n&&n.disconnect());}catch(e){}
     updOsc();
   },(fd+60)*1000);
 }
 function killPool(){
   pool.forEach(n=>{
-    try{n.gain.gain.cancelScheduledValues(actx.currentTime);n.gain.gain.setTargetAtTime(0,actx.currentTime,0.08);
-      setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.cv,n.dry,n.wet,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},400);
+    try{n.gain.gain.cancelScheduledValues(actx.currentTime); n.gain.gain.setTargetAtTime(0,actx.currentTime,0.1);
+      setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.cv,n.dry,n.wet,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},500);
     }catch(e){}
   });
-  pool.length=0;updOsc();
+  pool.length=0; updOsc();
 }
-function updOsc(){document.getElementById('st-osc').textContent=pool.length;updateMapDots();}
+function updOsc(){document.getElementById('st-osc').textContent=pool.length; updateMapDots();}
 
 // ── Mapa ──────────────────────────────────────────────────────────────────────
-function q2xy(lat,lon){
-  return{x:5+((lat-(-17))/((-56)-(-17)))*495, y:92-((lon-(-76))/((-66)-(-76)))*68};
-}
+function q2xy(lat,lon){return{x:5+((lat-(-17))/((-56)-(-17)))*495,y:92-((lon-(-76))/((-66)-(-76)))*68};}
 const NS='http://www.w3.org/2000/svg';
 function mkEl(tag,attrs){const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));return el;}
-
 function updateMapDots(){
-  const g=document.getElementById('quake-dots');g.innerHTML='';
-  const activeIds=new Set(pool.map(n=>n.id));
-  const all=[...quakes.map(q=>({...q,_ev:false})),...evQuakes.map(q=>({...q,_ev:true}))];
-  all.forEach(q=>{
-    const{x,y}=q2xy(q.lat,q.lon);
-    const big=q.mag>=6.0, r=Math.max(1.5,q.mag*1.3);
-    const active=activeIds.has(q.id)||q._ev;
-    const col=big?'#c04030':(active?'#c8b89a':'#383836');
+  const g=document.getElementById('quake-dots'); g.innerHTML='';
+  const aid=new Set(pool.map(n=>n.id));
+  [...quakes.map(q=>({...q,_ev:false})),...evQuakes.map(q=>({...q,_ev:true}))].forEach(q=>{
+    const{x,y}=q2xy(q.lat,q.lon),big=q.mag>=6,r=Math.max(1.5,q.mag*1.3);
+    const active=aid.has(q.id)||q._ev, col=big?'#c04030':(active?'#c8b89a':'#383836');
     if(active){
       g.appendChild(mkEl('circle',{cx:x,cy:y,r:r*2,fill:'none',stroke:big?'rgba(192,64,48,0.5)':'rgba(200,184,154,0.4)','stroke-width':'0.8',class:'qdot-ring'+(big?' red':'')}));
       g.appendChild(mkEl('circle',{cx:x,cy:y,r:r+2,fill:big?'rgba(192,64,48,0.12)':'rgba(200,184,154,0.1)',filter:big?'url(#glow-red)':'url(#glow)'}));
@@ -431,119 +398,129 @@ function updateMapDots(){
   });
 }
 
-// ── Render con animación escalonada ───────────────────────────────────────────
-function magCls(mag,i){
-  if(mag>=6.0)return' huge';
-  if(mag>=4.5)return' big';
-  if(i<MAX)return' act';
-  return'';
-}
-function fmtT(ms){
-  const df=Date.now()-ms,m=Math.floor(df/60000),h=Math.floor(m/60);
-  if(h>23)return Math.floor(h/24)+'d '+pad(h%24)+'h';
-  if(h>0)return pad(h)+'h '+pad(m%60)+'m';
-  return pad(m)+'m';
-}
-function fmtTutc(ms){
-  const d=new Date(ms);return pad(d.getUTCDate())+' '+MO[d.getUTCMonth()]+' '+pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+'Z';
-}
-
-function renderList(container, items, timeFn){
-  container.innerHTML='';
+// ── Render ────────────────────────────────────────────────────────────────────
+function magCls(mag,i){if(mag>=6)return' huge';if(mag>=4.5)return' big';if(i<MAX)return' act';return'';}
+function fmtT(ms){const df=Date.now()-ms,m=Math.floor(df/60000),h=Math.floor(m/60);if(h>23)return Math.floor(h/24)+'d '+pad(h%24)+'h';if(h>0)return pad(h)+'h '+pad(m%60)+'m';return pad(m)+'m';}
+function fmtTutc(ms){const d=new Date(ms);return pad(d.getUTCDate())+' '+MO[d.getUTCMonth()]+' '+pad(d.getUTCHours())+':'+pad(d.getUTCMinutes())+'Z';}
+function renderList(el,items,timeFn){
+  el.innerHTML='';
+  if(!items.length){const d=document.createElement('div');d.className='sq-loading';d.textContent='sin datos para este período';el.appendChild(d);return;}
   items.forEach((q,i)=>{
-    const el=document.createElement('div');
-    el.className='sq'+magCls(q.mag,i);
-    el.style.animation=`item-in 0.22s ease ${i*0.06}s forwards`;
-    el.innerHTML='<span class="sq-mag">M'+q.mag.toFixed(1)+'</span><span class="sq-pl">'+q.pl+'</span><span class="sq-dep">'+Math.round(q.dep)+'km '+timeFn(q.ms)+'</span>';
-    container.appendChild(el);
+    const div=document.createElement('div');
+    div.className='sq'+magCls(q.mag,i);
+    div.style.animation=`item-in 0.2s ease ${i*0.055}s forwards`;
+    div.innerHTML='<span class="sq-mag">M'+q.mag.toFixed(1)+'</span><span class="sq-pl">'+q.pl+'</span><span class="sq-dep">'+Math.round(q.dep)+'km '+timeFn(q.ms)+'</span>';
+    el.appendChild(div);
   });
 }
 
-function renderMainList(fresh){
-  renderList(document.getElementById('sismo-list'), quakes.slice(0,8), fmtT);
-  document.getElementById('st-n').textContent=quakes.length;
+// ── ACTIVACIÓN ────────────────────────────────────────────────────────────────
+function activate(){
+  initAudio(); if(!S.audio)return;
+  const resume=actx.resume();
+  const go=()=>{
+    document.getElementById('activate-screen').classList.add('hidden');
+    document.getElementById('active-screen').classList.remove('hidden');
+    gotoLive();
+  };
+  if(resume&&typeof resume.then==='function')resume.then(go);else go();
+}
+
+document.getElementById('btn-activate').addEventListener('click',activate);
+document.getElementById('btn-activate').addEventListener('touchend',e=>{e.preventDefault();activate();},{passive:false});
+
+// ── ESTADO: LIVE ──────────────────────────────────────────────────────────────
+function gotoLive(){
+  S.mode='live'; clearInterval(S.liveInt); killPool(); evQuakes=[];
+  setBtnActive('live'); switchCtrl('live');
+  closeEventPanel();
+  document.getElementById('hist-badge').className='';
+  document.getElementById('mode-context').textContent='últimas 12h';
+  const sl=document.getElementById('sismo-list');
+  sl.innerHTML='<div class="sq-loading">cargando…</div>';
+  fetchLiveData(); S.liveInt=setInterval(fetchLiveData,60000);
+}
+async function fetchLiveData(){
+  if(S.mode!=='live')return;
+  const q=await doFetch({limit:50,minmagnitude:1.5,starttime:new Date(Date.now()-12*3600000).toISOString()});
+  if(S.mode!=='live')return;
+  const prev=new Set(quakes.map(x=>x.id));
+  const fresh=q.filter(x=>!prev.has(x.id));
+  quakes=q;
+  renderList(document.getElementById('sismo-list'),quakes.slice(0,8),fmtT);
+  document.getElementById('st-n').textContent=quakes.length||'—';
   if(quakes.length)document.getElementById('st-last').textContent='M'+quakes[0].mag.toFixed(1)+' '+fmtT(quakes[0].ms);
+  fresh.forEach(x=>spawnOsc(x)); updateMapDots();
+}
+
+// ── ESTADO: EVENTOS ───────────────────────────────────────────────────────────
+function gotoEventos(){
+  S.mode='eventos'; clearInterval(S.liveInt); killPool();
+  setBtnActive('eventos'); switchCtrl('eventos');
+  closeEventPanel();
+  document.getElementById('hist-badge').className='';
+  document.getElementById('mode-context').textContent='sismos históricos';
+  document.getElementById('ev-hint').classList.remove('hidden');
   updateMapDots();
 }
-
-function renderEventPanel(){
-  renderList(document.getElementById('event-list'), evQuakes.slice(0,12), fmtTutc);
+async function selectEvent(ev){
+  if(S.mode!=='eventos'||S.loading)return;
+  S.loading=true;
+  document.querySelectorAll('.ev').forEach(e=>e.classList.remove('on')); ev.classList.add('on');
+  document.getElementById('ev-hint').classList.add('hidden');
+  document.getElementById('event-title').textContent=ev.dataset.label||'';
+  document.getElementById('hist-badge').className='on';
+  document.getElementById('event-status').textContent='cargando…';
+  document.getElementById('event-list').innerHTML='';
+  document.getElementById('event-panel').classList.add('on');
+  killPool(); evQuakes=[]; updateMapDots();
+  const q=await doFetch({limit:50,minmagnitude:parseFloat(ev.dataset.mm)||3.0,starttime:ev.dataset.s,endtime:ev.dataset.e});
+  document.getElementById('event-status').textContent='';
+  S.loading=false;
+  if(S.mode!=='eventos')return;
+  evQuakes=q;
+  if(!q.length){document.getElementById('event-status').textContent='sin datos para este período';}
+  else{renderList(document.getElementById('event-list'),evQuakes.slice(0,12),fmtTutc); evQuakes.slice(0,MAX).forEach(x=>spawnOsc(x));}
+  updateMapDots();
+}
+function closeEventPanel(){
+  document.getElementById('event-panel').classList.remove('on');
+  document.getElementById('event-title').textContent='';
+  document.getElementById('event-status').textContent='';
+  document.getElementById('event-list').innerHTML='';
+  document.querySelectorAll('.ev').forEach(e=>e.classList.remove('on'));
+  document.getElementById('ev-hint').classList.remove('hidden');
+  evQuakes=[]; updateMapDots();
 }
 
-setInterval(()=>{if(quakes.length)renderMainList(null);},30000);
-
-// ── Activación ────────────────────────────────────────────────────────────────
-const veil=document.getElementById('veil');
-function go(){
-  initAudio();if(!audioReady)return;
-  const p=actx.resume();
-  const start=()=>{
-    veil.classList.add('gone');
-    document.getElementById('mode-context').classList.add('on');
-    if(quakes.length)quakes.slice(0,MAX).forEach(x=>spawnOsc(x));
-    updOsc();
-  };
-  if(p&&typeof p.then==='function')p.then(start);else start();
-}
-veil.addEventListener('click',go);
-veil.addEventListener('touchend',e=>{e.preventDefault();go();},{passive:false});
-
-// ── Modos ─────────────────────────────────────────────────────────────────────
-let currentMode='live';
+// ── Helpers ───────────────────────────────────────────────────────────────────
+let currentCtrl='live';
 function switchCtrl(to){
-  if(currentMode===to)return;
-  const fromEl=document.getElementById('ctrl-'+currentMode);
-  const toEl=document.getElementById('ctrl-'+to);
-  fromEl.classList.remove('on');
-  setTimeout(()=>{toEl.style.opacity='0';toEl.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>toEl.style.opacity=''));},280);
-  currentMode=to;
+  if(currentCtrl===to)return;
+  const fr=document.getElementById('ctrl-'+currentCtrl), to_=document.getElementById('ctrl-'+to);
+  fr.classList.remove('on');
+  setTimeout(()=>{to_.style.opacity='0';to_.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>to_.style.opacity=''));},280);
+  currentCtrl=to;
+}
+function setBtnActive(m){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('btn-'+m).classList.add('on');
 }
 
-document.querySelectorAll('.mode-btn').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('on'));
-    b.classList.add('on');
-    const m=b.dataset.m;
-    switchCtrl(m);
-    if(m==='live'){
-      evQuakes=[];
-      document.getElementById('event-panel').classList.remove('on');
-      document.getElementById('event-header').textContent='';
-      document.getElementById('hist-badge').className='';
-      document.querySelectorAll('.ev').forEach(e=>e.classList.remove('on'));
-      killPool();
-      clearInterval(liveInt);
-      fetchLive();
-      liveInt=setInterval(fetchLive,60000);
-      updateMapDots();
-      document.getElementById('mode-context').textContent='cada frecuencia es un movimiento sísmico';
-    } else {
-      clearInterval(liveInt);
-      document.getElementById('mode-context').textContent='sismos históricos de gran magnitud';
-    }
-  });
-});
-
-document.querySelectorAll('.ev').forEach(ev=>{
-  ev.addEventListener('click',()=>{
-    document.querySelectorAll('.ev').forEach(e=>e.classList.remove('on'));
-    ev.classList.add('on');
-    document.getElementById('hist-badge').className='on';
-    document.getElementById('event-header').textContent=ev.dataset.label||'';
-    document.getElementById('event-panel').classList.add('on');
-    fetchEvent(ev.dataset.s,ev.dataset.e,parseFloat(ev.dataset.mm)||3.0);
-  });
-});
+document.getElementById('btn-live').addEventListener('click',()=>{if(S.audio&&S.mode!=='live')gotoLive();});
+document.getElementById('btn-eventos').addEventListener('click',()=>{if(S.audio&&S.mode!=='eventos')gotoEventos();});
+document.querySelectorAll('.ev').forEach(ev=>ev.addEventListener('click',()=>selectEvent(ev)));
+document.getElementById('ev-close').addEventListener('click',()=>{if(!S.loading){killPool();closeEventPanel();document.getElementById('hist-badge').className='';}});
 
 // ── Scope ─────────────────────────────────────────────────────────────────────
 const sc=document.getElementById('scope'),sctx=sc.getContext('2d');
 function rsz(){sc.width=sc.offsetWidth*devicePixelRatio;sc.height=sc.offsetHeight*devicePixelRatio;}
-rsz();window.addEventListener('resize',rsz);
+rsz(); window.addEventListener('resize',rsz);
 function drawSc(){
   requestAnimationFrame(drawSc);
-  const W=sc.width,H=sc.height;sctx.clearRect(0,0,W,H);
+  const W=sc.width,H=sc.height; sctx.clearRect(0,0,W,H);
   if(!analyser||pool.length===0){sctx.beginPath();sctx.strokeStyle='#1a1a18';sctx.lineWidth=1;sctx.moveTo(0,H/2);sctx.lineTo(W,H/2);sctx.stroke();return;}
-  const data=new Float32Array(analyser.fftSize);analyser.getFloatTimeDomainData(data);
+  const data=new Float32Array(analyser.fftSize); analyser.getFloatTimeDomainData(data);
   sctx.beginPath();sctx.strokeStyle='#c8b89a';sctx.lineWidth=devicePixelRatio;sctx.lineJoin='round';
   const sw=W/data.length;
   data.forEach((v,i)=>{const x=i*sw,y=(0.5+v*0.44)*H;i===0?sctx.moveTo(x,y):sctx.lineTo(x,y);});
@@ -553,9 +530,9 @@ drawSc();
 
 // ── Fondo ─────────────────────────────────────────────────────────────────────
 const bg=document.getElementById('canvas-bg'),bctx=bg.getContext('2d');
-let bW,bH;const rings=[];
+let bW,bH; const rings=[];
 function rbg(){bW=bg.width=window.innerWidth;bH=bg.height=window.innerHeight;}
-rbg();window.addEventListener('resize',rbg);
+rbg(); window.addEventListener('resize',rbg);
 function addRing(q){
   const rect=document.getElementById('map-center').getBoundingClientRect();
   if(!rect.width)return;
@@ -564,21 +541,18 @@ function addRing(q){
 }
 function drawBg(){
   requestAnimationFrame(drawBg);
-  bctx.clearRect(0,0,bW,bH);bctx.fillStyle='#0a0a0a';bctx.fillRect(0,0,bW,bH);
+  bctx.clearRect(0,0,bW,bH); bctx.fillStyle='#0a0a0a'; bctx.fillRect(0,0,bW,bH);
   for(let i=rings.length-1;i>=0;i--){
-    const r=rings[i];r.t+=0.005;r.r=r.maxR*Math.pow(r.t,0.6);
+    const r=rings[i]; r.t+=0.005; r.r=r.maxR*Math.pow(r.t,0.6);
     const a=Math.max(0,0.12*(1-r.t));
-    bctx.beginPath();bctx.arc(r.x,r.y,r.r,0,Math.PI*2);
+    bctx.beginPath(); bctx.arc(r.x,r.y,r.r,0,Math.PI*2);
     bctx.strokeStyle=r.big?`rgba(192,64,48,${a})`:`rgba(200,184,154,${a})`;
-    bctx.lineWidth=Math.max(0.3,1*(1-r.t));bctx.stroke();
+    bctx.lineWidth=Math.max(0.3,1*(1-r.t)); bctx.stroke();
     if(r.t>=1)rings.splice(i,1);
   }
 }
 drawBg();
-
-// ── Inicio ────────────────────────────────────────────────────────────────────
-fetchLive();liveInt=setInterval(fetchLive,60000);
-setInterval(()=>{if(quakes.length)quakes.slice(0,5).forEach(q=>addRing(q));},15000);
+setInterval(()=>{if(S.mode==='live'&&quakes.length)quakes.slice(0,5).forEach(q=>addRing(q));},15000);
 </script>
 </body>
 </html>
