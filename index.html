@@ -106,8 +106,6 @@
     }
     .dot:hover { transform: scale(1.6); }
 
-    #site h1.site-name .dot { width: clamp(11px,2vw,18px); height: clamp(11px,2vw,18px); }
-
     /* ═══════════════════════════════════════════════════════════
        HERO — grafo de fuerza a pantalla completa
        ═══════════════════════════════════════════════════════════ */
@@ -143,15 +141,10 @@
       position: absolute;
       bottom: 0; left: 0; right: 0;
       height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; justify-content: flex-end;
       padding: 0 clamp(16px, 4vw, 32px);
       z-index: 20; pointer-events: none;
     }
-    #leg { display: flex; gap: 16px; }
-    .li { display: flex; align-items: center; gap: 6px; }
-    .ld { width: 7px; height: 7px; border-radius: 50%; }
-    .ll { font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; color: #333; }
-
     .scroll-cue {
       font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
       color: #333; pointer-events: auto; text-decoration: none;
@@ -278,7 +271,7 @@
       line-height: 0.98;
     }
 
-    .item:hover { color: var(--accent); transform: translateX(10px); }
+    .item:hover { color: var(--accent); transform: translateX(2px); }
 
     /* fila secundaria (otros) — más callada que los proyectos titulares */
     .group.secondary .items-col { flex-flow: row wrap; gap: 0.4rem 1.6rem; align-items: baseline; }
@@ -609,7 +602,6 @@
       #sv-sismos { align-items: flex-start; }
       .zone { grid-template-columns: 50px 1fr 80px; }
       .hero-name { font-size: 13px; }
-      #leg { gap: 10px; }
     }
   </style>
 </head>
@@ -633,12 +625,6 @@
   </div>
 
   <div class="hero-foot">
-    <div id="leg">
-      <div class="li"><div class="ld" style="background:#6655ee;opacity:.7"></div><span class="ll">90s</span></div>
-      <div class="li"><div class="ld" style="background:#ddaa00;opacity:.7"></div><span class="ll">00s</span></div>
-      <div class="li"><div class="ld" style="background:#00cc77;opacity:.7"></div><span class="ll">10s</span></div>
-      <div class="li"><div class="ld" style="background:#ee3333;opacity:.7"></div><span class="ll">20s</span></div>
-    </div>
     <a href="#site" class="scroll-cue">índice <span class="arrow">↓</span></a>
   </div>
 </section>
@@ -657,7 +643,6 @@
   <header>
     <h1 class="site-name" id="site-name-el">
       cristián heyne
-      <span class="dot"></span>
     </h1>
     <p class="seo-only">Cristián Heyne, periodista, músico, productor discográfico y consultor chileno. Shogun, Tormenta y Christianes. Fundador de Process, consultora de estrategia cultural, y de Ethereal, estudio de entretenimiento. Ha producido discos de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.</p>
   </header>
@@ -676,35 +661,27 @@
     <div class="group" style="animation-delay:0.12s">
       <h2 class="cat-label">producciones</h2>
       <div class="items-col">
-        <a class="item" href="#hero"><span class="item-name">mapa</span></a>
         <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener"><span class="item-name">portafolio</span></a>
-        <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener"><span class="item-name">estudionegro</span></a>
       </div>
     </div>
 
-    <div class="group" style="animation-delay:0.19s">
-      <h2 class="cat-label">process</h2>
-      <div class="items-col">
-        <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
-      </div>
-    </div>
-
-    <div class="group secondary" style="animation-delay:0.26s">
+    <div class="group secondary" style="animation-delay:0.19s">
       <h2 class="cat-label">otros</h2>
       <div class="items-col">
+        <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
         <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">ethereal</span></a>
         <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener"><span class="item-name">ónyx</span></a>
       </div>
     </div>
 
-    <div class="group" style="animation-delay:0.33s">
-      <h2 class="cat-label">contacto</h2>
+    <div class="group secondary" style="animation-delay:0.26s">
+      <div class="cat-label"></div>
       <div class="items-col">
-        <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">email</span></a>
+        <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">cristianheyne@gmail.com</span></a>
       </div>
     </div>
 
-    <div class="group" style="animation-delay:0.40s">
+    <div class="group" style="animation-delay:0.33s">
       <div class="cat-label"></div>
       <div class="items-col">
         <span class="item" id="grid-mode-trigger" style="cursor:pointer">
@@ -850,6 +827,7 @@ async function load() {
   } catch(e) {
     DATA = SAMPLE; // preview / offline
   }
+  DATA = DATA.filter(d => !d.isHub); // sacamos los hubs de década (90s/00s/10s/20s) del grafo
   document.getElementById('hero-count').textContent = '· ' + DATA.length;
   document.getElementById('overlay').style.display = 'none';
   render(mode);
