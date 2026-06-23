@@ -847,6 +847,21 @@ function buildGraph(data) {
   return {nodes,links};
 }
 
+function forceBounds(width, height, pad) {
+  let nodes;
+  function force() {
+    for (const n of nodes) {
+      const r = nodeR(n) + pad;
+      if (n.x < r) { n.x = r; n.vx = Math.abs(n.vx) * 0.3; }
+      else if (n.x > width - r) { n.x = width - r; n.vx = -Math.abs(n.vx) * 0.3; }
+      if (n.y < r) { n.y = r; n.vy = Math.abs(n.vy) * 0.3; }
+      else if (n.y > height - r) { n.y = height - r; n.vy = -Math.abs(n.vy) * 0.3; }
+    }
+  }
+  force.initialize = _ => nodes = _;
+  return force;
+}
+
 function render(m) {
   const W=document.getElementById('hero').clientWidth;
   const H=document.getElementById('hero').clientHeight;
@@ -898,14 +913,17 @@ function render(m) {
       .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.012); d.fx=null;d.fy=null; })
     );
 
+  const chargeStrength = -Math.max(40, Math.min(130, W/9)); // menos repulsión en pantallas angostas
+
   sim=d3.forceSimulation(nodes)
     .alphaMin(0).alphaDecay(0.01).velocityDecay(0.6)
     .force('link',d3.forceLink(links).id(d=>d.id)
       .distance(d=>d.isCine?40:55)
       .strength(d=>d.strength||0.5))
-    .force('charge',d3.forceManyBody().strength(-130).distanceMax(320))
+    .force('charge',d3.forceManyBody().strength(chargeStrength).distanceMax(320))
     .force('center',d3.forceCenter(W/2,H/2).strength(0.04))
     .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
+    .force('bounds', forceBounds(W, H, 10)) // ningún nodo puede salir del área visible
     .on('tick',()=>{
       const ts = Date.now()/1000;
       const wx = n => Math.cos(ts*n._ws + n._wp) * n._wa;
