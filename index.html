@@ -189,12 +189,15 @@
        SITE — el índice (claro, día/noche)
        ═══════════════════════════════════════════════════════════ */
     #site {
+      --bg: #000000;
+      --fg: #ffffff;
+      --line: #333333;
+      --muted: #8a8a8a;
       background: var(--bg);
       color: var(--fg);
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 13px;
       min-height: 100vh;
-      transition: background 8s ease, color 8s ease;
     }
 
     #site main {
@@ -249,14 +252,14 @@
       display: grid;
       grid-template-columns: clamp(96px,16vw,180px) 1fr;
       align-items: baseline;
-      border-top: 2px solid var(--fg);
+      border-top: 1.5px solid var(--line);
       padding: clamp(1rem,2.5vh,1.6rem) 0;
       gap: 1rem;
       opacity: 0;
       animation: reveal 0.5s ease forwards;
     }
 
-    .group:last-child { border-bottom: 2px solid var(--fg); }
+    .group:last-child { border-bottom: 1.5px solid var(--line); }
 
     .items-col { display: flex; flex-direction: column; gap: 0.35rem; }
 
@@ -635,7 +638,6 @@
       <div class="li"><div class="ld" style="background:#ddaa00;opacity:.7"></div><span class="ll">00s</span></div>
       <div class="li"><div class="ld" style="background:#00cc77;opacity:.7"></div><span class="ll">10s</span></div>
       <div class="li"><div class="ld" style="background:#ee3333;opacity:.7"></div><span class="ll">20s</span></div>
-      <div class="li"><div class="ld" style="background:#ff0080"></div><span class="ll">shogun</span></div>
     </div>
     <a href="#site" class="scroll-cue">índice <span class="arrow">↓</span></a>
   </div>
@@ -778,24 +780,34 @@ const FILL_BASE='40', FILL_HOVER='77', FILL_CLICK='bb', FILL_DIM='0c';
 const STR_BASE='99', STR_HOVER='dd', STR_CLICK='ff', STR_DIM='18';
 const LINE_BASE=0.65, LINE_HOVER=1, LINE_DIM=0.06;
 
-const SHOGUN_A = '#ff0080', SHOGUN_B = '#00f0ff';
 function decOf(y){ return Math.floor((y||2000)/10)*10; }
 function dCol(y){ return DC[decOf(y)] || '#888'; }
 function isCine(d){ return (d.format||'').toLowerCase().includes('banda sonora'); }
 function isShogun(d){ return (d.artist||'').toLowerCase().trim()==='shogun'; }
-function nodeColor(d){ return isShogun(d) ? SHOGUN_A : (isCine(d) ? CINE_COLOR : dCol(d.year)); }
+function nodeColor(d){ return isCine(d) ? CINE_COLOR : dCol(d.year); }
 function nodeR(d){
   if (d.isHub) return 18;
   const u=(d.format||'').toLowerCase();
   let base = u.includes('lp')?8 : u.includes('ep')?7 : u.includes('single')?6 : (u.includes('remix')||u.includes('rework'))?6.5 : u.includes('banda sonora')?8 : 6;
-  let r = d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
-  if (isShogun(d)) r = 17 + (d.spotifyScore!=null ? (d.spotifyScore/100)*13 : 6); // shogun domina
-  return r;
+  return d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
 }
 
 let mode='artista', activeArtist=null, sim=null, DATA=[];
 
 const svg = d3.select('#g');
+const defs = svg.append('defs');
+const flt = defs.append('filter').attr('id','shoGlow')
+  .attr('x','-80%').attr('y','-80%').attr('width','260%').attr('height','260%');
+flt.append('feGaussianBlur').attr('stdDeviation',2.6).attr('result','b');
+const fm = flt.append('feMerge');
+fm.append('feMergeNode').attr('in','b');
+fm.append('feMergeNode').attr('in','SourceGraphic');
+// magma: violeta oscuro fundido sobre negro crepuscular
+const mg = defs.append('radialGradient').attr('id','magma').attr('cx','0.5').attr('cy','0.5').attr('r','0.5');
+mg.append('stop').attr('offset','0%').attr('stop-color','#8a3ad6').attr('stop-opacity',0.5);
+mg.append('stop').attr('offset','38%').attr('stop-color','#43196e').attr('stop-opacity',0.5);
+mg.append('stop').attr('offset','72%').attr('stop-color','#1a0a2e').attr('stop-opacity',0.55);
+mg.append('stop').attr('offset','100%').attr('stop-color','#070310').attr('stop-opacity',0);
 const gRoot = svg.append('g');
 const gL = gRoot.append('g');
 const gN = gRoot.append('g');
@@ -844,7 +856,7 @@ async function load() {
 }
 
 function buildGraph(data) {
-  const nodes = data.map(d=>({...d}));
+  const nodes = data.map(d=>({...d, _wp: Math.random()*6.283, _ws: 0.8+Math.random()*0.9, _wa: 1.3+Math.random()*2.0}));
   const links = [];
   const g={};
   nodes.forEach(n=>{ (g[n.artist]=g[n.artist]||[]).push(n); });
@@ -867,7 +879,7 @@ function render(m) {
   gN.selectAll('*').remove();
 
   const lSel=gL.selectAll('line').data(links).join('line')
-    .attr('stroke',d=>(isShogun(d.source)||isShogun(d.target))?SHOGUN_A:'#222')
+    .attr('stroke','#222')
     .attr('stroke-width',d=>d.isCine?0.6:1)
     .attr('stroke-opacity',LINE_BASE);
 
@@ -875,12 +887,20 @@ function render(m) {
     .style('cursor',d=>d.isHub?'default':'pointer');
 
   nSel.append('circle')
-    .classed('shogun', d=>isShogun(d))
     .attr('r',d=>nodeR(d))
-    .attr('fill',d=> isShogun(d) ? SHOGUN_A : (d.isHub?'transparent':nodeColor(d)+FILL_BASE))
-    .attr('stroke',d=> isShogun(d) ? SHOGUN_B : (d.isHub?dCol(d.year)+'77':nodeColor(d)+STR_BASE))
-    .attr('stroke-width',d=>isShogun(d)?2.5:1.5)
+    .attr('fill',d=>d.isHub?'transparent':nodeColor(d)+FILL_BASE)
+    .attr('stroke',d=>d.isHub?dCol(d.year)+'77':nodeColor(d)+STR_BASE)
+    .attr('stroke-width',1.5)
     .attr('stroke-dasharray',d=>d.isHub?'3 2':'none');
+
+  // seña interior — magma: luminosidad oscura violeta dentro de los nodos shogun
+  nSel.filter(d=>isShogun(d)).append('circle')
+    .attr('class','sho-core')
+    .attr('r',d=>nodeR(d)*0.78)
+    .attr('fill','url(#magma)')
+    .attr('filter','url(#shoGlow)')
+    .attr('opacity',0.85)
+    .attr('pointer-events','none');
 
   nSel.filter(d=>d.isHub).append('text')
     .text(d=>d.title)
@@ -897,30 +917,32 @@ function render(m) {
     .call(d3.drag()
       .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.12).restart(); d.fx=d.x;d.fy=d.y; })
       .on('drag', (e,d)=>{ d.fx=e.x;d.fy=e.y; })
-      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.03); d.fx=null;d.fy=null; })
+      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.012); d.fx=null;d.fy=null; })
     );
 
   sim=d3.forceSimulation(nodes)
-    .alphaMin(0).alphaDecay(0.008).velocityDecay(0.52)
+    .alphaMin(0).alphaDecay(0.01).velocityDecay(0.6)
     .force('link',d3.forceLink(links).id(d=>d.id)
       .distance(d=>d.isCine?40:55)
-      .strength(d=>d.strength||((isShogun(d.source)||isShogun(d.target))?0.6:0.5)))
-    .force('charge',d3.forceManyBody().strength(d=>isShogun(d)?-260:-130).distanceMax(320))
-    .force('x',d3.forceX(W/2).strength(d=>isShogun(d)?0.055:0.012))
-    .force('y',d3.forceY(H/2).strength(d=>isShogun(d)?0.055:0.012))
+      .strength(d=>d.strength||0.5))
+    .force('charge',d3.forceManyBody().strength(-130).distanceMax(320))
+    .force('center',d3.forceCenter(W/2,H/2).strength(0.04))
     .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
-    .force('jitter',()=>{ nodes.forEach(n=>{ if(!n.fx){ n.vx+=(Math.random()-.5)*.14; n.vy+=(Math.random()-.5)*.14; } }); })
     .on('tick',()=>{
-      lSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-      nSel.attr('transform',d=>`translate(${d.x},${d.y})`);
+      const ts = Date.now()/1000;
+      const wx = n => Math.cos(ts*n._ws + n._wp) * n._wa;
+      const wy = n => Math.sin(ts*n._ws*1.27 + n._wp) * n._wa;
+      lSel.attr('x1',d=>d.source.x+wx(d.source)).attr('y1',d=>d.source.y+wy(d.source))
+          .attr('x2',d=>d.target.x+wx(d.target)).attr('y2',d=>d.target.y+wy(d.target));
+      nSel.attr('transform',d=>`translate(${d.x+wx(d)},${d.y+wy(d)})`);
     });
-  sim.alphaTarget(0.03).restart(); // nunca se congela — pelotitas siempre vivas
+  sim.alphaTarget(0.012).restart(); // sigue latiendo: cada nodo conserva un leve movimiento propio
 }
 
 function applyHL(dur) {
   const artist=activeArtist, ease=d3.easeCubicOut;
   gN.selectAll('g').each(function(d){
-    if(d.isHub || isShogun(d)) return; // shogun lo maneja el pulso, siempre dominante
+    if(d.isHub) return;
     const c=nodeColor(d), same=artist&&d.artist===artist;
     let fill,stroke,r;
     if(!artist){ fill=c+FILL_BASE; stroke=c+STR_BASE; r=nodeR(d); }
@@ -949,17 +971,14 @@ function showTip(e,d){
 function moveTip(e){ tip.style.left=Math.min(e.clientX+16,innerWidth-270)+'px'; tip.style.top=Math.max(e.clientY-10,54)+'px'; }
 function hideTip(){ tip.classList.remove('vis'); }
 
-/* pulso de Shogun — color vivo magenta↔cian, siempre en movimiento */
-const shoLerp = d3.interpolateRgb(SHOGUN_A, SHOGUN_B);
+/* magma — la luminosidad violeta oscura de shogun late lento, como lava */
 function pulseShogun(){
   requestAnimationFrame(pulseShogun);
-  const t  = (Math.sin(Date.now()/650) + 1)/2;
-  const dr = Math.sin(Date.now()/520) * 1.6;
-  gN.selectAll('circle.shogun')
-    .attr('fill',   shoLerp(t))
-    .attr('stroke', shoLerp(1-t))
-    .attr('stroke-width', 2.5)
-    .attr('r', d => nodeR(d) + dr);
+  const now = Date.now();
+  const t = (Math.sin(now/1100) + Math.sin(now/1700)*0.4 + 1.4)/2.8; // 0..1 irregular
+  gN.selectAll('circle.sho-core')
+    .attr('opacity', 0.6 + t*0.35)                 // 0.60 .. 0.95
+    .attr('r', d => nodeR(d) * (0.70 + t*0.16));    // respira como magma
 }
 pulseShogun();
 
@@ -1114,7 +1133,8 @@ async function seismicFetch() {
 }
 
 window.addEventListener('load', () => {
-  const f = window.getComputedStyle(document.body).fontFamily;
+  const src = document.getElementById('site') || document.body;
+  const f = window.getComputedStyle(src).fontFamily;
   const el = document.getElementById('sv-font');
   if (el) el.textContent = f.split(',')[0].replace(/['"]/g, '').trim();
 });
