@@ -106,6 +106,8 @@
     }
     .dot:hover { transform: scale(1.6); }
 
+    #site h1.site-name .dot { width: clamp(11px,2vw,18px); height: clamp(11px,2vw,18px); }
+
     /* ═══════════════════════════════════════════════════════════
        HERO — grafo de fuerza a pantalla completa
        ═══════════════════════════════════════════════════════════ */
@@ -116,6 +118,7 @@
       background: var(--hbg);
       color: var(--hfg);
       overflow: hidden;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 11px;
     }
     #hero svg { width: 100%; height: 100%; display: block; cursor: grab; }
@@ -131,18 +134,10 @@
     }
     .hero-name {
       display: flex; align-items: center; gap: 9px;
-      font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+      font-size: clamp(16px,2.4vw,22px); font-weight: 800; letter-spacing: -0.03em;
       color: var(--hfg); pointer-events: auto;
     }
     .hero-count { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #444; }
-    .hero-modes { display: flex; gap: 14px; pointer-events: auto; }
-    .mb {
-      background: none; border: none; cursor: pointer;
-      font: 600 9px/1 inherit; letter-spacing: 0.12em; text-transform: uppercase;
-      color: #444; padding: 6px 0; transition: color 0.15s;
-    }
-    .mb.on { color: var(--haccent); font-weight: 700; }
-    .mb:hover { color: #aaa; }
 
     .hero-foot {
       position: absolute;
@@ -196,6 +191,7 @@
     #site {
       background: var(--bg);
       color: var(--fg);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 13px;
       min-height: 100vh;
       transition: background 8s ease, color 8s ease;
@@ -212,28 +208,28 @@
     #site header { margin-bottom: clamp(1.2rem, 4vh, 2rem); }
 
     h1.site-name {
-      margin: 0;
+      margin: 0 0 clamp(1rem,3vh,2rem);
       padding: 0;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
+      font-size: clamp(44px, 11vw, 110px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
       text-transform: none;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: clamp(10px,2vw,20px);
       color: var(--fg);
-      line-height: 1;
+      line-height: 0.9;
     }
 
     h2.cat-label {
       margin: 0;
       padding: 0;
-      padding-top: 3px;
-      font-size: 11px;
-      font-weight: 600;
+      padding-top: 0.6em;
+      font-size: 12px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
+      letter-spacing: 0.14em;
+      color: var(--fg);
       line-height: 1;
     }
 
@@ -251,16 +247,16 @@
 
     .group {
       display: grid;
-      grid-template-columns: 160px 1fr;
+      grid-template-columns: clamp(96px,16vw,180px) 1fr;
       align-items: baseline;
-      border-top: 1px solid var(--line);
-      padding: var(--row-pad) 0;
+      border-top: 2px solid var(--fg);
+      padding: clamp(1rem,2.5vh,1.6rem) 0;
       gap: 1rem;
       opacity: 0;
       animation: reveal 0.5s ease forwards;
     }
 
-    .group:last-child { border-bottom: 1px solid var(--line); }
+    .group:last-child { border-bottom: 2px solid var(--fg); }
 
     .items-col { display: flex; flex-direction: column; gap: 0.35rem; }
 
@@ -273,16 +269,17 @@
     }
 
     .item-name {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
+      font-size: clamp(26px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 0.98;
     }
 
-    .item:hover { color: var(--accent); transform: translateX(6px); }
+    .item:hover { color: var(--accent); transform: translateX(10px); }
 
     /* fila secundaria (otros) — más callada que los proyectos titulares */
-    .group.secondary .items-col { flex-flow: row wrap; gap: 0.35rem 1.4rem; }
-    .group.secondary .item-name { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .group.secondary .items-col { flex-flow: row wrap; gap: 0.4rem 1.6rem; align-items: baseline; }
+    .group.secondary .item-name { font-size: clamp(16px,2.6vw,24px); font-weight: 700; color: var(--muted); letter-spacing: -0.02em; }
     .group.secondary .item:hover .item-name { color: var(--accent); }
 
     #site footer {
@@ -304,10 +301,11 @@
     }
 
     .visitor-num {
-      font-size: 22px;
+      font-size: clamp(34px, 6vw, 64px);
       font-weight: 800;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.04em;
       color: var(--fg);
+      line-height: 0.9;
     }
 
     .site-meta {
@@ -602,12 +600,11 @@
 
     @media (max-width: 600px) {
       .group { grid-template-columns: 1fr; gap: 0.5rem; padding: 1rem 0; }
-      .item-name { font-size: 14px; }
+      .item-name { font-size: clamp(26px,9vw,40px); }
       #site footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .site-meta { text-align: left; align-items: flex-start; }
       #sv-sismos { align-items: flex-start; }
       .zone { grid-template-columns: 50px 1fr 80px; }
-      .hero-modes { gap: 10px; }
       .hero-name { font-size: 13px; }
       #leg { gap: 10px; }
     }
@@ -622,10 +619,6 @@
       cristián heyne
       <span class="dot"></span>
       <span class="hero-count" id="hero-count"></span>
-    </div>
-    <div class="hero-modes">
-      <button class="mb on" data-m="artista">por artista</button>
-      <button class="mb"    data-m="era">por era</button>
     </div>
   </div>
 
@@ -642,6 +635,7 @@
       <div class="li"><div class="ld" style="background:#ddaa00;opacity:.7"></div><span class="ll">00s</span></div>
       <div class="li"><div class="ld" style="background:#00cc77;opacity:.7"></div><span class="ll">10s</span></div>
       <div class="li"><div class="ld" style="background:#ee3333;opacity:.7"></div><span class="ll">20s</span></div>
+      <div class="li"><div class="ld" style="background:#ff0080"></div><span class="ll">shogun</span></div>
     </div>
     <a href="#site" class="scroll-cue">índice <span class="arrow">↓</span></a>
   </div>
@@ -784,15 +778,19 @@ const FILL_BASE='40', FILL_HOVER='77', FILL_CLICK='bb', FILL_DIM='0c';
 const STR_BASE='99', STR_HOVER='dd', STR_CLICK='ff', STR_DIM='18';
 const LINE_BASE=0.65, LINE_HOVER=1, LINE_DIM=0.06;
 
+const SHOGUN_A = '#ff0080', SHOGUN_B = '#00f0ff';
 function decOf(y){ return Math.floor((y||2000)/10)*10; }
 function dCol(y){ return DC[decOf(y)] || '#888'; }
 function isCine(d){ return (d.format||'').toLowerCase().includes('banda sonora'); }
-function nodeColor(d){ return isCine(d) ? CINE_COLOR : dCol(d.year); }
+function isShogun(d){ return (d.artist||'').toLowerCase().trim()==='shogun'; }
+function nodeColor(d){ return isShogun(d) ? SHOGUN_A : (isCine(d) ? CINE_COLOR : dCol(d.year)); }
 function nodeR(d){
   if (d.isHub) return 18;
   const u=(d.format||'').toLowerCase();
   let base = u.includes('lp')?8 : u.includes('ep')?7 : u.includes('single')?6 : (u.includes('remix')||u.includes('rework'))?6.5 : u.includes('banda sonora')?8 : 6;
-  return d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
+  let r = d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
+  if (isShogun(d)) r = 17 + (d.spotifyScore!=null ? (d.spotifyScore/100)*13 : 6); // shogun domina
+  return r;
 }
 
 let mode='artista', activeArtist=null, sim=null, DATA=[];
@@ -845,38 +843,31 @@ async function load() {
   render(mode);
 }
 
-function buildGraph(data, m) {
+function buildGraph(data) {
   const nodes = data.map(d=>({...d}));
   const links = [];
-  if (m==='artista') {
-    const g={};
-    nodes.forEach(n=>{ (g[n.artist]=g[n.artist]||[]).push(n); });
-    Object.values(g).forEach(arr=>{
-      const s=[...arr].sort((a,b)=>(a.year||0)-(b.year||0));
-      for(let i=0;i<s.length-1;i++) links.push({source:s[i].id,target:s[i+1].id,artist:s[i].artist});
-    });
-    const cine=nodes.filter(n=>isCine(n));
-    for(let i=0;i<cine.length-1;i++) links.push({source:cine[i].id,target:cine[i+1].id,isCine:true,strength:0.12});
-  } else {
-    [...new Set(nodes.map(n=>decOf(n.year)))].forEach(d=>{
-      nodes.push({id:`h${d}`,artist:`${d}s`,year:d+5,format:'hub',role:'hub',title:`${d}s`,isHub:true});
-    });
-    nodes.forEach(n=>{ if(!n.isHub) links.push({source:n.id,target:`h${decOf(n.year)}`}); });
-  }
+  const g={};
+  nodes.forEach(n=>{ (g[n.artist]=g[n.artist]||[]).push(n); });
+  Object.values(g).forEach(arr=>{
+    const s=[...arr].sort((a,b)=>(a.year||0)-(b.year||0));
+    for(let i=0;i<s.length-1;i++) links.push({source:s[i].id,target:s[i+1].id,artist:s[i].artist});
+  });
+  const cine=nodes.filter(n=>isCine(n));
+  for(let i=0;i<cine.length-1;i++) links.push({source:cine[i].id,target:cine[i+1].id,isCine:true,strength:0.12});
   return {nodes,links};
 }
 
 function render(m) {
   const W=document.getElementById('hero').clientWidth;
   const H=document.getElementById('hero').clientHeight;
-  const {nodes,links}=buildGraph(DATA,m);
+  const {nodes,links}=buildGraph(DATA);
 
   if(sim) sim.stop();
   gL.selectAll('*').remove();
   gN.selectAll('*').remove();
 
   const lSel=gL.selectAll('line').data(links).join('line')
-    .attr('stroke','#222')
+    .attr('stroke',d=>(isShogun(d.source)||isShogun(d.target))?SHOGUN_A:'#222')
     .attr('stroke-width',d=>d.isCine?0.6:1)
     .attr('stroke-opacity',LINE_BASE);
 
@@ -884,10 +875,11 @@ function render(m) {
     .style('cursor',d=>d.isHub?'default':'pointer');
 
   nSel.append('circle')
+    .classed('shogun', d=>isShogun(d))
     .attr('r',d=>nodeR(d))
-    .attr('fill',d=>d.isHub?'transparent':nodeColor(d)+FILL_BASE)
-    .attr('stroke',d=>d.isHub?dCol(d.year)+'77':nodeColor(d)+STR_BASE)
-    .attr('stroke-width',1.5)
+    .attr('fill',d=> isShogun(d) ? SHOGUN_A : (d.isHub?'transparent':nodeColor(d)+FILL_BASE))
+    .attr('stroke',d=> isShogun(d) ? SHOGUN_B : (d.isHub?dCol(d.year)+'77':nodeColor(d)+STR_BASE))
+    .attr('stroke-width',d=>isShogun(d)?2.5:1.5)
     .attr('stroke-dasharray',d=>d.isHub?'3 2':'none');
 
   nSel.filter(d=>d.isHub).append('text')
@@ -903,30 +895,32 @@ function render(m) {
     .on('mousemove',(e)=>{ if(!window.matchMedia('(hover:none)').matches) moveTip(e); })
     .on('mouseleave',()=>{ hideTip(); activeArtist=null; applyHL(T_OUT); })
     .call(d3.drag()
-      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.08).restart(); d.fx=d.x;d.fy=d.y; })
+      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.12).restart(); d.fx=d.x;d.fy=d.y; })
       .on('drag', (e,d)=>{ d.fx=e.x;d.fy=e.y; })
-      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.003); d.fx=null;d.fy=null; })
+      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.03); d.fx=null;d.fy=null; })
     );
 
   sim=d3.forceSimulation(nodes)
-    .alphaMin(0.003).alphaDecay(0.015).velocityDecay(0.35)
+    .alphaMin(0).alphaDecay(0.008).velocityDecay(0.52)
     .force('link',d3.forceLink(links).id(d=>d.id)
-      .distance(d=>d.isCine?40:(d.source?.isHub||d.target?.isHub)?90:55)
-      .strength(d=>d.strength||((d.source?.isHub||d.target?.isHub)?0.35:0.5)))
-    .force('charge',d3.forceManyBody().strength(d=>d.isHub?-500:-130).distanceMax(300))
-    .force('center',d3.forceCenter(W/2,H/2).strength(0.035))
+      .distance(d=>d.isCine?40:55)
+      .strength(d=>d.strength||((isShogun(d.source)||isShogun(d.target))?0.6:0.5)))
+    .force('charge',d3.forceManyBody().strength(d=>isShogun(d)?-260:-130).distanceMax(320))
+    .force('x',d3.forceX(W/2).strength(d=>isShogun(d)?0.055:0.012))
+    .force('y',d3.forceY(H/2).strength(d=>isShogun(d)?0.055:0.012))
     .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
-    .force('jitter',()=>{ nodes.forEach(n=>{ if(!n.isHub&&!n.fx){n.vx+=(Math.random()-.5)*.06;n.vy+=(Math.random()-.5)*.06;} }); })
+    .force('jitter',()=>{ nodes.forEach(n=>{ if(!n.fx){ n.vx+=(Math.random()-.5)*.14; n.vy+=(Math.random()-.5)*.14; } }); })
     .on('tick',()=>{
       lSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
       nSel.attr('transform',d=>`translate(${d.x},${d.y})`);
     });
+  sim.alphaTarget(0.03).restart(); // nunca se congela — pelotitas siempre vivas
 }
 
 function applyHL(dur) {
   const artist=activeArtist, ease=d3.easeCubicOut;
   gN.selectAll('g').each(function(d){
-    if(d.isHub) return;
+    if(d.isHub || isShogun(d)) return; // shogun lo maneja el pulso, siempre dominante
     const c=nodeColor(d), same=artist&&d.artist===artist;
     let fill,stroke,r;
     if(!artist){ fill=c+FILL_BASE; stroke=c+STR_BASE; r=nodeR(d); }
@@ -955,15 +949,19 @@ function showTip(e,d){
 function moveTip(e){ tip.style.left=Math.min(e.clientX+16,innerWidth-270)+'px'; tip.style.top=Math.max(e.clientY-10,54)+'px'; }
 function hideTip(){ tip.classList.remove('vis'); }
 
-document.querySelectorAll('.mb').forEach(b=>{
-  b.onclick=()=>{
-    mode=b.dataset.m;
-    document.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));
-    b.classList.add('on');
-    activeArtist=null;
-    if(DATA.length) render(mode);
-  };
-});
+/* pulso de Shogun — color vivo magenta↔cian, siempre en movimiento */
+const shoLerp = d3.interpolateRgb(SHOGUN_A, SHOGUN_B);
+function pulseShogun(){
+  requestAnimationFrame(pulseShogun);
+  const t  = (Math.sin(Date.now()/650) + 1)/2;
+  const dr = Math.sin(Date.now()/520) * 1.6;
+  gN.selectAll('circle.shogun')
+    .attr('fill',   shoLerp(t))
+    .attr('stroke', shoLerp(1-t))
+    .attr('stroke-width', 2.5)
+    .attr('r', d => nodeR(d) + dr);
+}
+pulseShogun();
 
 svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); });
 window.addEventListener('resize',()=>{ if(DATA.length) render(mode); });
