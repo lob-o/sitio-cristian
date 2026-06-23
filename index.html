@@ -119,8 +119,17 @@
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 11px;
     }
-    #hero svg { width: 100%; height: 100%; display: block; cursor: grab; }
-    #hero svg:active { cursor: grabbing; }
+    #hero-scroll {
+      position: absolute;
+      inset: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    #hero-scroll::-webkit-scrollbar { display: none; }
+    #hero-scroll svg { height: 100%; display: block; cursor: grab; }
+    #hero-scroll svg:active { cursor: grabbing; }
 
     .hero-top {
       position: absolute;
@@ -617,7 +626,9 @@
     </div>
   </div>
 
-  <svg id="g"></svg>
+  <div id="hero-scroll">
+    <svg id="g"></svg>
+  </div>
 
   <div id="overlay">
     <div class="ov-dots"><div class="ov-dot"></div><div class="ov-dot"></div><div class="ov-dot"></div></div>
@@ -863,8 +874,13 @@ function forceBounds(width, height, pad) {
 }
 
 function render(m) {
-  const W=document.getElementById('hero').clientWidth;
-  const H=document.getElementById('hero').clientHeight;
+  const heroEl=document.getElementById('hero');
+  const containerW=heroEl.clientWidth;
+  const H=heroEl.clientHeight;
+  const W=Math.max(containerW, 1100); // ancho virtual: en celular el grafo respira igual y se navega con scroll
+  svg.style('width', W+'px');
+  const scrollEl=document.getElementById('hero-scroll');
+  if (scrollEl) scrollEl.scrollLeft = Math.max(0, (W - containerW) / 2);
   const {nodes,links}=buildGraph(DATA);
 
   if(sim) sim.stop();
@@ -913,17 +929,15 @@ function render(m) {
       .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.012); d.fx=null;d.fy=null; })
     );
 
-  const chargeStrength = -Math.max(40, Math.min(130, W/9)); // menos repulsión en pantallas angostas
-
   sim=d3.forceSimulation(nodes)
     .alphaMin(0).alphaDecay(0.01).velocityDecay(0.6)
     .force('link',d3.forceLink(links).id(d=>d.id)
       .distance(d=>d.isCine?40:55)
       .strength(d=>d.strength||0.5))
-    .force('charge',d3.forceManyBody().strength(chargeStrength).distanceMax(320))
+    .force('charge',d3.forceManyBody().strength(-130).distanceMax(320))
     .force('center',d3.forceCenter(W/2,H/2).strength(0.04))
     .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
-    .force('bounds', forceBounds(W, H, 10)) // ningún nodo puede salir del área visible
+    .force('bounds', forceBounds(W, H, 10)) // freno solo para casos extremos, ya no hace el trabajo pesado
     .on('tick',()=>{
       const ts = Date.now()/1000;
       const wx = n => Math.cos(ts*n._ws + n._wp) * n._wa;
