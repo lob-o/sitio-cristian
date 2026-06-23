@@ -53,6 +53,8 @@
   }
   </script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+
   <style>
     :root {
       --bg: #ffffff;
@@ -61,6 +63,10 @@
       --muted: #999999;
       --line: #e0e0e0;
       --row-pad: 1.1rem;
+      /* hero / grafo */
+      --hbg: #080808;
+      --hfg: #ffffff;
+      --haccent: #cc0000;
       /* instrumento */
       --ibg: #080808;
       --ifg: #e0e0e0;
@@ -71,13 +77,22 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
       line-height: 1;
+      background: var(--hbg);
     }
 
     body.inst-mode { overflow: hidden; }
+
+    .snap { scroll-snap-align: start; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; scroll-snap-type: none; }
+    }
 
     .dot {
       display: inline-block;
@@ -91,6 +106,93 @@
     }
     .dot:hover { transform: scale(1.6); }
 
+    /* ═══════════════════════════════════════════════════════════
+       HERO — grafo de fuerza a pantalla completa
+       ═══════════════════════════════════════════════════════════ */
+    #hero {
+      position: relative;
+      height: 100vh;
+      height: 100dvh;
+      background: var(--hbg);
+      color: var(--hfg);
+      overflow: hidden;
+      font-size: 11px;
+    }
+    #hero svg { width: 100%; height: 100%; display: block; cursor: grab; }
+    #hero svg:active { cursor: grabbing; }
+
+    .hero-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(16px, 4vw, 32px);
+      z-index: 20; pointer-events: none;
+    }
+    .hero-name {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+      color: var(--hfg); pointer-events: auto;
+    }
+    .hero-count { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #444; }
+    .hero-modes { display: flex; gap: 14px; pointer-events: auto; }
+    .mb {
+      background: none; border: none; cursor: pointer;
+      font: 600 9px/1 inherit; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #444; padding: 6px 0; transition: color 0.15s;
+    }
+    .mb.on { color: var(--haccent); font-weight: 700; }
+    .mb:hover { color: #aaa; }
+
+    .hero-foot {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(16px, 4vw, 32px);
+      z-index: 20; pointer-events: none;
+    }
+    #leg { display: flex; gap: 16px; }
+    .li { display: flex; align-items: center; gap: 6px; }
+    .ld { width: 7px; height: 7px; border-radius: 50%; }
+    .ll { font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase; color: #333; }
+
+    .scroll-cue {
+      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #333; pointer-events: auto; text-decoration: none;
+      display: flex; align-items: center; gap: 8px; transition: color 0.2s;
+    }
+    .scroll-cue:hover { color: #aaa; }
+    .scroll-cue .arrow { animation: nudge 2.4s ease-in-out infinite; }
+    @keyframes nudge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
+    @media (prefers-reduced-motion: reduce){ .scroll-cue .arrow { animation: none; } }
+
+    #tip {
+      position: fixed; background: #111; border: 1px solid #2a2a2a;
+      padding: 12px 16px; pointer-events: none; opacity: 0;
+      transition: opacity 0.15s; z-index: 40; max-width: 260px; min-width: 160px;
+    }
+    #tip.vis { opacity: 1; }
+    .tip-artist { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 4px; }
+    .tip-title  { font-size: 14px; font-weight: 500; color: #fff; letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 8px; }
+    .tip-meta   { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 4px; }
+    .tip-role   { font-size: 10px; font-weight: 400; color: #777; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.5; }
+
+    #overlay {
+      position: absolute; inset: 56px 0 64px 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; z-index: 10; pointer-events: none;
+    }
+    .ov-dots { display: flex; gap: 5px; }
+    .ov-dot { width: 4px; height: 4px; background: var(--haccent); opacity: 0; animation: pulse 1.2s ease infinite; }
+    .ov-dot:nth-child(2){ animation-delay: 0.2s; }
+    .ov-dot:nth-child(3){ animation-delay: 0.4s; }
+    @keyframes pulse { 0%,100%{opacity:0} 50%{opacity:1} }
+    .ov-msg { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: #333; }
+
+    /* ═══════════════════════════════════════════════════════════
+       SITE — el índice (claro, día/noche)
+       ═══════════════════════════════════════════════════════════ */
     #site {
       background: var(--bg);
       color: var(--fg);
@@ -109,7 +211,6 @@
 
     #site header { margin-bottom: clamp(1.2rem, 4vh, 2rem); }
 
-    /* ── h1 reset + estilo site-name ── */
     h1.site-name {
       margin: 0;
       padding: 0;
@@ -124,7 +225,6 @@
       line-height: 1;
     }
 
-    /* ── h2 reset + estilo cat-label ── */
     h2.cat-label {
       margin: 0;
       padding: 0;
@@ -179,6 +279,11 @@
     }
 
     .item:hover { color: var(--accent); transform: translateX(6px); }
+
+    /* fila secundaria (otros) — más callada que los proyectos titulares */
+    .group.secondary .items-col { flex-flow: row wrap; gap: 0.35rem 1.4rem; }
+    .group.secondary .item-name { font-size: 13px; font-weight: 600; color: var(--muted); }
+    .group.secondary .item:hover .item-name { color: var(--accent); }
 
     #site footer {
       margin-top: 1.8rem;
@@ -260,7 +365,6 @@
     .sismo-row.sismo-fg     { color: var(--muted); }
     .sismo-row.sismo-muted  { color: var(--muted); }
 
-    /* magnitud siempre en --fg, sin importar el color de la fila */
     .sismo-mag {
       color: var(--fg);
       font-weight: 700;
@@ -503,16 +607,61 @@
       .site-meta { text-align: left; align-items: flex-start; }
       #sv-sismos { align-items: flex-start; }
       .zone { grid-template-columns: 50px 1fr 80px; }
+      .hero-modes { gap: 10px; }
+      .hero-name { font-size: 13px; }
+      #leg { gap: 10px; }
     }
   </style>
 </head>
 <body>
 
-<div id="site">
+<!-- ═══════════ HERO: grafo ═══════════ -->
+<section id="hero" class="snap">
+  <div class="hero-top">
+    <div class="hero-name">
+      cristián heyne
+      <span class="dot"></span>
+      <span class="hero-count" id="hero-count"></span>
+    </div>
+    <div class="hero-modes">
+      <button class="mb on" data-m="artista">por artista</button>
+      <button class="mb"    data-m="era">por era</button>
+    </div>
+  </div>
+
+  <svg id="g"></svg>
+
+  <div id="overlay">
+    <div class="ov-dots"><div class="ov-dot"></div><div class="ov-dot"></div><div class="ov-dot"></div></div>
+    <div class="ov-msg" id="ov-msg">cargando</div>
+  </div>
+
+  <div class="hero-foot">
+    <div id="leg">
+      <div class="li"><div class="ld" style="background:#6655ee;opacity:.7"></div><span class="ll">90s</span></div>
+      <div class="li"><div class="ld" style="background:#ddaa00;opacity:.7"></div><span class="ll">00s</span></div>
+      <div class="li"><div class="ld" style="background:#00cc77;opacity:.7"></div><span class="ll">10s</span></div>
+      <div class="li"><div class="ld" style="background:#ee3333;opacity:.7"></div><span class="ll">20s</span></div>
+    </div>
+    <a href="#site" class="scroll-cue">índice <span class="arrow">↓</span></a>
+  </div>
+</section>
+
+<!-- tooltip del grafo -->
+<div id="tip">
+  <div class="tip-artist" id="tip-artist"></div>
+  <div class="tip-title"  id="tip-title"></div>
+  <div class="tip-meta"   id="tip-meta"></div>
+  <div class="tip-role"   id="tip-role"></div>
+</div>
+
+<!-- ═══════════ SITE: índice ═══════════ -->
+<div id="site" class="snap">
 <main>
   <header>
     <h1 class="site-name" id="site-name-el">
       cristián heyne
+      <span class="dot"></span>
     </h1>
     <p class="seo-only">Cristián Heyne, periodista, músico, productor discográfico y consultor chileno. Shogun, Tormenta y Christianes. Fundador de Process, consultora de estrategia cultural, y de Ethereal, estudio de entretenimiento. Ha producido discos de Javiera Mena, Gepe, Dënver, Alex Anwandter, Camila Moreno y Fernando Milagros, entre otros.</p>
   </header>
@@ -529,43 +678,37 @@
     </div>
 
     <div class="group" style="animation-delay:0.12s">
+      <h2 class="cat-label">producciones</h2>
+      <div class="items-col">
+        <a class="item" href="#hero"><span class="item-name">mapa</span></a>
+        <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener"><span class="item-name">portafolio</span></a>
+        <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener"><span class="item-name">estudionegro</span></a>
+      </div>
+    </div>
+
+    <div class="group" style="animation-delay:0.19s">
       <h2 class="cat-label">process</h2>
       <div class="items-col">
         <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
       </div>
     </div>
 
-    <div class="group" style="animation-delay:0.19s">
-      <h2 class="cat-label">ethereal</h2>
+    <div class="group secondary" style="animation-delay:0.26s">
+      <h2 class="cat-label">otros</h2>
       <div class="items-col">
-        <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">etherealart.online</span></a>
-      </div>
-    </div>
-
-    <div class="group" style="animation-delay:0.26s">
-      <h2 class="cat-label">ónyx</h2>
-      <div class="items-col">
-        <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener"><span class="item-name">instagram</span></a>
+        <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">ethereal</span></a>
+        <a class="item" href="https://www.instagram.com/instalacion_onyx/" target="_blank" rel="noopener"><span class="item-name">ónyx</span></a>
       </div>
     </div>
 
     <div class="group" style="animation-delay:0.33s">
-      <h2 class="cat-label">producciones</h2>
-      <div class="items-col">
-        <a class="item" href="/portafolio"><span class="item-name">mapa</span></a>
-        <a class="item" href="https://www.notion.so/342e603d505e80629d4cf51e05b90426?v=342e603d505e81fb91f7000c2ab1f636" target="_blank" rel="noopener"><span class="item-name">portafolio</span></a>
-        <a class="item" href="https://estudionegro.io/cms/" target="_blank" rel="noopener"><span class="item-name">estudionegro</span></a>
-      </div>
-    </div>
-
-    <div class="group" style="animation-delay:0.40s">
       <h2 class="cat-label">contacto</h2>
       <div class="items-col">
         <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">email</span></a>
       </div>
     </div>
 
-    <div class="group" style="animation-delay:0.47s">
+    <div class="group" style="animation-delay:0.40s">
       <div class="cat-label"></div>
       <div class="items-col">
         <span class="item" id="grid-mode-trigger" style="cursor:pointer">
@@ -616,7 +759,7 @@
 
     <footer class="inst-footer">
       <div class="readout">
-        <div class="readout-freq" id="inst-r-freq">—— hz</div>
+        <div class="readout-freq" id="inst-r-freq">—— hz</div>
         <div class="readout-sub" id="inst-r-wave">—</div>
       </div>
       <div class="inst-meta">
@@ -630,6 +773,206 @@
   </div>
 </div>
 
+<!-- ════════════════════════════════════════════════════════════
+     GRAFO (hero) — adaptado de portafolio.html
+     ════════════════════════════════════════════════════════════ -->
+<script>
+const DC = { 1990:'#6655ee', 2000:'#ddaa00', 2010:'#00cc77', 2020:'#ee3333' };
+const CINE_COLOR = '#cc55ff';
+const T_IN = 280, T_OUT = 480;
+const FILL_BASE='40', FILL_HOVER='77', FILL_CLICK='bb', FILL_DIM='0c';
+const STR_BASE='99', STR_HOVER='dd', STR_CLICK='ff', STR_DIM='18';
+const LINE_BASE=0.65, LINE_HOVER=1, LINE_DIM=0.06;
+
+function decOf(y){ return Math.floor((y||2000)/10)*10; }
+function dCol(y){ return DC[decOf(y)] || '#888'; }
+function isCine(d){ return (d.format||'').toLowerCase().includes('banda sonora'); }
+function nodeColor(d){ return isCine(d) ? CINE_COLOR : dCol(d.year); }
+function nodeR(d){
+  if (d.isHub) return 18;
+  const u=(d.format||'').toLowerCase();
+  let base = u.includes('lp')?8 : u.includes('ep')?7 : u.includes('single')?6 : (u.includes('remix')||u.includes('rework'))?6.5 : u.includes('banda sonora')?8 : 6;
+  return d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
+}
+
+let mode='artista', activeArtist=null, sim=null, DATA=[];
+
+const svg = d3.select('#g');
+const gRoot = svg.append('g');
+const gL = gRoot.append('g');
+const gN = gRoot.append('g');
+
+/* Fallback — SOLO MUESTRA.
+   En cristianheyne.xyz esto se reemplaza por la data viva de Notion via /api/portfolio.
+   Los artistas son los que ya aparecen en el structured data del sitio; las entradas
+   aquí son marcadores representativos para que el grafo renderice sin/antes de la API. */
+const SAMPLE = [
+  {id:'s1', artist:'shogun', title:'perro', year:2018, format:'LP', role:'compositor · productor', spotifyScore:62},
+  {id:'s2', artist:'shogun', title:'shogun', year:2009, format:'LP', role:'compositor · productor', spotifyScore:48},
+  {id:'s3', artist:'shogun', title:'taniko (kuraimokha rework)', year:2024, format:'remix', role:'obra original', spotifyScore:30},
+  {id:'t1', artist:'tormenta', title:'siempre estoy a punto de llorar', year:2021, format:'EP', role:'compositor · productor', spotifyScore:40},
+  {id:'t2', artist:'tormenta', title:'tormenta', year:2016, format:'LP', role:'compositor · productor', spotifyScore:44},
+  {id:'c1', artist:'christianes', title:'christianes', year:2003, format:'LP', role:'compositor · productor', spotifyScore:38},
+  {id:'jm1', artist:'javiera mena', title:'esquemas juveniles', year:2006, format:'LP', role:'producción', spotifyScore:78},
+  {id:'jm2', artist:'javiera mena', title:'mena', year:2010, format:'LP', role:'producción', spotifyScore:82},
+  {id:'jm3', artist:'javiera mena', title:'single', year:2014, format:'single', role:'producción', spotifyScore:70},
+  {id:'gp1', artist:'gepe', title:'gepinto', year:2007, format:'LP', role:'producción', spotifyScore:72},
+  {id:'gp2', artist:'gepe', title:'audiovisión', year:2010, format:'LP', role:'producción', spotifyScore:80},
+  {id:'dv1', artist:'dënver', title:'música, gramática, gimnasia', year:2010, format:'LP', role:'producción', spotifyScore:74},
+  {id:'dv2', artist:'dënver', title:'sangre cita', year:2008, format:'LP', role:'producción', spotifyScore:58},
+  {id:'aa1', artist:'alex anwandter', title:'rebeldes', year:2011, format:'LP', role:'producción', spotifyScore:68},
+  {id:'aa2', artist:'alex anwandter', title:'single', year:2013, format:'single', role:'producción', spotifyScore:55},
+  {id:'cm1', artist:'camila moreno', title:'almismotiempo', year:2012, format:'LP', role:'producción', spotifyScore:66},
+  {id:'cm2', artist:'camila moreno', title:'panal', year:2009, format:'LP', role:'producción', spotifyScore:52},
+  {id:'fm1', artist:'fernando milagros', title:'san sebastián', year:2011, format:'LP', role:'producción', spotifyScore:60},
+  {id:'fm2', artist:'fernando milagros', title:'eclipse', year:2013, format:'EP', role:'producción', spotifyScore:46},
+  {id:'dn1', artist:'disconegro', title:'disconegro', year:2000, format:'LP', role:'proyecto propio', spotifyScore:34},
+  {id:'bs1', artist:'varios', title:'banda sonora', year:2015, format:'banda sonora', role:'música original', spotifyScore:28},
+  {id:'bs2', artist:'varios', title:'banda sonora', year:2019, format:'banda sonora', role:'música original', spotifyScore:26},
+];
+
+async function load() {
+  try {
+    const r = await fetch('/api/portfolio');
+    if (!r.ok) throw new Error('no api');
+    const j = await r.json();
+    DATA = (j.entries && j.entries.length) ? j.entries : SAMPLE;
+  } catch(e) {
+    DATA = SAMPLE; // preview / offline
+  }
+  document.getElementById('hero-count').textContent = '· ' + DATA.length;
+  document.getElementById('overlay').style.display = 'none';
+  render(mode);
+}
+
+function buildGraph(data, m) {
+  const nodes = data.map(d=>({...d}));
+  const links = [];
+  if (m==='artista') {
+    const g={};
+    nodes.forEach(n=>{ (g[n.artist]=g[n.artist]||[]).push(n); });
+    Object.values(g).forEach(arr=>{
+      const s=[...arr].sort((a,b)=>(a.year||0)-(b.year||0));
+      for(let i=0;i<s.length-1;i++) links.push({source:s[i].id,target:s[i+1].id,artist:s[i].artist});
+    });
+    const cine=nodes.filter(n=>isCine(n));
+    for(let i=0;i<cine.length-1;i++) links.push({source:cine[i].id,target:cine[i+1].id,isCine:true,strength:0.12});
+  } else {
+    [...new Set(nodes.map(n=>decOf(n.year)))].forEach(d=>{
+      nodes.push({id:`h${d}`,artist:`${d}s`,year:d+5,format:'hub',role:'hub',title:`${d}s`,isHub:true});
+    });
+    nodes.forEach(n=>{ if(!n.isHub) links.push({source:n.id,target:`h${decOf(n.year)}`}); });
+  }
+  return {nodes,links};
+}
+
+function render(m) {
+  const W=document.getElementById('hero').clientWidth;
+  const H=document.getElementById('hero').clientHeight;
+  const {nodes,links}=buildGraph(DATA,m);
+
+  if(sim) sim.stop();
+  gL.selectAll('*').remove();
+  gN.selectAll('*').remove();
+
+  const lSel=gL.selectAll('line').data(links).join('line')
+    .attr('stroke','#222')
+    .attr('stroke-width',d=>d.isCine?0.6:1)
+    .attr('stroke-opacity',LINE_BASE);
+
+  const nSel=gN.selectAll('g').data(nodes,d=>d.id).join('g')
+    .style('cursor',d=>d.isHub?'default':'pointer');
+
+  nSel.append('circle')
+    .attr('r',d=>nodeR(d))
+    .attr('fill',d=>d.isHub?'transparent':nodeColor(d)+FILL_BASE)
+    .attr('stroke',d=>d.isHub?dCol(d.year)+'77':nodeColor(d)+STR_BASE)
+    .attr('stroke-width',1.5)
+    .attr('stroke-dasharray',d=>d.isHub?'3 2':'none');
+
+  nSel.filter(d=>d.isHub).append('text')
+    .text(d=>d.title)
+    .attr('text-anchor','middle').attr('dy','0.35em')
+    .attr('fill',d=>dCol(d.year))
+    .attr('font-size','9px').attr('font-weight','700').attr('letter-spacing','0.1em')
+    .attr('pointer-events','none');
+
+  nSel.filter(d=>!d.isHub)
+    .on('click',(e,d)=>{ e.stopPropagation(); activeArtist=(activeArtist===d.artist)?null:d.artist; applyHL(T_IN); })
+    .on('mouseenter',(e,d)=>{ if(!window.matchMedia('(hover:none)').matches) showTip(e,d); activeArtist=d.artist; applyHL(T_IN); })
+    .on('mousemove',(e)=>{ if(!window.matchMedia('(hover:none)').matches) moveTip(e); })
+    .on('mouseleave',()=>{ hideTip(); activeArtist=null; applyHL(T_OUT); })
+    .call(d3.drag()
+      .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.08).restart(); d.fx=d.x;d.fy=d.y; })
+      .on('drag', (e,d)=>{ d.fx=e.x;d.fy=e.y; })
+      .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.003); d.fx=null;d.fy=null; })
+    );
+
+  sim=d3.forceSimulation(nodes)
+    .alphaMin(0.003).alphaDecay(0.015).velocityDecay(0.35)
+    .force('link',d3.forceLink(links).id(d=>d.id)
+      .distance(d=>d.isCine?40:(d.source?.isHub||d.target?.isHub)?90:55)
+      .strength(d=>d.strength||((d.source?.isHub||d.target?.isHub)?0.35:0.5)))
+    .force('charge',d3.forceManyBody().strength(d=>d.isHub?-500:-130).distanceMax(300))
+    .force('center',d3.forceCenter(W/2,H/2).strength(0.035))
+    .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
+    .force('jitter',()=>{ nodes.forEach(n=>{ if(!n.isHub&&!n.fx){n.vx+=(Math.random()-.5)*.06;n.vy+=(Math.random()-.5)*.06;} }); })
+    .on('tick',()=>{
+      lSel.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+      nSel.attr('transform',d=>`translate(${d.x},${d.y})`);
+    });
+}
+
+function applyHL(dur) {
+  const artist=activeArtist, ease=d3.easeCubicOut;
+  gN.selectAll('g').each(function(d){
+    if(d.isHub) return;
+    const c=nodeColor(d), same=artist&&d.artist===artist;
+    let fill,stroke,r;
+    if(!artist){ fill=c+FILL_BASE; stroke=c+STR_BASE; r=nodeR(d); }
+    else if(same){ fill=c+FILL_HOVER; stroke=c+STR_HOVER; r=nodeR(d)+1; }
+    else { fill=c+FILL_DIM; stroke=c+STR_DIM; r=nodeR(d); }
+    d3.select(this).select('circle').transition().duration(dur).ease(ease).attr('fill',fill).attr('stroke',stroke).attr('r',r);
+  });
+  gL.selectAll('line').each(function(d){
+    const same=artist&&d.artist===artist;
+    d3.select(this).transition().duration(dur).ease(ease)
+      .attr('stroke',same?'#777':'#1e1e1e')
+      .attr('stroke-opacity',!artist?LINE_BASE:same?LINE_HOVER:LINE_DIM);
+  });
+}
+
+const tip=document.getElementById('tip');
+function showTip(e,d){
+  const c=nodeColor(d);
+  document.getElementById('tip-artist').textContent=d.artist||'—';
+  document.getElementById('tip-title').textContent=d.title||'—';
+  document.getElementById('tip-meta').style.color=c;
+  document.getElementById('tip-meta').textContent=[d.year,d.format].filter(Boolean).join(' · ');
+  document.getElementById('tip-role').textContent=d.role||'';
+  tip.classList.add('vis'); moveTip(e);
+}
+function moveTip(e){ tip.style.left=Math.min(e.clientX+16,innerWidth-270)+'px'; tip.style.top=Math.max(e.clientY-10,54)+'px'; }
+function hideTip(){ tip.classList.remove('vis'); }
+
+document.querySelectorAll('.mb').forEach(b=>{
+  b.onclick=()=>{
+    mode=b.dataset.m;
+    document.querySelectorAll('.mb').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    activeArtist=null;
+    if(DATA.length) render(mode);
+  };
+});
+
+svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); });
+window.addEventListener('resize',()=>{ if(DATA.length) render(mode); });
+load();
+</script>
+
+<!-- ════════════════════════════════════════════════════════════
+     CHROME + INSTRUMENTO — tal cual tu archivo (sin cambios de lógica)
+     ════════════════════════════════════════════════════════════ -->
 <script>
 function pad(n) { return String(n).padStart(2, '0'); }
 const DAYS   = ['dom','lun','mar','mié','jue','vie','sáb'];
