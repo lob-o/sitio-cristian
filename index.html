@@ -287,6 +287,9 @@
     .group.secondary .item-name { font-size: clamp(16px,2.6vw,24px); font-weight: 700; color: var(--muted); letter-spacing: -0.02em; }
     .group.secondary .item:hover .item-name { color: var(--accent); }
 
+    /* música más discreta: sigue siendo protagonista (negrita, blanca) pero no grita tan fuerte */
+    .group.compact .item-name { font-size: clamp(22px, 3.8vw, 38px); }
+
     #site footer {
       margin-top: 1.8rem;
       padding-top: 0;
@@ -660,7 +663,7 @@
 
   <div class="table">
 
-    <div class="group" style="animation-delay:0.05s">
+    <div class="group compact" style="animation-delay:0.05s">
       <h2 class="cat-label">música</h2>
       <div class="items-col">
         <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener"><span class="item-name">shogun</span></a>
