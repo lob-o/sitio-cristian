@@ -77,7 +77,7 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-behavior: smooth; scroll-snap-type: y proximity; }
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -111,8 +111,8 @@
        ═══════════════════════════════════════════════════════════ */
     #hero {
       position: relative;
-      height: 100vh;
-      height: 100dvh;
+      height: calc(100vh - 220px);
+      height: calc(100dvh - 220px);
       background: var(--hbg);
       color: var(--hfg);
       overflow: hidden;
@@ -135,34 +135,26 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #fff;
-      font-size: 22px;
-      font-weight: 300;
+      font-size: 28px;
+      font-weight: 700;
       z-index: 15;
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
-    .hero-nudge.show { opacity: 0.5; animation: nudge-pulse 1.8s ease-in-out infinite; }
+    .hero-nudge.show { opacity: 0.85; animation: nudge-pulse 1.6s ease-in-out infinite; }
     .hero-nudge-l { left: 10px; }
     .hero-nudge-r { right: 10px; }
-    @keyframes nudge-pulse { 0%,100% { opacity: 0.28; } 50% { opacity: 0.6; } }
-    @media (prefers-reduced-motion: reduce) { .hero-nudge.show { animation: none; opacity: 0.45; } }
-
-    .hero-top {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 56px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 clamp(16px, 4vw, 32px);
-      z-index: 20; pointer-events: none;
-    }
-    .hero-name {
-      display: flex; align-items: center; gap: 9px;
-      font-size: clamp(16px,2.4vw,22px); font-weight: 800; letter-spacing: -0.03em;
-      color: var(--hfg); pointer-events: auto;
-    }
-    .hero-count { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #444; }
+    @keyframes nudge-pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .hero-nudge.show { animation: none; opacity: 0.75; } }
 
     .hero-foot {
       position: absolute;
@@ -625,14 +617,12 @@
     .inst-hint.gone { opacity: 0; }
 
     @media (max-width: 600px) {
-      #hero { height: calc(100vh - 120px); height: calc(100dvh - 120px); }
       .group { grid-template-columns: 1fr; gap: 0.5rem; padding: 1rem 0; }
       .item-name { font-size: clamp(26px,9vw,40px); }
       #site footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .site-meta { text-align: left; align-items: flex-start; }
       #sv-sismos { align-items: flex-start; }
       .zone { grid-template-columns: 50px 1fr 80px; }
-      .hero-name { font-size: 13px; }
     }
   </style>
 </head>
@@ -640,14 +630,6 @@
 
 <!-- ═══════════ HERO: grafo ═══════════ -->
 <section id="hero" class="snap">
-  <div class="hero-top">
-    <div class="hero-name">
-      cristián heyne
-      <span class="dot"></span>
-      <span class="hero-count" id="hero-count"></span>
-    </div>
-  </div>
-
   <div id="hero-scroll">
     <svg id="g"></svg>
   </div>
@@ -805,7 +787,7 @@ function nodeR(d){
   return d.spotifyScore!=null ? base + (d.spotifyScore/100)*10 : base;
 }
 
-let mode='artista', activeArtist=null, sim=null, DATA=[];
+let mode='artista', activeArtist=null, sim=null, DATA=[], lastW=null;
 
 const svg = d3.select('#g');
 const defs = svg.append('defs');
@@ -864,7 +846,6 @@ async function load() {
     DATA = SAMPLE; // preview / offline
   }
   DATA = DATA.filter(d => !d.isHub); // sacamos los hubs de década (90s/00s/10s/20s) del grafo
-  document.getElementById('hero-count').textContent = '· ' + DATA.length;
   document.getElementById('overlay').style.display = 'none';
   render(mode);
 }
@@ -914,6 +895,7 @@ function render(m) {
   const containerW=heroEl.clientWidth;
   const H=heroEl.clientHeight;
   const W=Math.max(containerW, 1100); // ancho virtual: en celular el grafo respira igual y se navega con scroll
+  lastW = containerW;
   svg.style('width', W+'px');
   const scrollEl=document.getElementById('hero-scroll');
   if (scrollEl) scrollEl.scrollLeft = Math.max(0, (W - containerW) / 2);
@@ -1031,7 +1013,12 @@ pulseShogun();
 
 document.getElementById('hero-scroll')?.addEventListener('scroll', updateNudges, { passive: true });
 svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); });
-window.addEventListener('resize',()=>{ if(DATA.length) render(mode); });
+window.addEventListener('resize',()=>{
+  if(!DATA.length) return;
+  const w = document.getElementById('hero').clientWidth;
+  if (lastW !== null && Math.abs(w - lastW) < 4) return; // solo cambió el alto (barra del navegador), no reconstruir
+  render(mode);
+});
 load();
 </script>
 
