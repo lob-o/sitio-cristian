@@ -878,12 +878,18 @@ function render(m) {
     .attr('font-size','9px').attr('font-weight','700').attr('letter-spacing','0.1em')
     .attr('pointer-events','none');
 
+  // área de toque invisible y más grande que el círculo visible — el dedo no necesita precisión de mouse
+  nSel.filter(d=>!d.isHub).append('circle')
+    .attr('r',d=>nodeR(d)+12)
+    .attr('fill','transparent');
+
   nSel.filter(d=>!d.isHub)
     .on('click',(e,d)=>{ e.stopPropagation(); activeArtist=(activeArtist===d.artist)?null:d.artist; applyHL(T_IN); })
     .on('mouseenter',(e,d)=>{ if(!window.matchMedia('(hover:none)').matches) showTip(e,d); activeArtist=d.artist; applyHL(T_IN); })
     .on('mousemove',(e)=>{ if(!window.matchMedia('(hover:none)').matches) moveTip(e); })
     .on('mouseleave',()=>{ hideTip(); activeArtist=null; applyHL(T_OUT); })
     .call(d3.drag()
+      .filter(e=>!e.touches) // arrastrar nodo solo con mouse; en touch el dedo es para tap o para deslizar el lienzo
       .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.12).restart(); d.fx=d.x;d.fy=d.y; })
       .on('drag', (e,d)=>{ d.fx=e.x;d.fy=e.y; })
       .on('end',  (e,d)=>{ if(!e.active) sim.alphaTarget(0.012); d.fx=null;d.fy=null; })
