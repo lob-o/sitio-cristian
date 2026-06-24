@@ -131,30 +131,21 @@
     #hero-scroll svg { height: 100%; display: block; cursor: grab; }
     #hero-scroll svg:active { cursor: grabbing; }
 
-    .hero-nudge {
+    .hero-hint {
       position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.10);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-size: 28px;
-      font-weight: 700;
+      top: 20px;
+      left: clamp(16px, 4vw, 32px);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #555;
       z-index: 15;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.5s ease;
     }
-    .hero-nudge.show { opacity: 0.85; animation: nudge-pulse 1.6s ease-in-out infinite; }
-    .hero-nudge-l { left: 10px; }
-    .hero-nudge-r { right: 10px; }
-    @keyframes nudge-pulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
-    @media (prefers-reduced-motion: reduce) { .hero-nudge.show { animation: none; opacity: 0.75; } }
+    .hero-hint.show { opacity: 1; }
 
     .hero-foot {
       position: absolute;
@@ -284,21 +275,13 @@
     }
 
     .item-name {
-      font-size: clamp(26px, 5vw, 56px);
-      font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 0.98;
+      font-size: clamp(20px, 3vw, 32px);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.2;
     }
 
     .item:hover { color: var(--accent); transform: translateX(2px); }
-
-    /* fila secundaria (otros) — más callada que los proyectos titulares */
-    .group.secondary .items-col { flex-flow: row wrap; gap: 0.4rem 1.6rem; align-items: baseline; }
-    .group.secondary .item-name { font-size: clamp(16px,2.6vw,24px); font-weight: 700; color: var(--muted); letter-spacing: -0.02em; }
-    .group.secondary .item:hover .item-name { color: var(--accent); }
-
-    /* música más discreta: sigue siendo protagonista (negrita, blanca) pero no grita tan fuerte */
-    .group.compact .item-name { font-size: clamp(22px, 3.8vw, 38px); }
 
     #site footer {
       margin-top: 1.8rem;
@@ -618,7 +601,6 @@
 
     @media (max-width: 600px) {
       .group { grid-template-columns: 1fr; gap: 0.5rem; padding: 1rem 0; }
-      .item-name { font-size: clamp(26px,9vw,40px); }
       #site footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
       .site-meta { text-align: left; align-items: flex-start; }
       #sv-sismos { align-items: flex-start; }
@@ -634,8 +616,7 @@
     <svg id="g"></svg>
   </div>
 
-  <div class="hero-nudge hero-nudge-l" id="nudge-l" aria-hidden="true">←</div>
-  <div class="hero-nudge hero-nudge-r" id="nudge-r" aria-hidden="true">→</div>
+  <div class="hero-hint" id="hero-hint" aria-hidden="true">deslizar para los lados</div>
 
   <div id="overlay">
     <div class="ov-dots"><div class="ov-dot"></div><div class="ov-dot"></div><div class="ov-dot"></div></div>
@@ -667,7 +648,7 @@
 
   <div class="table">
 
-    <div class="group compact" style="animation-delay:0.05s">
+    <div class="group" style="animation-delay:0.05s">
       <h2 class="cat-label">música</h2>
       <div class="items-col">
         <a class="item" href="https://www.instagram.com/shogu_n__/" target="_blank" rel="noopener"><span class="item-name">shogun</span></a>
@@ -683,7 +664,7 @@
       </div>
     </div>
 
-    <div class="group secondary" style="animation-delay:0.19s">
+    <div class="group" style="animation-delay:0.19s">
       <h2 class="cat-label">otros</h2>
       <div class="items-col">
         <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
@@ -692,7 +673,7 @@
       </div>
     </div>
 
-    <div class="group secondary" style="animation-delay:0.26s">
+    <div class="group" style="animation-delay:0.26s">
       <div class="cat-label"></div>
       <div class="items-col">
         <a class="item" href="mailto:cristianheyne@gmail.com"><span class="item-name">cristianheyne@gmail.com</span></a>
@@ -864,30 +845,12 @@ function buildGraph(data) {
   return {nodes,links};
 }
 
-function forceBounds(width, height, pad) {
-  let nodes;
-  function force() {
-    for (const n of nodes) {
-      const r = nodeR(n) + pad;
-      if (n.x < r) { n.x = r; n.vx = Math.abs(n.vx) * 0.3; }
-      else if (n.x > width - r) { n.x = width - r; n.vx = -Math.abs(n.vx) * 0.3; }
-      if (n.y < r) { n.y = r; n.vy = Math.abs(n.vy) * 0.3; }
-      else if (n.y > height - r) { n.y = height - r; n.vy = -Math.abs(n.vy) * 0.3; }
-    }
-  }
-  force.initialize = _ => nodes = _;
-  return force;
-}
-
-function updateNudges() {
+function updateHeroHint() {
   const scrollEl = document.getElementById('hero-scroll');
-  const nl = document.getElementById('nudge-l');
-  const nr = document.getElementById('nudge-r');
-  if (!scrollEl || !nl || !nr) return;
-  const max = scrollEl.scrollWidth - scrollEl.clientWidth;
-  const scrollable = max > 4;
-  nl.classList.toggle('show', scrollable && scrollEl.scrollLeft > 4);
-  nr.classList.toggle('show', scrollable && scrollEl.scrollLeft < max - 4);
+  const hint = document.getElementById('hero-hint');
+  if (!scrollEl || !hint) return;
+  const scrollable = scrollEl.scrollWidth - scrollEl.clientWidth > 4;
+  hint.classList.toggle('show', scrollable);
 }
 
 function render(m) {
@@ -899,7 +862,7 @@ function render(m) {
   svg.style('width', W+'px');
   const scrollEl=document.getElementById('hero-scroll');
   if (scrollEl) scrollEl.scrollLeft = Math.max(0, (W - containerW) / 2);
-  updateNudges();
+  updateHeroHint();
   const {nodes,links}=buildGraph(DATA);
 
   if(sim) sim.stop();
@@ -954,9 +917,9 @@ function render(m) {
       .distance(d=>d.isCine?40:55)
       .strength(d=>d.strength||0.5))
     .force('charge',d3.forceManyBody().strength(-130).distanceMax(320))
-    .force('center',d3.forceCenter(W/2,H/2).strength(0.04))
+    .force('x',d3.forceX(W/2).strength(0.012))
+    .force('y',d3.forceY(H/2).strength(0.05))
     .force('collision',d3.forceCollide(d=>nodeR(d)+6).iterations(3))
-    .force('bounds', forceBounds(W, H, 10)) // freno solo para casos extremos, ya no hace el trabajo pesado
     .on('tick',()=>{
       const ts = Date.now()/1000;
       const wx = n => Math.cos(ts*n._ws + n._wp) * n._wa;
@@ -1011,7 +974,6 @@ function pulseShogun(){
 }
 pulseShogun();
 
-document.getElementById('hero-scroll')?.addEventListener('scroll', updateNudges, { passive: true });
 svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); });
 window.addEventListener('resize',()=>{
   if(!DATA.length) return;
