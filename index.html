@@ -147,24 +147,6 @@
     }
     .hero-hint.show { opacity: 1; }
 
-    .hero-foot {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 64px;
-      display: flex; align-items: center; justify-content: flex-end;
-      padding: 0 clamp(16px, 4vw, 32px);
-      z-index: 20; pointer-events: none;
-    }
-    .scroll-cue {
-      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
-      color: #333; pointer-events: auto; text-decoration: none;
-      display: flex; align-items: center; gap: 8px; transition: color 0.2s;
-    }
-    .scroll-cue:hover { color: #aaa; }
-    .scroll-cue .arrow { animation: nudge 2.4s ease-in-out infinite; }
-    @keyframes nudge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
-    @media (prefers-reduced-motion: reduce){ .scroll-cue .arrow { animation: none; } }
-
     #tip {
       position: fixed; background: #111; border: 1px solid #2a2a2a;
       padding: 12px 16px; pointer-events: none; opacity: 0;
@@ -622,10 +604,6 @@
     <div class="ov-dots"><div class="ov-dot"></div><div class="ov-dot"></div><div class="ov-dot"></div></div>
     <div class="ov-msg" id="ov-msg">cargando</div>
   </div>
-
-  <div class="hero-foot">
-    <a href="#site" class="scroll-cue">índice <span class="arrow">↓</span></a>
-  </div>
 </section>
 
 <!-- tooltip del grafo -->
@@ -665,7 +643,7 @@
     </div>
 
     <div class="group" style="animation-delay:0.19s">
-      <h2 class="cat-label">otros</h2>
+      <h2 class="cat-label">más</h2>
       <div class="items-col">
         <a class="item" href="https://processdata.cl/" target="_blank" rel="noopener"><span class="item-name">processdata.cl</span></a>
         <a class="item" href="https://www.etherealart.online/" target="_blank" rel="noopener"><span class="item-name">ethereal</span></a>
