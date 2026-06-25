@@ -879,12 +879,24 @@ function render(m) {
     .attr('pointer-events','none');
 
   // área de toque invisible y más grande que el círculo visible — el dedo no necesita precisión de mouse
+  // mínimo 24px de radio (48px de diámetro) para cumplir el tamaño táctil recomendado
+  // touch-action:none evita que el scroll horizontal del contenedor "secuestre" el gesto
+  // cuando el dedo se mueve un poco al tocar — sin esto el navegador puede interpretar
+  // cualquier tap impreciso como inicio de scroll y cancelar el click.
   nSel.filter(d=>!d.isHub).append('circle')
-    .attr('r',d=>nodeR(d)+12)
-    .attr('fill','transparent');
+    .attr('r',d=>Math.max(nodeR(d)+12, 24))
+    .attr('fill','transparent')
+    .style('touch-action','none');
 
   nSel.filter(d=>!d.isHub)
-    .on('click',(e,d)=>{ e.stopPropagation(); activeArtist=(activeArtist===d.artist)?null:d.artist; applyHL(T_IN); })
+    .on('click',(e,d)=>{
+      e.stopPropagation();
+      const turningOn = activeArtist !== d.artist;
+      activeArtist = turningOn ? d.artist : null;
+      applyHL(T_IN);
+      // antes el tap solo resaltaba — nunca mostraba la info (eso pasaba solo en hover de mouse)
+      if (turningOn) { showTip(e,d); } else { hideTip(); }
+    })
     .on('mouseenter',(e,d)=>{ if(!window.matchMedia('(hover:none)').matches) showTip(e,d); activeArtist=d.artist; applyHL(T_IN); })
     .on('mousemove',(e)=>{ if(!window.matchMedia('(hover:none)').matches) moveTip(e); })
     .on('mouseleave',()=>{ hideTip(); activeArtist=null; applyHL(T_OUT); })
@@ -944,7 +956,10 @@ function showTip(e,d){
   document.getElementById('tip-role').textContent=d.role||'';
   tip.classList.add('vis'); moveTip(e);
 }
-function moveTip(e){ tip.style.left=Math.min(e.clientX+16,innerWidth-270)+'px'; tip.style.top=Math.max(e.clientY-10,54)+'px'; }
+function moveTip(e){
+  tip.style.left = Math.min(Math.max(e.clientX+16, 8), innerWidth-270) + 'px';
+  tip.style.top  = Math.min(Math.max(e.clientY-10, 54), innerHeight-120) + 'px';
+}
 function hideTip(){ tip.classList.remove('vis'); }
 
 /* magma — la luminosidad violeta oscura de shogun late lento, como lava */
@@ -958,7 +973,7 @@ function pulseShogun(){
 }
 pulseShogun();
 
-svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); });
+svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); hideTip(); });
 window.addEventListener('resize',()=>{
   if(!DATA.length) return;
   const w = document.getElementById('hero').clientWidth;
