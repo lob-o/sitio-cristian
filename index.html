@@ -842,6 +842,10 @@ function render(m) {
   if (scrollEl) scrollEl.scrollLeft = Math.max(0, (W - containerW) / 2);
   updateHeroHint();
   const {nodes,links}=buildGraph(DATA);
+  nodes.forEach(n => { // parten ya cerca del centro: nada que migrar, solo acomodarse
+    n.x = W/2 + (Math.random()-0.5) * 480;
+    n.y = H/2 + (Math.random()-0.5) * 320;
+  });
 
   if(sim) sim.stop();
   gL.selectAll('*').remove();
