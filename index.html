@@ -734,6 +734,9 @@ const FILL_BASE='40', FILL_HOVER='77', FILL_CLICK='bb', FILL_DIM='0c';
 const STR_BASE='99', STR_HOVER='dd', STR_CLICK='ff', STR_DIM='18';
 const LINE_BASE=0.65, LINE_HOVER=1, LINE_DIM=0.06;
 
+/* detección touch: en touch el tooltip se muestra/oculta en click, no en hover */
+const IS_TOUCH = window.matchMedia('(hover:none)').matches;
+
 function decOf(y){ return Math.floor((y||2000)/10)*10; }
 function dCol(y){ return DC[decOf(y)] || '#888'; }
 function isCine(d){ return (d.format||'').toLowerCase().includes('banda sonora'); }
@@ -888,10 +891,21 @@ function render(m) {
     .attr('fill','transparent');
 
   nSel.filter(d=>!d.isHub)
-    .on('click',(e,d)=>{ e.stopPropagation(); activeArtist=(activeArtist===d.artist)?null:d.artist; applyHL(T_IN); })
-    .on('mouseenter',(e,d)=>{ if(!window.matchMedia('(hover:none)').matches) showTip(e,d); activeArtist=d.artist; applyHL(T_IN); })
-    .on('mousemove',(e)=>{ if(!window.matchMedia('(hover:none)').matches) moveTip(e); })
-    .on('mouseleave',()=>{ hideTip(); activeArtist=null; applyHL(T_OUT); })
+    .on('click',(e,d)=>{
+      e.stopPropagation();
+      // toggle: si el nodo ya estaba activo, lo apaga y oculta el tip; si no, lo enciende y muestra el tip
+      if (activeArtist === d.artist) {
+        activeArtist = null;
+        hideTip();
+      } else {
+        activeArtist = d.artist;
+        showTip(e, d);
+      }
+      applyHL(T_IN);
+    })
+    .on('mouseenter',(e,d)=>{ if(!IS_TOUCH){ showTip(e,d); activeArtist=d.artist; applyHL(T_IN); } })
+    .on('mousemove',(e)=>{ if(!IS_TOUCH) moveTip(e); })
+    .on('mouseleave',()=>{ if(!IS_TOUCH){ hideTip(); activeArtist=null; applyHL(T_OUT); } })
     .call(d3.drag()
       .filter(e=>!e.touches) // arrastrar nodo solo con mouse; en touch el dedo es para tap o para deslizar el lienzo
       .on('start',(e,d)=>{ if(!e.active) sim.alphaTarget(0.12).restart(); d.fx=d.x;d.fy=d.y; })
@@ -955,7 +969,15 @@ function showTip(e,d){
   document.getElementById('tip-role').textContent=d.role||'';
   tip.classList.add('vis'); moveTip(e);
 }
-function moveTip(e){ tip.style.left=Math.min(e.clientX+16,innerWidth-270)+'px'; tip.style.top=Math.max(e.clientY-10,54)+'px'; }
+function moveTip(e){
+  // en touch el tooltip sube más para no quedar tapado por el dedo;
+  // además protegemos también el borde izquierdo, no solo el derecho.
+  const offY = IS_TOUCH ? -90 : -10;
+  const left = Math.max(8, Math.min(e.clientX + 16, innerWidth - 270));
+  const top  = Math.max(54, e.clientY + offY);
+  tip.style.left = left + 'px';
+  tip.style.top  = top  + 'px';
+}
 function hideTip(){ tip.classList.remove('vis'); }
 
 /* magma — la luminosidad violeta oscura de shogun late lento, como lava */
@@ -969,7 +991,8 @@ function pulseShogun(){
 }
 pulseShogun();
 
-svg.on('click',()=>{ activeArtist=null; applyHL(T_OUT); });
+// tap en el fondo: limpiar estado activo y ocultar tooltip
+svg.on('click',()=>{ activeArtist=null; hideTip(); applyHL(T_OUT); });
 window.addEventListener('resize',()=>{
   if(!DATA.length) return;
   const w = document.getElementById('hero').clientWidth;
