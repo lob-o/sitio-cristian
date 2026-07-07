@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>miga — cristián heyne</title>
+<meta name="description" content="miga. sintetizador de guitarra. plugin VST3 / AU gratuito.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #fff;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 48px 32px 80px;
+    max-width: 720px;
+  }
+
+  h1 {
+    font-weight: 800;
+    font-size: clamp(48px, 10vw, 96px);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #666;
+    margin: 40px 0 12px;
+  }
+
+  p {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #ccc;
+    max-width: 52ch;
+  }
+
+  a { color: #fff; text-decoration: none; border-bottom: 1px solid #333; }
+  a:hover { color: #ee3333; border-color: #ee3333; }
+
+  .download {
+    display: inline-block;
+    margin-top: 8px;
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    border-bottom: 2px solid #fff;
+    padding-bottom: 2px;
+  }
+  .download:hover { color: #ee3333; border-color: #ee3333; }
+
+  table { border-collapse: collapse; margin-top: 4px; }
+  td {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #ccc;
+    vertical-align: top;
+    padding-right: 20px;
+  }
+  td:first-child {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: #666;
+    padding-top: 4px;
+    white-space: nowrap;
+  }
+
+  .meta { font-size: 13px; color: #555; margin-top: 6px; }
+  .back { margin-top: 64px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>miga</h1>
+<div class="meta">BETA 0.1 — VST3 / AU — MACOS</div>
+
+<div class="label">qué es</div>
+<p>Sintetizador de guitarra. Cuatro voces en paralelo (señal directa, octava arriba, octava abajo y cuadrada) sumadas a un filtro resonante que barre de una frecuencia a otra con cada nota nueva. Funciona con cualquier fuente monofónica: guitarra, bajo, voz, sintetizador.</p>
+
+<div class="label">por qué</div>
+<p>miga es un homenaje al Micro Synthesizer de Electro-Harmonix, el efecto más mágico al que tuve acceso durante los años noventa.</p>
+
+<div class="label">descargar</div>
+<a class="download" href="downloads/miga_beta_0.1_macos.zip">miga_beta_0.1_macos.zip</a>
+<div class="meta">gratis — apple silicon + intel — macOS 11+</div>
+
+<div class="label">instalar</div>
+<p>Descomprime y doble clic en <a href="#" style="border:none; cursor:text; color:#ccc;">instalar.command</a>. Si macOS lo bloquea: clic derecho → Abrir → Abrir. Después reinicia tu DAW.</p>
+
+<div class="label">controles</div>
+<table>
+  <tr><td>TRIGGER</td><td>sensibilidad del disparo</td></tr>
+  <tr><td>ATTACK</td><td>fade-in, 1 ms a 1.5 s</td></tr>
+  <tr><td>SIGNAL</td><td>señal directa</td></tr>
+  <tr><td>OCTAVE</td><td>octava arriba</td></tr>
+  <tr><td>SUB</td><td>octava abajo</td></tr>
+  <tr><td>SQUARE</td><td>fuzz cuadrada</td></tr>
+  <tr><td>RES</td><td>resonancia del filtro</td></tr>
+  <tr><td>START</td><td>frecuencia inicial del barrido</td></tr>
+  <tr><td>STOP</td><td>frecuencia final — si es menor que START, el barrido baja</td></tr>
+  <tr><td>RATE</td><td>duración del barrido, 20 ms a 4 s</td></tr>
+  <tr><td>OUT</td><td>salida</td></tr>
+</table>
+
+<div class="back">
+  <a href="galleta.html">galleta</a> · <a href="index.html">cristián heyne</a>
+</div>
+
+</body>
+</html>
