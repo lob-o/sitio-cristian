@@ -11,7 +11,7 @@
       --muted: #888880; --dim: #444440; --line: #1e1e1c;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width:100%; height:100%; background:var(--bg); color:var(--fg); font-family:'Courier New',Courier,monospace; overflow:hidden; user-select:none; -webkit-user-select:none; }
+    html, body { width:100%; height:100%; background:var(--bg); color:var(--fg); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:600; overflow:hidden; user-select:none; -webkit-user-select:none; }
     button { -webkit-appearance:none; appearance:none; background:none; border:none; cursor:pointer; font-family:inherit; color:inherit; padding:0; }
 
     #canvas-bg { position:fixed; inset:0; z-index:0; }
@@ -30,18 +30,18 @@
       opacity:0; animation:fadein 1s ease 0.2s forwards;
     }
     #title-block { display:flex; flex-direction:column; gap:0.5rem; }
-    #title { font-size:clamp(1.8rem,5vw,3.5rem); font-weight:400; letter-spacing:-0.04em; line-height:1; }
+    #title { font-size:clamp(2.2rem,6.5vw,4.6rem); font-weight:900; letter-spacing:-0.045em; line-height:0.9; }
 
     /* Fila de activación — siempre visible */
-    #subtitle-row { display:flex; align-items:center; gap:0.9rem; pointer-events:all; }
-    #subtitle { font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); }
+    #subtitle-row { display:flex; align-items:center; gap:clamp(1rem,1.6vw,1.7rem); pointer-events:all; }
+    #subtitle { font-size:clamp(12px,1.3vw,17px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
     #btn-activate {
-      font-size:9px; letter-spacing:0.16em; text-transform:uppercase;
-      color:var(--accent); border:1px solid rgba(200,184,154,0.35);
-      padding:3px 10px; transition:background 0.2s, color 0.2s;
+      font-size:clamp(12px,1.25vw,16px); font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--accent); border:1.5px solid rgba(200,184,154,0.45);
+      padding:clamp(5px,0.6vw,9px) clamp(13px,1.4vw,22px); transition:background 0.2s, color 0.2s;
     }
     #btn-activate:hover { background:var(--accent); color:var(--bg); }
-    #live-dot { font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); display:none; animation:breathe 2.5s ease-in-out infinite; }
+    #live-dot { font-size:clamp(12px,1.25vw,16px); font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); display:none; animation:breathe 2.5s ease-in-out infinite; }
     #live-dot.on { display:inline; }
 
     #status { text-align:right; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; line-height:2.1; color:var(--muted); }
@@ -68,8 +68,7 @@
     .mode-btn { font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); transition:color 0.2s; pointer-events:all; }
     .mode-btn.on { color:var(--accent); }
     .mode-btn:hover:not(.on) { color:var(--muted); }
-    .mode-btn.invite { animation:invite-pulse 2.2s ease-in-out infinite; }
-    @keyframes invite-pulse { 0%,100%{color:var(--dim);} 50%{color:var(--accent);} }
+    .mode-btn.invite { color:var(--fg); font-weight:700; border-bottom:1px solid var(--accent); padding-bottom:2px; transition:color 0.6s ease, border-color 0.6s ease; }
     #mode-context { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--dim); margin-left:auto; }
 
     #ctrl-wrap { position:relative; min-height:52px; }
@@ -255,7 +254,13 @@ tick(); setInterval(tick,1000);
 // ── Estado ────────────────────────────────────────────────────────────────────
 const S={audio:false,mode:'init',loading:false,liveInt:null,histSeen:false};
 let quakes=[],evQuakes=[]; let histInviteTimer=null;
-let actx,analyser,masterGain,compressor;
+let actx,analyser,masterGain,compressor,limiter;
+function mkLimiterCurve(){
+  // Curva de saturación suave que aplasta cualquier pico por sobre ~0.92 en vez de recortarlo en seco
+  const n=1024,curve=new Float32Array(n);
+  for(let i=0;i<n;i++){const x=(i/(n-1))*2-1;curve[i]=Math.tanh(x*1.6)/Math.tanh(1.6);}
+  return curve;
+}
 
 // ── USGS — dos estrategias de fetch ───────────────────────────────────────────
 // Estrategia A: fdsnws query (más precisa, Chile específico)
@@ -304,17 +309,27 @@ function initAudio(){
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
   actx=new AC(); analyser=actx.createAnalyser(); analyser.fftSize=512;
   masterGain=actx.createGain(); masterGain.gain.value=0.65;
-  // Limitador — evita que la suma de osciladores sature y dispare el mute de protección del parlante (frecuente en celulares)
+  // Limitador de dos etapas — evita que la suma de osciladores sature y dispare el mute de protección del parlante (frecuente en celulares)
   compressor=actx.createDynamicsCompressor();
-  compressor.threshold.value=-14; compressor.knee.value=20; compressor.ratio.value=14;
-  compressor.attack.value=0.002; compressor.release.value=0.3;
-  masterGain.connect(compressor); compressor.connect(actx.destination); compressor.connect(analyser);
+  compressor.threshold.value=-20; compressor.knee.value=6; compressor.ratio.value=20;
+  compressor.attack.value=0.001; compressor.release.value=0.25;
+  limiter=actx.createWaveShaper(); limiter.curve=mkLimiterCurve(); limiter.oversample='4x';
+  masterGain.connect(compressor); compressor.connect(limiter);
+  limiter.connect(actx.destination); limiter.connect(analyser);
+  initRevBuffers();
   S.audio=true;
 }
-function mkRev(t,d){
+function mkRevBuffer(t,d){
   const l=Math.floor(actx.sampleRate*t),b=actx.createBuffer(2,l,actx.sampleRate);
   for(let c=0;c<2;c++){const a=b.getChannelData(c);for(let i=0;i<l;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/l,d);}
-  const v=actx.createConvolver();v.buffer=b;return v;
+  return b;
+}
+// Tres colas de reverb precalculadas una sola vez — generar el buffer de ruido en vivo por cada nota (hasta 6s, x12 notas simultáneas) era lo que agobiaba la CPU y producía el crunch/mute
+let revBuffers=null;
+function initRevBuffers(){ revBuffers={s:mkRevBuffer(0.7,2.4),m:mkRevBuffer(1.15,2.2),l:mkRevBuffer(1.6,2)}; }
+function mkRev(t){
+  const key=t<0.95?'s':(t<1.4?'m':'l');
+  const v=actx.createConvolver(); v.buffer=revBuffers[key]; return v;
 }
 function l2f(lat){const t=(lat-(-17))/((-56)-(-17));return 880*Math.pow(55/880,t);}
 function l2p(lon){return((lon-(-76))/((-66)-(-76)))*2-1;}
@@ -325,11 +340,11 @@ function ageM(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.55,1-h/48);}
 function spawnOsc(q){
   if(!S.audio||pool.length>=MAX)return;
   if(actx.state!=='running') actx.resume();
-  const freq=l2f(q.lat),wave=d2w(q.dep),pan=l2p(q.lon),rt=Math.max(2,6-q.dep/60);
+  const freq=l2f(q.lat),wave=d2w(q.dep),pan=l2p(q.lon),rt=Math.max(0.6,1.7-q.dep/230);
   const gval=m2g(q.mag)*ageM(q.ms);
   const osc=actx.createOscillator(),filt=actx.createBiquadFilter(),gain=actx.createGain();
   const pn=actx.createStereoPanner?actx.createStereoPanner():null;
-  const cv=mkRev(rt,2.2),dry=actx.createGain(),wet=actx.createGain();
+  const cv=mkRev(rt),dry=actx.createGain(),wet=actx.createGain();
   osc.type=wave; osc.frequency.value=freq; osc.detune.value=(q.dep%30)*1.2-18;
   filt.type='lowpass'; filt.frequency.value=400+q.mag*180; filt.Q.value=1.2;
   gain.gain.value=0; dry.gain.value=0.4; wet.gain.value=0.6;
@@ -348,8 +363,9 @@ function spawnOsc(q){
 }
 function killPool(){
   pool.forEach(n=>{
-    try{n.gain.gain.cancelScheduledValues(actx.currentTime); n.gain.gain.setTargetAtTime(0,actx.currentTime,0.1);
-      setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.cv,n.dry,n.wet,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},500);
+    try{n.gain.gain.cancelScheduledValues(actx.currentTime); n.gain.gain.setTargetAtTime(0,actx.currentTime,0.12);
+      // esperamos a que la cola del reverb (hasta ~1.7s) también decaiga antes de desconectar — cortarla en seco es lo que sonaba como click/crack
+      setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.cv,n.dry,n.wet,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},2000);
     }catch(e){}
   });
   pool.length=0; updOsc();
@@ -471,7 +487,7 @@ async function selectEvent(ev){
   if(S.mode!=='hist')return;
   evQuakes=q;
   if(!q.length){document.getElementById('event-status').textContent='sin registros digitales para este período';}
-  else{renderList(document.getElementById('event-list'),evQuakes.slice(0,12),fmtTutc); evQuakes.slice(0,MAX).forEach(x=>spawnOsc(x));}
+  else{renderList(document.getElementById('event-list'),evQuakes.slice(0,12),fmtTutc); evQuakes.slice(0,MAX).forEach((x,i)=>setTimeout(()=>{if(S.mode==='hist')spawnOsc(x);},i*90+Math.random()*40));}
   updateMapDots();
 }
 
