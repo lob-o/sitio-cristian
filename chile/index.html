@@ -254,7 +254,7 @@ tick(); setInterval(tick,1000);
 // ── Estado ────────────────────────────────────────────────────────────────────
 const S={audio:false,mode:'init',loading:false,liveInt:null,histSeen:false};
 let quakes=[],evQuakes=[]; let histInviteTimer=null;
-let actx,analyser,masterGain,compressor,limiter;
+let actx,analyser,masterGain,compressor,limiter,reverbBus,reverbReturn;
 function mkLimiterCurve(){
   // Curva de saturación suave que aplasta cualquier pico por sobre ~0.92 en vez de recortarlo en seco
   const n=1024,curve=new Float32Array(n);
@@ -316,20 +316,18 @@ function initAudio(){
   limiter=actx.createWaveShaper(); limiter.curve=mkLimiterCurve(); limiter.oversample='4x';
   masterGain.connect(compressor); compressor.connect(limiter);
   limiter.connect(actx.destination); limiter.connect(analyser);
-  initRevBuffers();
+  // Un solo reverb compartido para todas las notas (bus send/return) — un ConvolverNode por nota (hasta 12 a la vez)
+  // era lo que realmente agobiaba la CPU, sin importar el largo del buffer. Con uno solo el costo es constante.
+  const b=mkRevBuffer(1.3,2.1);
+  reverbBus=actx.createConvolver(); reverbBus.buffer=b;
+  reverbReturn=actx.createGain(); reverbReturn.gain.value=0.9;
+  reverbBus.connect(reverbReturn); reverbReturn.connect(compressor);
   S.audio=true;
 }
 function mkRevBuffer(t,d){
   const l=Math.floor(actx.sampleRate*t),b=actx.createBuffer(2,l,actx.sampleRate);
   for(let c=0;c<2;c++){const a=b.getChannelData(c);for(let i=0;i<l;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/l,d);}
   return b;
-}
-// Tres colas de reverb precalculadas una sola vez — generar el buffer de ruido en vivo por cada nota (hasta 6s, x12 notas simultáneas) era lo que agobiaba la CPU y producía el crunch/mute
-let revBuffers=null;
-function initRevBuffers(){ revBuffers={s:mkRevBuffer(0.7,2.4),m:mkRevBuffer(1.15,2.2),l:mkRevBuffer(1.6,2)}; }
-function mkRev(t){
-  const key=t<0.95?'s':(t<1.4?'m':'l');
-  const v=actx.createConvolver(); v.buffer=revBuffers[key]; return v;
 }
 function l2f(lat){const t=(lat-(-17))/((-56)-(-17));return 880*Math.pow(55/880,t);}
 function l2p(lon){return((lon-(-76))/((-66)-(-76)))*2-1;}
@@ -340,32 +338,30 @@ function ageM(ms){const h=(Date.now()-ms)/3600000;return Math.max(0.55,1-h/48);}
 function spawnOsc(q){
   if(!S.audio||pool.length>=MAX)return;
   if(actx.state!=='running') actx.resume();
-  const freq=l2f(q.lat),wave=d2w(q.dep),pan=l2p(q.lon),rt=Math.max(0.6,1.7-q.dep/230);
+  const freq=l2f(q.lat),wave=d2w(q.dep),pan=l2p(q.lon),sendAmt=Math.min(0.55,0.22+q.dep/700);
   const gval=m2g(q.mag)*ageM(q.ms);
-  const osc=actx.createOscillator(),filt=actx.createBiquadFilter(),gain=actx.createGain();
+  const osc=actx.createOscillator(),filt=actx.createBiquadFilter(),gain=actx.createGain(),send=actx.createGain();
   const pn=actx.createStereoPanner?actx.createStereoPanner():null;
-  const cv=mkRev(rt),dry=actx.createGain(),wet=actx.createGain();
   osc.type=wave; osc.frequency.value=freq; osc.detune.value=(q.dep%30)*1.2-18;
   filt.type='lowpass'; filt.frequency.value=400+q.mag*180; filt.Q.value=1.2;
-  gain.gain.value=0; dry.gain.value=0.4; wet.gain.value=0.6;
+  gain.gain.value=0; send.gain.value=sendAmt;
   osc.connect(filt); filt.connect(gain);
   const pre=pn?(()=>{gain.connect(pn);pn.pan.value=pan;return pn;})():gain;
-  pre.connect(dry); pre.connect(cv); dry.connect(masterGain); cv.connect(wet); wet.connect(masterGain);
+  pre.connect(masterGain); pre.connect(send); send.connect(reverbBus);
   osc.start(); gain.gain.setTargetAtTime(gval,actx.currentTime,0.4);
   const fd=Math.max(30,300-q.dep);
   gain.gain.setTargetAtTime(0,actx.currentTime+fd,12);
-  const node={osc,gain,filt,cv,dry,wet,pn,id:q.id}; pool.push(node); updOsc(); addRing(q);
+  const node={osc,gain,filt,send,pn,id:q.id}; pool.push(node); updOsc(); addRing(q);
   setTimeout(()=>{
     const i=pool.indexOf(node); if(i>-1)pool.splice(i,1);
-    try{osc.stop();[osc,filt,gain,cv,dry,wet,pn].forEach(n=>n&&n.disconnect());}catch(e){}
+    try{osc.stop();[osc,filt,gain,send,pn].forEach(n=>n&&n.disconnect());}catch(e){}
     updOsc();
   },(fd+60)*1000);
 }
 function killPool(){
   pool.forEach(n=>{
     try{n.gain.gain.cancelScheduledValues(actx.currentTime); n.gain.gain.setTargetAtTime(0,actx.currentTime,0.12);
-      // esperamos a que la cola del reverb (hasta ~1.7s) también decaiga antes de desconectar — cortarla en seco es lo que sonaba como click/crack
-      setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.cv,n.dry,n.wet,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},2000);
+      setTimeout(()=>{try{n.osc.stop();[n.osc,n.filt,n.gain,n.send,n.pn].forEach(x=>x&&x.disconnect());}catch(e){}},700);
     }catch(e){}
   });
   pool.length=0; updOsc();
